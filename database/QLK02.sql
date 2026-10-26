@@ -1,0 +1,2 @@
+-- UC10 - Nhap kho.
+CREATE DATABASE IF NOT EXISTS QLK02 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

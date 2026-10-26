@@ -1,0 +1,33 @@
+/* Trang đăng nhập */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", Roboto, Arial, sans-serif; color: #1d2939; background: #f2f5fa; }
+.ico { vertical-align: middle; }
+.muted { color: #667085; }
+.login-wrap { min-height: 100vh; display: grid; grid-template-columns: 1.1fr 1fr; }
+.login-hero {
+    background: linear-gradient(160deg, #0a2250 0%, #0e2d63 55%, #1859c4 100%);
+    color: #fff; padding: 64px 56px; display: flex; flex-direction: column; justify-content: center;
+}
+.hero-logo { width: 64px; height: 64px; border-radius: 16px; background: #1f6feb; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }
+.login-hero h1 { font-size: 30px; line-height: 1.25; margin: 0 0 14px; max-width: 460px; }
+.login-hero p { max-width: 460px; color: #cdd9f0; font-size: 15px; line-height: 1.6; margin: 0 0 22px; }
+.login-hero ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.login-hero li { padding-left: 26px; position: relative; color: #e6eeff; }
+.login-hero li::before { content: "✓"; position: absolute; left: 0; color: #7fb2ff; font-weight: 700; }
+.login-panel { display: flex; align-items: center; justify-content: center; padding: 32px; }
+.login-card { width: 100%; max-width: 400px; background: #fff; border: 1px solid #e3e8f0; border-radius: 14px; padding: 32px 30px; box-shadow: 0 10px 30px rgba(16, 24, 40, .08); }
+.login-card h2 { margin: 0 0 4px; font-size: 24px; color: #0e2d63; }
+.login-card .muted { margin: 0 0 20px; }
+.login-card label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 6px; color: #344054; }
+.login-card input { width: 100%; height: 42px; padding: 0 12px; font: inherit; border: 1px solid #cfd6e2; border-radius: 8px; outline: none; }
+.login-card input:focus { border-color: #1f6feb; box-shadow: 0 0 0 3px rgba(31, 111, 235, .15); }
+.login-card button { width: 100%; height: 44px; margin-top: 22px; border: 0; border-radius: 8px; background: #1f6feb; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.login-card button:hover { background: #1859c4; }
+.login-error { background: #fde4e1; color: #8a2218; border: 1px solid #f6c2bc; border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
+.demo-accounts { margin-top: 20px; padding: 12px 14px; background: #f2f5fa; border-radius: 8px; font-size: 12.5px; color: #475467; display: flex; flex-direction: column; gap: 3px; }
+.demo-accounts b { color: #0e2d63; }
+@media (max-width: 860px) {
+    .login-wrap { grid-template-columns: 1fr; }
+    .login-hero { padding: 36px 28px; }
+    .login-hero h1 { font-size: 24px; }
+}

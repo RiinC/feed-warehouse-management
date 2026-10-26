@@ -1,0 +1,2 @@
+-- UC23 - Xuat kho.
+CREATE DATABASE IF NOT EXISTS QLK04 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
