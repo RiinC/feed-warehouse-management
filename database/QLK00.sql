@@ -30,12 +30,17 @@ CREATE TABLE IF NOT EXISTS TaiKhoan (
 INSERT INTO NhanVien (maNV, hoTen, vaiTro, quyenHan, trangThai) VALUES
 ('NV01', 'Nguyễn Văn Quản', 'Quản trị viên', 'UC06,UC10,UC17,UC23,UC24', 'Đang hoạt động'),
 ('NV02', 'Trần Thị Kho', 'Quản lý kho', 'UC06,UC10,UC17,UC23,UC24', 'Đang hoạt động'),
-('NV03', 'Lê Văn Nhân', 'Nhân viên kho', 'UC06,UC10', 'Đang hoạt động')
+('NV03', 'Lê Văn Nhân', 'Nhân viên kho', 'UC06,UC10,UC17', 'Đang hoạt động')
 ON DUPLICATE KEY UPDATE
     hoTen = VALUES(hoTen),
     vaiTro = VALUES(vaiTro),
     quyenHan = VALUES(quyenHan),
     trangThai = VALUES(trangThai);
+
+UPDATE NhanVien
+SET quyenHan = CONCAT_WS(',', NULLIF(quyenHan, ''), 'UC17')
+WHERE vaiTro = 'Nhân viên kho'
+  AND FIND_IN_SET('UC17', COALESCE(quyenHan, '')) = 0;
 
 INSERT INTO TaiKhoan (maTaiKhoan, tenDangNhap, matKhau, trangThai, maNhanVien) VALUES
 ('TK01', 'admin', '$2y$10$MBntRpt6ZvoTfgmtbGWgw.u/utWHXtLx2FdSpJ3fTQWzxPDKRazUy', 'Đang hoạt động', 'NV01'),

@@ -15,7 +15,7 @@
 | --- | --- |
 | Quản trị viên | UC06, UC10, UC17, UC23, UC24 |
 | Quản lý kho | UC06, UC10, UC17, UC23, UC24 |
-| Nhân viên kho | UC06, UC10 |
+| Nhân viên kho | UC06, UC10, UC17 |
 
 Các trang UC hiện là **khung giao diện mẫu**. Nhóm có thể triển khai danh sách, biểu mẫu, truy vấn và xử lý nghiệp vụ trực tiếp trong `index.php` và `form.php` của UC tương ứng.
 
@@ -70,7 +70,8 @@ quanlykho/
 │   └── UC24_kiem_ke/
 ├── nhan-vien-kho/
 │   ├── UC06_tiep_nhan/
-│   └── UC10_nhap_kho/
+│   ├── UC10_nhap_kho/
+│   └── UC17_dieu_chuyen/
 ├── config.php              # Cấu hình ứng dụng và ánh xạ database
 ├── index.php               # Tổng quan sau đăng nhập
 ├── login.php               # Đăng nhập
