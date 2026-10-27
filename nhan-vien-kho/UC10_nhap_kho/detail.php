@@ -1,4 +1,5 @@
 <?php
+
 /** UC10 - Chi tiết phiếu nhập kho, giao diện mẫu 3. */
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../includes/auth.php';
@@ -18,7 +19,9 @@ function uc10_detail_connection(): mysqli
     static $connection = null;
     if ($connection === null) {
         $connection = new mysqli(
-            DB_HOST, DB_USER, DB_PASS,
+            DB_HOST,
+            DB_USER,
+            DB_PASS,
             defined('DB_NAME_UC10') ? DB_NAME_UC10 : 'qlk02'
         );
         $connection->set_charset('utf8mb4');
@@ -136,34 +139,177 @@ include ROOT_PATH . '/includes/header.php';
 include ROOT_PATH . '/includes/toolbar.php';
 ?>
 <style>
-.uc10-detail-wrap{max-width:1050px;margin:0 auto;padding:16px 0 28px}
-.uc10-detail-card{background:#fff;border:1px solid #e2eaf4;border-radius:11px;margin-bottom:20px;overflow:hidden;box-shadow:0 3px 12px rgba(21,52,95,.04)}
-.uc10-detail-title{display:flex;align-items:center;gap:12px;margin:0;padding:17px 22px;font-size:18px;font-weight:700}
-.uc10-detail-title-blue{background:#e4efff;color:#10458d}
-.uc10-detail-title-green{background:#e5f8ed;color:#17683d}
-.uc10-detail-title-icon{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;font-size:19px;color:#fff;background:#2682ef;flex-shrink:0}
-.uc10-detail-title-green .uc10-detail-title-icon{background:#25b966}
-.uc10-detail-content{padding:8px 22px 14px}
-.uc10-detail-item{display:grid;grid-template-columns:minmax(180px,38%) minmax(0,1fr);gap:16px;align-items:center;padding:10px 4px;margin:0;border-bottom:1px solid #edf1f6;min-height:0}
-.uc10-detail-item:last-child{border-bottom:0}
-/* Phần thông tin phiếu gọn hơn, đồng đều với chi tiết lô hàng */
-.uc10-detail-card:first-of-type .uc10-detail-item{padding-top:9px;padding-bottom:9px}
-.uc10-detail-label{display:block;color:#5b6e89;line-height:1.5;margin:0;padding:0}
-.uc10-detail-value{display:block;color:#173963;font-weight:600;overflow-wrap:anywhere;white-space:normal;text-align:left;line-height:1.5;margin:0;padding:0}
-.uc10-detail-status{display:inline-block;padding:4px 11px;border-radius:6px;font-size:13px;font-weight:700}
-.uc10-detail-status-draft{background:#fff0c3;color:#9a6700}
-.uc10-detail-status-done{background:#d9f7e5;color:#146b3c}
-.uc10-detail-status-cancel{background:#ffe2e2;color:#a82d2d}
-.uc10-detail-actions{display:flex;justify-content:flex-end;margin:24px 0 8px}
-.uc10-detail-back{display:inline-flex;align-items:center;gap:8px;border:1px solid #b9d4f6;border-radius:7px;padding:10px 16px;text-decoration:none;color:#1455a0;background:#fff;font-weight:600}
-.uc10-detail-back:hover{background:#eef6ff}
-.uc10-detail-error{padding:16px;border:1px solid #f1b4b4;background:#fff2f2;color:#a12727;border-radius:9px}
-@media(max-width:650px){
- .uc10-detail-wrap{padding:8px 0 22px}
- .uc10-detail-title{padding:14px;font-size:16px}
- .uc10-detail-content{padding:6px 12px 12px}
- .uc10-detail-item{grid-template-columns:minmax(110px,42%) minmax(0,1fr);gap:10px;font-size:13px}
-}
+    .uc10-detail-wrap {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 16px 0 28px
+    }
+
+    .uc10-detail-card {
+        background: #fff;
+        border: 1px solid #e2eaf4;
+        border-radius: 11px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(21, 52, 95, .04)
+    }
+
+    .uc10-detail-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+        padding: 17px 22px;
+        font-size: 18px;
+        font-weight: 700
+    }
+
+    .uc10-detail-title-blue {
+        background: #e4efff;
+        color: #10458d
+    }
+
+    .uc10-detail-title-green {
+        background: #e5f8ed;
+        color: #17683d
+    }
+
+    .uc10-detail-title-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        font-size: 19px;
+        color: #fff;
+        background: #2682ef;
+        flex-shrink: 0
+    }
+
+    .uc10-detail-title-green .uc10-detail-title-icon {
+        background: #25b966
+    }
+
+    .uc10-detail-content {
+        padding: 8px 22px 14px
+    }
+
+    .uc10-detail-item {
+        display: grid;
+        grid-template-columns: minmax(180px, 38%) minmax(0, 1fr);
+        gap: 16px;
+        align-items: center;
+        padding: 10px 4px;
+        margin: 0;
+        border-bottom: 1px solid #edf1f6;
+        min-height: 0
+    }
+
+    .uc10-detail-item:last-child {
+        border-bottom: 0
+    }
+
+    /* Phần thông tin phiếu gọn hơn, đồng đều với chi tiết lô hàng */
+    .uc10-detail-card:first-of-type .uc10-detail-item {
+        padding-top: 9px;
+        padding-bottom: 9px
+    }
+
+    .uc10-detail-label {
+        display: block;
+        color: #5b6e89;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0
+    }
+
+    .uc10-detail-value {
+        display: block;
+        color: #173963;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+        white-space: normal;
+        text-align: left;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0
+    }
+
+    .uc10-detail-status {
+        display: inline-block;
+        padding: 4px 11px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 700
+    }
+
+    .uc10-detail-status-draft {
+        background: #fff0c3;
+        color: #9a6700
+    }
+
+    .uc10-detail-status-done {
+        background: #d9f7e5;
+        color: #146b3c
+    }
+
+    .uc10-detail-status-cancel {
+        background: #ffe2e2;
+        color: #a82d2d
+    }
+
+    .uc10-detail-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin: 24px 0 8px
+    }
+
+    .uc10-detail-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #b9d4f6;
+        border-radius: 7px;
+        padding: 10px 16px;
+        text-decoration: none;
+        color: #1455a0;
+        background: #fff;
+        font-weight: 600
+    }
+
+    .uc10-detail-back:hover {
+        background: #eef6ff
+    }
+
+    .uc10-detail-error {
+        padding: 16px;
+        border: 1px solid #f1b4b4;
+        background: #fff2f2;
+        color: #a12727;
+        border-radius: 9px
+    }
+
+    @media(max-width:650px) {
+        .uc10-detail-wrap {
+            padding: 8px 0 22px
+        }
+
+        .uc10-detail-title {
+            padding: 14px;
+            font-size: 16px
+        }
+
+        .uc10-detail-content {
+            padding: 6px 12px 12px
+        }
+
+        .uc10-detail-item {
+            grid-template-columns: minmax(110px, 42%) minmax(0, 1fr);
+            gap: 10px;
+            font-size: 13px
+        }
+    }
 </style>
 
 <div class="uc10-detail-wrap">
@@ -182,7 +328,6 @@ include ROOT_PATH . '/includes/toolbar.php';
                     'Ngày lập phiếu' => uc10_detail_date($receipt['ngayLapPhieu']),
                     'Thời gian lập' => uc10_detail_date($receipt['thoiGianLap'], true),
                     'Trạng thái phiếu' => $receipt['trangThai'],
-                    'Mã nhân viên' => $receipt['maNhanVien'],
                     'Người lập' => $employeeName ?: $receipt['maNhanVien'],
                     'Mã kho' => $receipt['maKho'],
                     'Kho nhập' => $receipt['tenKho'] ?: $receipt['maKho'],
@@ -192,9 +337,9 @@ include ROOT_PATH . '/includes/toolbar.php';
                     <div class="uc10-detail-item">
                         <span class="uc10-detail-label"><?= uc10_detail_escape($label) ?></span>
                         <span class="uc10-detail-value"><?php if ($label === 'Trạng thái phiếu'):
-                                $statusClass = $value === 'Đã nhập kho' ? 'uc10-detail-status-done'
-                                    : ($value === 'Đã hủy' ? 'uc10-detail-status-cancel' : 'uc10-detail-status-draft');
-                            ?><span class="uc10-detail-status <?= $statusClass ?>"><?= uc10_detail_show($value) ?></span><?php else: ?><?= uc10_detail_show($value) ?><?php endif; ?></span>
+                                                            $statusClass = $value === 'Đã nhập kho' ? 'uc10-detail-status-done'
+                                                                : ($value === 'Đã hủy' ? 'uc10-detail-status-cancel' : 'uc10-detail-status-draft');
+                                                        ?><span class="uc10-detail-status <?= $statusClass ?>"><?= uc10_detail_show($value) ?></span><?php else: ?><?= uc10_detail_show($value) ?><?php endif; ?></span>
                     </div>
                 <?php endforeach; ?>
             </div>

@@ -30,7 +30,8 @@ $form = [
 
 ];
 
-function uc10_rows(mysqli $conn, string $sql, string $types = '', array $values = []): array {
+function uc10_rows(mysqli $conn, string $sql, string $types = '', array $values = []): array
+{
 
     $stmt = $conn->prepare($sql);
 
@@ -43,13 +44,12 @@ function uc10_rows(mysqli $conn, string $sql, string $types = '', array $values 
     $stmt->close();
 
     return $result;
-
 }
 
-function uc10_one(mysqli $conn, string $sql, string $types = '', array $values = []): ?array {
+function uc10_one(mysqli $conn, string $sql, string $types = '', array $values = []): ?array
+{
 
     return uc10_rows($conn, $sql, $types, $values)[0] ?? null;
-
 }
 
 function uc10_amount(string $input): ?float
@@ -70,14 +70,14 @@ function uc10_amount(string $input): ?float
     return $number;
 }
 
-function uc10_session_values(): array {
+function uc10_session_values(): array
+{
 
     $items = [$_SESSION];
 
     foreach (['user', 'nguoi_dung', 'nhanvien', 'nhan_vien', 'account', 'taiKhoan', 'taikhoan', 'auth'] as $key) {
 
         if (isset($_SESSION[$key]) && is_array($_SESSION[$key])) $items[] = $_SESSION[$key];
-
     }
 
     $result = [];
@@ -87,18 +87,16 @@ function uc10_session_values(): array {
         foreach ($item as $key => $value) {
 
             if (is_scalar($value) && trim((string)$value) !== '') $result[$key][] = trim((string)$value);
-
         }
-
     }
 
     return $result;
-
 }
 
 /** Only trust an employee ID or a uniquely matched full name in the authenticated session. */
 
-function uc10_employee(mysqli $conn): ?array {
+function uc10_employee(mysqli $conn): ?array
+{
 
     $session = uc10_session_values();
 
@@ -109,9 +107,7 @@ function uc10_employee(mysqli $conn): ?array {
             $person = uc10_one($conn, 'SELECT maNV, hoTen, trangThai FROM QLK00.nhanvien WHERE CONVERT(maNV USING utf8mb4) COLLATE utf8mb4_unicode_ci = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci LIMIT 1', 's', [$value]);
 
             if ($person) return $person;
-
         }
-
     }
 
     // Some login systems store the employee code as the username.
@@ -123,9 +119,7 @@ function uc10_employee(mysqli $conn): ?array {
             $person = uc10_one($conn, 'SELECT maNV, hoTen, trangThai FROM QLK00.nhanvien WHERE CONVERT(maNV USING utf8mb4) COLLATE utf8mb4_unicode_ci = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci LIMIT 1', 's', [$value]);
 
             if ($person) return $person;
-
         }
-
     }
 
     // Match session display name only if exactly one employee has this name.
@@ -137,20 +131,25 @@ function uc10_employee(mysqli $conn): ?array {
             $people = uc10_rows($conn, 'SELECT maNV, hoTen, trangThai FROM QLK00.nhanvien WHERE CONVERT(hoTen USING utf8mb4) COLLATE utf8mb4_unicode_ci = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci LIMIT 2', 's', [$value]);
 
             if (count($people) === 1) return $people[0];
-
         }
-
     }
 
     // Resolve via QLK00.taikhoan only when its column names establish an explicit link.
 
-    try { $columns = uc10_rows($conn, 'SHOW COLUMNS FROM QLK00.taikhoan'); } catch (Throwable $ignored) { return null; }
+    try {
+        $columns = uc10_rows($conn, 'SHOW COLUMNS FROM QLK00.taikhoan');
+    } catch (Throwable $ignored) {
+        return null;
+    }
 
     $colNames = array_column($columns, 'Field');
 
     $linkCol = null;
 
-    foreach (['maNV', 'maNhanVien', 'ma_nv'] as $candidate) if (in_array($candidate, $colNames, true)) { $linkCol = $candidate; break; }
+    foreach (['maNV', 'maNhanVien', 'ma_nv'] as $candidate) if (in_array($candidate, $colNames, true)) {
+        $linkCol = $candidate;
+        break;
+    }
 
     if ($linkCol !== null) {
 
@@ -163,7 +162,6 @@ function uc10_employee(mysqli $conn): ?array {
             foreach ([$candidate, 'username', 'tenDangNhap', 'ten_dang_nhap', 'email'] as $key) {
 
                 foreach ($session[$key] ?? [] as $value) $values[$value] = true;
-
             }
 
             foreach (array_keys($values) as $value) {
@@ -173,18 +171,15 @@ function uc10_employee(mysqli $conn): ?array {
                 $person = uc10_one($conn, $sql, 's', [$value]);
 
                 if ($person) return $person;
-
             }
-
         }
-
     }
 
     return null;
-
 }
 
-function uc10_next_code(mysqli $conn): string {
+function uc10_next_code(mysqli $conn): string
+{
 
     $year = date('Y');
 
@@ -193,7 +188,6 @@ function uc10_next_code(mysqli $conn): string {
     $row = uc10_one($conn, 'SELECT COALESCE(MAX(CAST(SUBSTRING(maPhieuNhapKho, 8) AS UNSIGNED)), 0) AS maxNumber FROM PhieuNhapKho WHERE maPhieuNhapKho REGEXP ?', 's', [$pattern]);
 
     return 'PN' . $year . '-' . str_pad((string)((int)($row['maxNumber'] ?? 0) + 1), 4, '0', STR_PAD_LEFT);
-
 }
 
 $employee = null;
@@ -206,7 +200,12 @@ $previewCode = '';
 
 try {
 
-    try { $employee = uc10_employee($conn); } catch (Throwable $employeeEx) { error_log('UC10 employee lookup: ' . $employeeEx->getMessage()); $errors[] = 'Không đọc được thông tin nhân viên: ' . $employeeEx->getMessage(); }
+    try {
+        $employee = uc10_employee($conn);
+    } catch (Throwable $employeeEx) {
+        error_log('UC10 employee lookup: ' . $employeeEx->getMessage());
+        $errors[] = 'Không đọc được thông tin nhân viên: ' . $employeeEx->getMessage();
+    }
 
     $previewCode = uc10_next_code($conn);
 
@@ -223,13 +222,11 @@ try {
           AND NOT EXISTS (SELECT 1 FROM PhieuNhapKho pn WHERE pn.maLoHang = lh.maLoHang)
 
         ORDER BY lh.maLoHang DESC");
-
 } catch (Throwable $ex) {
 
     error_log('UC10 form load: ' . $ex->getMessage());
 
     $errors[] = 'Không tải được dữ liệu. Hãy kiểm tra cột LoHang.soLuongTiepNhan và các bảng QLK00, QLK02. Chi tiết: ' . $ex->getMessage();
-
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
@@ -257,27 +254,21 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if ($selectedLot === null) {
 
                 $errors[] = 'Không tìm thấy lô hàng đã chọn.';
-
             } elseif (!array_key_exists('soLuongTiepNhan', $selectedLot)) {
 
                 $errors[] = 'Không đọc được số lượng tiếp nhận của lô hàng.';
-
             } elseif ($qty > (float)$selectedLot['soLuongTiepNhan']) {
 
                 $errors[] = 'Số lượng thực nhập không được lớn hơn số lượng tiếp nhận ('
 
                     . number_format((float)$selectedLot['soLuongTiepNhan'], 2, ',', '.') . ').';
-
             }
-
         } catch (Throwable $ex) {
 
             error_log('UC10 received quantity lookup: ' . $ex->getMessage());
 
             $errors[] = 'Không kiểm tra được số lượng tiếp nhận. Vui lòng kiểm tra bảng LoHang.';
-
         }
-
     }
 
     if ($form['maLoHang'] === '') $errors[] = 'Vui lòng chọn lô hàng.';
@@ -346,30 +337,36 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
             $stmt->bind_param('ssdssssss', $maPhieu, $now, $qty, $lot['donViTinh'], $now, $note, $form['maLoHang'], $form['maKho'], $employee['maNV']);
 
-            $stmt->execute(); $stmt->close();
+            $stmt->execute();
+            $stmt->close();
 
-            $conn->commit(); $transactionStarted = false;
+            $conn->commit();
+            $transactionStarted = false;
 
-            if ($lockHeld) { uc10_one($conn, 'SELECT RELEASE_LOCK(?) AS released', 's', [$lockName]); $lockHeld = false; }
+            if ($lockHeld) {
+                uc10_one($conn, 'SELECT RELEASE_LOCK(?) AS released', 's', [$lockName]);
+                $lockHeld = false;
+            }
 
             header('Location: index.php?created=' . rawurlencode($maPhieu));
 
             exit;
-
         } catch (Throwable $ex) {
 
             if ($transactionStarted) $conn->rollback();
 
-            if ($lockHeld) { try { uc10_one($conn, 'SELECT RELEASE_LOCK(?) AS released', 's', [$lockName]); } catch (Throwable $ignored) {} }
+            if ($lockHeld) {
+                try {
+                    uc10_one($conn, 'SELECT RELEASE_LOCK(?) AS released', 's', [$lockName]);
+                } catch (Throwable $ignored) {
+                }
+            }
 
             error_log('UC10 create: ' . $ex->getMessage());
 
             $errors[] = 'Không lập được phiếu: ' . $ex->getMessage();
-
         }
-
     }
-
 }
 
 $lotMap = [];
@@ -387,139 +384,261 @@ include ROOT_PATH . '/includes/toolbar.php';
 ?>
 
 <style>
+    .uc10-form-grid {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) minmax(400px, 1.3fr);
+        gap: 20px;
+        align-items: start
+    }
 
-.uc10-form-grid{display:grid;grid-template-columns:minmax(280px,1fr) minmax(400px,1.3fr);gap:20px;align-items:start}
+    .uc10-form-card {
+        padding: 24px
+    }
 
-.uc10-form-card{padding:24px}.uc10-form-card h2{margin:0 0 20px;color:#123466;font-size:18px}
+    .uc10-form-card h2 {
+        margin: 0 0 20px;
+        color: #123466;
+        font-size: 18px
+    }
 
-.uc10-field{margin-bottom:17px}.uc10-field label{display:block;margin-bottom:7px;font-weight:600;color:#243b60}
+    .uc10-field {
+        margin-bottom: 17px
+    }
 
-.uc10-input{box-sizing:border-box;width:100%;padding:10px 12px;min-height:44px;border:1px solid #d0daea;border-radius:8px;font:inherit;background:#fff}
+    .uc10-field label {
+        display: block;
+        margin-bottom: 7px;
+        font-weight: 600;
+        color: #243b60
+    }
 
-.uc10-input[readonly]{background:#f2f5fa}.uc10-help{font-size:13px;color:#64748b;margin-top:6px}
+    .uc10-input {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 10px 12px;
+        min-height: 44px;
+        border: 1px solid #d0daea;
+        border-radius: 8px;
+        font: inherit;
+        background: #fff
+    }
 
-.uc10-details{width:100%;border-collapse:collapse}.uc10-details td{padding:11px;border-bottom:1px solid #e4eaf2}.uc10-details td:first-child{color:#64748b;width:43%}
+    .uc10-input[readonly] {
+        background: #f2f5fa
+    }
 
-.uc10-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}.uc10-error{padding:14px 18px;margin-bottom:18px;background:#fff1f1;border:1px solid #f0b0b0;border-radius:9px;color:#a12727}
+    .uc10-help {
+        font-size: 13px;
+        color: #64748b;
+        margin-top: 6px
+    }
 
-@media(max-width:1000px){.uc10-form-grid{grid-template-columns:1fr}}@media(max-width:600px){.uc10-form-card{padding:16px}}
+    .uc10-details {
+        width: 100%;
+        border-collapse: collapse
+    }
 
+    .uc10-details td {
+        padding: 11px;
+        border-bottom: 1px solid #e4eaf2
+    }
+
+    .uc10-details td:first-child {
+        color: #64748b;
+        width: 43%
+    }
+
+    .uc10-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px
+    }
+
+    .uc10-error {
+        padding: 14px 18px;
+        margin-bottom: 18px;
+        background: #fff1f1;
+        border: 1px solid #f0b0b0;
+        border-radius: 9px;
+        color: #a12727
+    }
+
+    @media(max-width:1000px) {
+        .uc10-form-grid {
+            grid-template-columns: 1fr
+        }
+    }
+
+    @media(max-width:600px) {
+        .uc10-form-card {
+            padding: 16px
+        }
+    }
 </style>
 
-<?php if ($errors): ?><div class="uc10-error"><strong>Không thể lập phiếu:</strong><ul><?php foreach ($errors as $message): ?><li><?= e($message) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
+<?php if ($errors): ?><div class="uc10-error"><strong>Không thể lập phiếu:</strong>
+        <ul><?php foreach ($errors as $message): ?><li><?= e($message) ?></li><?php endforeach; ?></ul>
+    </div><?php endif; ?>
 
 <form method="post" action="" id="uc10-form" class="uc10-form-grid">
 
-  <div class="card uc10-form-card">
+    <div class="card uc10-form-card">
 
-    <h2>Thông tin phiếu nhập</h2>
+        <h2>Thông tin phiếu nhập</h2>
 
-    <div class="uc10-field"><label>Số phiếu nhập</label><input class="uc10-input" readonly value="<?= e($previewCode) ?>"><div class="uc10-help"></div></div>
+        <div class="uc10-field"><label>Số phiếu nhập</label><input class="uc10-input" readonly value="<?= e($previewCode) ?>">
+            <div class="uc10-help"></div>
+        </div>
 
-    <div class="uc10-field"><label>Ngày lập</label><input class="uc10-input" readonly value="<?= e(date('d/m/Y H:i')) ?>"></div>
+        <div class="uc10-field"><label>Ngày lập</label><input class="uc10-input" readonly value="<?= e(date('d/m/Y H:i')) ?>"></div>
 
-    <div class="uc10-field"><label for="uc10-kho">Kho nhập *</label><select class="uc10-input" id="uc10-kho" name="maKho" required><option value="">-- Chọn kho nhập --</option><?php foreach ($warehouses as $k): ?><option value="<?= e($k['maKho']) ?>" <?= $form['maKho'] === $k['maKho'] ? 'selected' : '' ?>><?= e($k['maKho'] . ' - ' . $k['tenKho']) ?></option><?php endforeach; ?></select></div>
+        <div class="uc10-field"><label for="uc10-kho">Kho nhập *</label><select class="uc10-input" id="uc10-kho" name="maKho" required>
+                <option value="">-- Chọn kho nhập --</option><?php foreach ($warehouses as $k): ?><option value="<?= e($k['maKho']) ?>" <?= $form['maKho'] === $k['maKho'] ? 'selected' : '' ?>><?= e($k['maKho'] . ' - ' . $k['tenKho']) ?></option><?php endforeach; ?>
+            </select></div>
 
-    <div class="uc10-field"><label>Người lập</label><input class="uc10-input" readonly value="<?= e($employee ? $employee['hoTen'] : 'Chưa xác định từ phiên đăng nhập') ?>"></div>
+        <div class="uc10-field"><label>Người lập</label><input class="uc10-input" readonly value="<?= e($employee ? $employee['hoTen'] : 'Chưa xác định từ phiên đăng nhập') ?>"></div>
 
-    <div class="uc10-field"><label for="uc10-doc">Chứng từ liên quan *</label><input class="uc10-input" id="uc10-doc" name="chungTuLienQuan" maxlength="200" required placeholder="VD: TN2026-0004" value="<?= e($form['chungTuLienQuan']) ?>"><div class="uc10-help"></div></div>
+        <div class="uc10-field"><label for="uc10-doc">Chứng từ liên quan *</label><input class="uc10-input" id="uc10-doc" name="chungTuLienQuan" maxlength="200" required placeholder="VD: TN2026-0004" value="<?= e($form['chungTuLienQuan']) ?>">
+            <div class="uc10-help"></div>
+        </div>
 
-    <div class="uc10-field"><label for="uc10-note">Ghi chú</label><textarea class="uc10-input" id="uc10-note" name="ghiChu" maxlength="250" rows="3"><?= e($form['ghiChu']) ?></textarea></div>
+        <div class="uc10-field"><label for="uc10-note">Ghi chú</label><textarea class="uc10-input" id="uc10-note" name="ghiChu" maxlength="250" rows="3"><?= e($form['ghiChu']) ?></textarea></div>
 
-  </div>
+    </div>
 
-  <div class="card uc10-form-card">
+    <div class="card uc10-form-card">
 
-    <h2>Chi tiết lô hàng</h2>
+        <h2>Chi tiết lô hàng</h2>
 
-    <div class="uc10-field"><label for="uc10-lot"></label><select class="uc10-input" id="uc10-lot" name="maLoHang" required><option value="">-- Chọn lô hàng --</option><?php foreach ($lots as $lot): ?><option value="<?= e($lot['maLoHang']) ?>" <?= $form['maLoHang'] === $lot['maLoHang'] ? 'selected' : '' ?>><?= e($lot['maLoHang'] . ' - ' . $lot['tenHangHoa']) ?></option><?php endforeach; ?></select><div class="uc10-help">Chỉ hiện lô có biên bản kiểm định Đạt đã xác nhận và chưa có phiếu nhập.</div></div>
+        <div class="uc10-field"><label for="uc10-lot"></label><select class="uc10-input" id="uc10-lot" name="maLoHang" required>
+                <option value="">-- Chọn lô hàng --</option><?php foreach ($lots as $lot): ?><option value="<?= e($lot['maLoHang']) ?>" <?= $form['maLoHang'] === $lot['maLoHang'] ? 'selected' : '' ?>><?= e($lot['maLoHang'] . ' - ' . $lot['tenHangHoa']) ?></option><?php endforeach; ?>
+            </select>
+            <div class="uc10-help">Chỉ hiện lô có biên bản kiểm định Đạt đã xác nhận và chưa có phiếu nhập.</div>
+        </div>
 
-    <table class="uc10-details"><tbody>
+        <table class="uc10-details">
+            <tbody>
 
-      <tr><td>Mã lô</td><td id="lot-code">—</td></tr>
+                <tr>
+                    <td>Mã lô</td>
+                    <td id="lot-code">—</td>
+                </tr>
 
-      <tr><td>Số lô sản xuất</td><td id="lot-batch">—</td></tr>
+                <tr>
+                    <td>Số lô sản xuất</td>
+                    <td id="lot-batch">—</td>
+                </tr>
 
-      <tr><td>Tên hàng hóa</td><td id="lot-name">—</td></tr>
+                <tr>
+                    <td>Tên hàng hóa</td>
+                    <td id="lot-name">—</td>
+                </tr>
 
-      <tr><td>Số lượng tiếp nhận</td><td id="lot-received">—</td></tr>
+                <tr>
+                    <td>Số lượng tiếp nhận</td>
+                    <td id="lot-received">—</td>
+                </tr>
 
-      <tr><td>Đơn vị tính</td><td id="lot-unit">—</td></tr>
+                <tr>
+                    <td>Đơn vị tính</td>
+                    <td id="lot-unit">—</td>
+                </tr>
 
-      <tr><td>Ngày sản xuất</td><td id="lot-made">—</td></tr>
+                <tr>
+                    <td>Ngày sản xuất</td>
+                    <td id="lot-made">—</td>
+                </tr>
 
-      <tr><td>Hạn sử dụng</td><td id="lot-expiry">—</td></tr>
+                <tr>
+                    <td>Hạn sử dụng</td>
+                    <td id="lot-expiry">—</td>
+                </tr>
 
-      <tr><td>Tình trạng</td><td id="lot-condition">—</td></tr>
+                <tr>
+                    <td>Tình trạng</td>
+                    <td id="lot-condition">—</td>
+                </tr>
 
-    </tbody></table>
+            </tbody>
+        </table>
 
-    <div class="uc10-field" style="margin-top:22px"><label for="uc10-qty">Số lượng thực nhập *</label><input class="uc10-input" type="number" min="0.01" step="0.01" id="uc10-qty" name="soLuongThucNhap" value="<?= e($form['soLuongThucNhap']) ?>" required placeholder="Nhập số lượng thực nhập"></div>
+        <div class="uc10-field" style="margin-top:22px"><label for="uc10-qty">Số lượng thực nhập *</label><input class="uc10-input" type="number" min="0.01" step="0.01" id="uc10-qty" name="soLuongThucNhap" value="<?= e($form['soLuongThucNhap']) ?>" required placeholder="Nhập số lượng thực nhập"></div>
 
-    <?php if (!$lots): ?><div class="uc10-error">Chưa có lô đủ điều kiện. Cần biên bản UC09 “Đạt”, “Đã xác nhận” và lô chưa có phiếu nhập.</div><?php endif; ?>
+        <?php if (!$lots): ?><div class="uc10-error">Chưa có lô đủ điều kiện. Cần biên bản UC09 “Đạt”, “Đã xác nhận” và lô chưa có phiếu nhập.</div><?php endif; ?>
 
-    <?php if (!$employee): ?><div class="uc10-error">Chưa tìm được nhân viên tương ứng với phiên đăng nhập. Hãy đối chiếu session trong includes/auth.php và liên kết trong QLK00.taikhoan.</div><?php endif; ?>
+        <?php if (!$employee): ?><div class="uc10-error">Chưa tìm được nhân viên tương ứng với phiên đăng nhập. Hãy đối chiếu session trong includes/auth.php và liên kết trong QLK00.taikhoan.</div><?php endif; ?>
 
-    <div class="uc10-actions"><a class="btn btn-ghost" href="index.php">Quay lại</a><button type="submit" class="btn btn-primary" <?= (!$lots || !$employee || $employee['trangThai'] !== 'Đang hoạt động') ? 'disabled' : '' ?>><?= icon('check', 16) ?> Lập phiếu nhập</button></div>
+        <div class="uc10-actions"><a class="btn btn-ghost" href="index.php">Quay lại</a><button type="submit" class="btn btn-primary" <?= (!$lots || !$employee || $employee['trangThai'] !== 'Đang hoạt động') ? 'disabled' : '' ?>><?= icon('check', 16) ?> Lập phiếu nhập</button></div>
 
-  </div>
+    </div>
 
 </form>
 
 <script>
+    (function() {
 
-(function(){
+        const lots = <?= json_encode($lotMap, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
- const lots = <?= json_encode($lotMap, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const select = document.getElementById('uc10-lot');
 
- const select = document.getElementById('uc10-lot');
+        const qtyInput = document.getElementById('uc10-qty');
 
- const qtyInput = document.getElementById('uc10-qty');
+        function validateQty() {
 
- function validateQty(){
+            const lot = lots[select.value];
 
-   const lot = lots[select.value];
+            qtyInput.setCustomValidity('');
 
-   qtyInput.setCustomValidity('');
+            if (lot && qtyInput.value !== '' && Number(qtyInput.value) > Number(lot.soLuongTiepNhan)) {
 
-   if (lot && qtyInput.value !== '' && Number(qtyInput.value) > Number(lot.soLuongTiepNhan)) {
+                qtyInput.setCustomValidity('Số lượng thực nhập không được lớn hơn số lượng tiếp nhận (' + Number(lot.soLuongTiepNhan).toLocaleString('vi-VN') + ' ' + lot.donViTinh + ').');
 
-     qtyInput.setCustomValidity('Số lượng thực nhập không được lớn hơn số lượng tiếp nhận (' + Number(lot.soLuongTiepNhan).toLocaleString('vi-VN') + ' ' + lot.donViTinh + ').');
+            }
 
-   }
+        }
 
- }
+        const ids = {
+            maLoHang: 'lot-code',
+            soLo: 'lot-batch',
+            tenHangHoa: 'lot-name',
+            donViTinh: 'lot-unit',
+            ngaySanXuat: 'lot-made',
+            hanSuDung: 'lot-expiry',
+            tinhTrang: 'lot-condition'
+        };
 
- const ids = {maLoHang:'lot-code',soLo:'lot-batch',tenHangHoa:'lot-name',donViTinh:'lot-unit',ngaySanXuat:'lot-made',hanSuDung:'lot-expiry',tinhTrang:'lot-condition'};
+        function refresh() {
 
- function refresh(){
+            const lot = lots[select.value];
 
-   const lot = lots[select.value];
+            for (const [field, id] of Object.entries(ids)) document.getElementById(id).textContent = lot && lot[field] != null ? lot[field] : '—';
 
-   for(const [field,id] of Object.entries(ids)) document.getElementById(id).textContent = lot && lot[field] != null ? lot[field] : '—';
+            document.getElementById('lot-received').textContent = lot ? Number(lot.soLuongTiepNhan).toLocaleString('vi-VN', {
+                maximumFractionDigits: 2
+            }) + ' ' + lot.donViTinh : '—';
 
-   document.getElementById('lot-received').textContent = lot ? Number(lot.soLuongTiepNhan).toLocaleString('vi-VN', {maximumFractionDigits:2}) + ' ' + lot.donViTinh : '—';
+            document.getElementById('lot-quality')?.replaceChildren(document.createTextNode(lot ? 'Đạt (đã xác nhận)' : '—'));
 
-   document.getElementById('lot-quality')?.replaceChildren(document.createTextNode(lot ? 'Đạt (đã xác nhận)' : '—'));
+            if (lot) qtyInput.max = String(lot.soLuongTiepNhan);
 
-   if (lot) qtyInput.max = String(lot.soLuongTiepNhan);
+            else qtyInput.removeAttribute('max');
 
-   else qtyInput.removeAttribute('max');
+            validateQty();
 
-   validateQty();
+        }
 
- }
+        select.addEventListener('change', refresh);
 
- select.addEventListener('change', refresh);
+        qtyInput.addEventListener('input', validateQty);
 
- qtyInput.addEventListener('input', validateQty);
+        refresh();
 
- refresh();
+        document.getElementById('uc10-form').addEventListener('submit', function(event) {
+            if (!confirm('Xác nhận lập phiếu nhập kho?')) event.preventDefault();
+        });
 
- document.getElementById('uc10-form').addEventListener('submit', function(event){ if(!confirm('Xác nhận lập phiếu nhập kho?')) event.preventDefault(); });
-
-})();
-
+    })();
 </script>
 
 <?php

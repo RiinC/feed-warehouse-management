@@ -1,5 +1,5 @@
-
 <?php
+
 /**
  * UC10 - Danh sách phiếu nhập kho
  * Database: QLK02
@@ -47,14 +47,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cance
                 $cancelConn = db_uc10();
             } else {
                 $cancelConn = new mysqli(
-                    DB_HOST, DB_USER, DB_PASS,
+                    DB_HOST,
+                    DB_USER,
+                    DB_PASS,
                     defined('DB_NAME_UC10') ? DB_NAME_UC10 : 'qlk02'
                 );
                 $cancelConn->set_charset('utf8mb4');
             }
             $stmt = $cancelConn->prepare(
                 "UPDATE PhieuNhapKho SET trangThai = 'Đã hủy' " .
-                "WHERE maPhieuNhapKho = ? AND trangThai = 'Đã lập'"
+                    "WHERE maPhieuNhapKho = ? AND trangThai = 'Đã lập'"
             );
             $stmt->bind_param('s', $receiptCode);
             $stmt->execute();
@@ -257,7 +259,6 @@ try {
         array_merge($params, [$perPage, $offset]),
         DB_UC10
     );
-
 } catch (Throwable $ex) {
 
     error_log('UC10 index: ' . $ex->getMessage());
@@ -292,248 +293,289 @@ include ROOT_PATH . '/includes/toolbar.php';
 <!-- Flatpickr: lịch hiển thị dd/mm/yyyy -->
 <link
     rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
->
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <style>
-.uc10-filter-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.uc10-filter-grid label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #213653;
-}
-
-.uc10-filter-grid input,
-.uc10-filter-grid select {
-    box-sizing: border-box;
-    width: 100%;
-    height: 44px;
-    border: 1px solid #d4ddeb;
-    border-radius: 9px;
-    background: #fff;
-    padding: 0 12px;
-    color: #213653;
-    font: inherit;
-}
-
-.uc10-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-top: 18px;
-}
-
-.uc10-card {
-    padding: 24px;
-    margin-bottom: 22px;
-}
-
-.uc10-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-}
-
-.uc10-card-header h2 {
-    font-size: 18px;
-    margin: 0;
-    color: #0e3064;
-}
-
-.uc10-muted {
-    color: #687994;
-    font-size: 14px;
-}
-
-.uc10-table-wrap {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.uc10-table {
-    width: 100%;
-    border-collapse: collapse;
-    white-space: nowrap;
-    font-size: 14px;
-}
-
-.uc10-table th {
-    background: #f4f7fb;
-    color: #263c5c;
-    text-align: left;
-    font-weight: 600;
-    padding: 15px 12px;
-}
-
-.uc10-table td {
-    padding: 15px 12px;
-    border-bottom: 1px solid #e4eaf2;
-}
-
-.uc10-table tbody tr:nth-child(even) {
-    background: #f8faff;
-}
-
-.uc10-table a {
-    color: #1667d9;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.uc10-table a:hover {
-    text-decoration: underline;
-}
-
-/* Trạng thái */
-.uc10-status {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.uc10-status-done {
-    background: #dff5e8;
-    color: #167044;
-}
-
-.uc10-status-draft {
-    background: #fff0c6;
-    color: #936200;
-}
-
-.uc10-status-cancel {
-    background: #ffe4e4;
-    color: #ad3434;
-}
-
-/* Phân trang */
-.uc10-pagination-bar {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 16px;
-    margin-top: 22px;
-    padding-top: 16px;
-    border-top: 1px solid #e4eaf2;
-}
-
-.uc10-pagination-total {
-    font-size: 13px;
-    color: #64748b;
-}
-
-.uc10-pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.uc10-page-btn {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 32px;
-    height: 32px;
-    padding: 0 8px;
-    border: 1px solid #dce5f2;
-    border-radius: 5px;
-    background: #fff;
-    color: #37608c;
-    text-decoration: none;
-    font-size: 13px;
-    box-sizing: border-box;
-}
-
-.uc10-page-btn:hover {
-    background: #edf4ff;
-}
-
-.uc10-page-btn.active {
-    background: #1670e8;
-    color: #fff;
-    border-color: #1670e8;
-    font-weight: 600;
-}
-
-.uc10-page-btn.disabled {
-    opacity: 0.4;
-    pointer-events: none;
-}
-
-.uc10-pagination-size {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-.uc10-pagination-size select {
-    height: 32px;
-    padding: 0 8px;
-    border: 1px solid #dce5f2;
-    border-radius: 5px;
-    background: #fff;
-    color: #37608c;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.uc10-row-actions { display:flex; align-items:center; gap:12px; }
-.uc10-cancel-form { display:inline; margin:0; }
-.uc10-cancel-btn { border:0; background:transparent; color:#c0392b; cursor:pointer; padding:3px 5px; font:inherit; font-weight:600; }
-.uc10-cancel-btn:hover { color:#922b21; text-decoration:underline; }
-.uc10-success { padding:14px 16px; margin-bottom:18px; border:1px solid #a7dec0; border-radius:9px; background:#e9f8f0; color:#176b3f; }
-
-.uc10-error {
-    padding: 16px;
-    border: 1px solid #e9a8a8;
-    border-radius: 9px;
-    background: #fff1f1;
-    color: #9c2424;
-    margin-bottom: 20px;
-}
-
-/* Flatpickr */
-.flatpickr-input[readonly] {
-    cursor: pointer;
-}
-
-@media (max-width: 1250px) {
     .uc10-filter-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 16px;
     }
-}
 
-@media (max-width: 760px) {
-    .uc10-filter-grid {
-        grid-template-columns: 1fr;
+    .uc10-filter-grid label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #213653;
+    }
+
+    .uc10-filter-grid input,
+    .uc10-filter-grid select {
+        box-sizing: border-box;
+        width: 100%;
+        height: 44px;
+        border: 1px solid #d4ddeb;
+        border-radius: 9px;
+        background: #fff;
+        padding: 0 12px;
+        color: #213653;
+        font: inherit;
+    }
+
+    .uc10-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 18px;
     }
 
     .uc10-card {
-        padding: 16px;
+        padding: 24px;
+        margin-bottom: 22px;
     }
 
     .uc10-card-header {
-        align-items: flex-start;
-        flex-direction: column;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
     }
 
-    .uc10-pagination-bar {
-        grid-template-columns: 1fr;
-        justify-items: center;
+    .uc10-card-header h2 {
+        font-size: 18px;
+        margin: 0;
+        color: #0e3064;
     }
-}
+
+    .uc10-muted {
+        color: #687994;
+        font-size: 14px;
+    }
+
+    .uc10-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .uc10-table {
+        width: 100%;
+        border-collapse: collapse;
+        white-space: nowrap;
+        font-size: 14px;
+    }
+
+    .uc10-table th {
+        background: #f4f7fb;
+        color: #263c5c;
+        text-align: left;
+        font-weight: 600;
+        padding: 15px 12px;
+    }
+
+    .uc10-table td {
+        padding: 15px 12px;
+        border-bottom: 1px solid #e4eaf2;
+    }
+
+    .uc10-table tbody tr:nth-child(even) {
+        background: #f8faff;
+    }
+
+    .uc10-table a {
+        color: #1667d9;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .uc10-table a:hover {
+        text-decoration: underline;
+    }
+
+    /* Trạng thái */
+    .uc10-status {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .uc10-status-done {
+        background: #dff5e8;
+        color: #167044;
+    }
+
+    .uc10-status-draft {
+        background: #fff0c6;
+        color: #936200;
+    }
+
+    .uc10-status-cancel {
+        background: #ffe4e4;
+        color: #ad3434;
+    }
+
+    /* Phân trang */
+    .uc10-pagination-bar {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 16px;
+        margin-top: 22px;
+        padding-top: 16px;
+        border-top: 1px solid #e4eaf2;
+    }
+
+    .uc10-pagination-total {
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .uc10-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .uc10-page-btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        border: 1px solid #dce5f2;
+        border-radius: 5px;
+        background: #fff;
+        color: #37608c;
+        text-decoration: none;
+        font-size: 13px;
+        box-sizing: border-box;
+    }
+
+    .uc10-page-btn:hover {
+        background: #edf4ff;
+    }
+
+    .uc10-page-btn.active {
+        background: #1670e8;
+        color: #fff;
+        border-color: #1670e8;
+        font-weight: 600;
+    }
+
+    .uc10-page-btn.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    .uc10-pagination-size {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .uc10-pagination-size select {
+        height: 32px;
+        padding: 0 8px;
+        border: 1px solid #dce5f2;
+        border-radius: 5px;
+        background: #fff;
+        color: #37608c;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .uc10-row-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .uc10-cancel-form {
+        display: inline;
+        margin: 0;
+    }
+
+    .uc10-cancel-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .uc10-cancel-btn svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        flex-shrink: 0;
+    }
+
+    .uc10-cancel-btn:hover {
+        color: #b91c1c;
+        background: #ffe4e6;
+    }
+
+    .uc10-success {
+        padding: 14px 16px;
+        margin-bottom: 18px;
+        border: 1px solid #a7dec0;
+        border-radius: 9px;
+        background: #e9f8f0;
+        color: #176b3f;
+    }
+
+    .uc10-error {
+        padding: 16px;
+        border: 1px solid #e9a8a8;
+        border-radius: 9px;
+        background: #fff1f1;
+        color: #9c2424;
+        margin-bottom: 20px;
+    }
+
+    /* Flatpickr */
+    .flatpickr-input[readonly] {
+        cursor: pointer;
+    }
+
+    @media (max-width: 1250px) {
+        .uc10-filter-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .uc10-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .uc10-card {
+            padding: 16px;
+        }
+
+        .uc10-card-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .uc10-pagination-bar {
+            grid-template-columns: 1fr;
+            justify-items: center;
+        }
+    }
 </style>
 
 <?php if ($dbError !== null): ?>
@@ -560,8 +602,7 @@ include ROOT_PATH . '/includes/toolbar.php';
         <input
             type="hidden"
             name="per_page"
-            value="<?= $perPage ?>"
-        >
+            value="<?= $perPage ?>">
 
         <div class="uc10-filter-grid">
 
@@ -572,8 +613,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                     type="text"
                     name="so_phieu"
                     placeholder="VD: PN2026-0001"
-                    value="<?= e($soPhieu) ?>"
-                >
+                    value="<?= e($soPhieu) ?>">
             </div>
 
             <!-- Từ ngày -->
@@ -585,8 +625,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                     name="tu_ngay"
                     placeholder="dd/mm/yyyy"
                     value="<?= e($tuNgay) ?>"
-                    autocomplete="off"
-                >
+                    autocomplete="off">
             </div>
 
             <!-- Đến ngày -->
@@ -598,8 +637,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                     name="den_ngay"
                     placeholder="dd/mm/yyyy"
                     value="<?= e($denNgay) ?>"
-                    autocomplete="off"
-                >
+                    autocomplete="off">
             </div>
 
             <div>
@@ -610,8 +648,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                     <?php foreach ($khoList as $kho): ?>
                         <option
                             value="<?= e($kho['maKho']) ?>"
-                            <?= $maKho === $kho['maKho'] ? 'selected' : '' ?>
-                        >
+                            <?= $maKho === $kho['maKho'] ? 'selected' : '' ?>>
                             <?= e($kho['tenKho']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -627,8 +664,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                     <?php foreach ($allowedStatuses as $status): ?>
                         <option
                             value="<?= e($status) ?>"
-                            <?= $trangThai === $status ? 'selected' : '' ?>
-                        >
+                            <?= $trangThai === $status ? 'selected' : '' ?>>
                             <?= e($status) ?>
                         </option>
                     <?php endforeach; ?>
@@ -751,25 +787,25 @@ include ROOT_PATH . '/includes/toolbar.php';
                             <td>
                                 <?= e(
                                     $row['nguoiLap']
-                                    ?? $row['maNhanVien']
+                                        ?? $row['maNhanVien']
                                 ) ?>
                             </td>
 
                             <td>
-    <?php
-    $donViTinh = trim($row['donViTinh']);
-    $soLuong = (float)$row['soLuongThucNhap'];
+                                <?php
+                                $donViTinh = trim($row['donViTinh']);
+                                $soLuong = (float)$row['soLuongThucNhap'];
 
-    $soThapPhan = in_array(
-        mb_strtolower($donViTinh),
-        ['thùng', 'bao'],
-        true
-    ) ? 0 : 2;
-    ?>
+                                $soThapPhan = in_array(
+                                    mb_strtolower($donViTinh),
+                                    ['thùng', 'bao'],
+                                    true
+                                ) ? 0 : 2;
+                                ?>
 
-    <?= e(number_format($soLuong, $soThapPhan, ',', '.')) ?>
-    <?= e($donViTinh) ?>
-</td>
+                                <?= e(number_format($soLuong, $soThapPhan, ',', '.')) ?>
+                                <?= e($donViTinh) ?>
+                            </td>
 
                             <td>
                                 <span class="uc10-status <?= e($statusClass) ?>">
@@ -784,13 +820,24 @@ include ROOT_PATH . '/includes/toolbar.php';
                                     </a>
                                     <?php if ($row['trangThai'] === 'Đã lập'): ?>
                                         <form method="post"
-                                              action="<?= e('index.php' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>"
-                                              class="uc10-cancel-form"
-                                              onsubmit="return confirm('Bạn có chắc chắn muốn hủy phiếu <?= e($row['maPhieuNhapKho']) ?>?');">
+                                            action="<?= e('index.php' . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>"
+                                            class="uc10-cancel-form"
+                                            onsubmit="return confirm('Bạn có chắc chắn muốn hủy phiếu <?= e($row['maPhieuNhapKho']) ?>?');">
                                             <input type="hidden" name="action" value="cancel_receipt">
                                             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['uc10_cancel_token']) ?>">
                                             <input type="hidden" name="maPhieuNhapKho" value="<?= e($row['maPhieuNhapKho']) ?>">
-                                            <button type="submit" class="uc10-cancel-btn" title="Hủy phiếu">Hủy</button>
+                                            <button type="submit" class="uc10-cancel-btn" title="Hủy phiếu" aria-label="Hủy phiếu">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    aria-hidden="true">
+                                                    <path d="M3 6h18" />
+                                                    <path d="M8 6V4h8v2" />
+                                                    <path d="M19 6l-1 14H6L5 6" />
+                                                    <path d="M10 11v5" />
+                                                    <path d="M14 11v5" />
+                                                </svg>
+                                            </button>
                                         </form>
                                     <?php endif; ?>
                                 </div>
@@ -829,8 +876,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                 <a
                     class="uc10-page-btn"
                     href="<?= e(uc10_index_page_url($page - 1)) ?>"
-                    title="Trang trước"
-                >
+                    title="Trang trước">
                     &lsaquo;
                 </a>
 
@@ -852,8 +898,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                 <a
                     class="uc10-page-btn <?= $p === $page ? 'active' : '' ?>"
                     href="<?= e(uc10_index_page_url($p)) ?>"
-                    <?= $p === $page ? 'aria-current="page"' : '' ?>
-                >
+                    <?= $p === $page ? 'aria-current="page"' : '' ?>>
                     <?= $p ?>
                 </a>
 
@@ -864,8 +909,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                 <a
                     class="uc10-page-btn"
                     href="<?= e(uc10_index_page_url($page + 1)) ?>"
-                    title="Trang sau"
-                >
+                    title="Trang sau">
                     &rsaquo;
                 </a>
 
@@ -894,8 +938,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                         <input
                             type="hidden"
                             name="<?= e((string)$key) ?>"
-                            value="<?= e((string)$value) ?>"
-                        >
+                            value="<?= e((string)$value) ?>">
 
                     <?php endif; ?>
 
@@ -904,15 +947,13 @@ include ROOT_PATH . '/includes/toolbar.php';
                 <select
                     name="per_page"
                     aria-label="Số phiếu mỗi trang"
-                    onchange="this.form.submit()"
-                >
+                    onchange="this.form.submit()">
 
                     <?php foreach ($allowedPerPages as $size): ?>
 
                         <option
                             value="<?= $size ?>"
-                            <?= $perPage === $size ? 'selected' : '' ?>
-                        >
+                            <?= $perPage === $size ? 'selected' : '' ?>>
                             <?= $size ?> / trang
                         </option>
 
@@ -935,24 +976,24 @@ include ROOT_PATH . '/includes/toolbar.php';
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
 
-    if (typeof flatpickr === 'undefined') {
-        console.error('Không tải được thư viện Flatpickr.');
-        return;
-    }
+        if (typeof flatpickr === 'undefined') {
+            console.error('Không tải được thư viện Flatpickr.');
+            return;
+        }
 
-    const dateOptions = {
-        dateFormat: 'Y-m-d',
-        altInput: true,
-        altFormat: 'd/m/Y',
-        allowInput: false
-    };
+        const dateOptions = {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd/m/Y',
+            allowInput: false
+        };
 
-    flatpickr('#uc10-tu-ngay', dateOptions);
-    flatpickr('#uc10-den-ngay', dateOptions);
+        flatpickr('#uc10-tu-ngay', dateOptions);
+        flatpickr('#uc10-den-ngay', dateOptions);
 
-});
+    });
 </script>
 
 <?php
