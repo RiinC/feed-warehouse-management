@@ -160,9 +160,9 @@ SET @maNhanVienMau = (SELECT maNV FROM QLK00.nhanvien ORDER BY maNV LIMIT 1);
 SELECT @maNhanVienMau AS maNhanVienDuocChon;
 
 INSERT IGNORE INTO PhieuNhapKho (maPhieuNhapKho,ngayLapPhieu,soLuongThucNhap,donViTinh,thoiGianLap,trangThai,ghiChu,maLoHang,maKho,maNhanVien) VALUES
-('PN2026-0001','2026-10-04 08:00:00',100,'Bao','2026-10-04 08:00:00','Đã nhập kho','Phiếu mẫu 1','LH001','K001',@maNhanVienMau),
-('PN2026-0002','2026-10-05 08:00:00',150,'Bao','2026-10-05 08:00:00','Đã nhập kho','Phiếu mẫu 2','LH002','K002',@maNhanVienMau),
-('PN2026-0003','2026-10-06 08:00:00',80,'Bao','2026-10-06 08:00:00','Đã nhập kho','Phiếu mẫu 3','LH003','K003',@maNhanVienMau);
+('PN2026-0001','2026-10-04 08:00:00',100,'Thùng','2026-10-04 08:00:00','Đã nhập kho','Phiếu mẫu 1','LH001','K001',@maNhanVienMau),
+('PN2026-0002','2026-10-05 08:00:00',150,'Kg','2026-10-05 08:00:00','Đã lập','Phiếu mẫu 2','LH002','K002',@maNhanVienMau),
+('PN2026-0003','2026-10-06 08:00:00',80,'Bao','2026-10-06 08:00:00','Đã hủy','Phiếu mẫu 3','LH003','K003',@maNhanVienMau);
 
 INSERT IGNORE INTO TonKho (maTonKho,soLuongTon,soLuongDaGiu,thoiDiemCapNhat,trangThai,maLoHang,maKho,maNhanVien) VALUES
 ('TK001',100,0,'2026-10-04 08:00:00','Đã nhập kho','LH001','K001',@maNhanVienMau),
