@@ -315,7 +315,6 @@ a.stat-card:hover { border-color: var(--primary); }
     .content { padding: 16px; }
     .topbar { padding: 0 14px; }
 }
-<<<<<<< HEAD
 
 /* ---------- Bổ sung cho UC06: trường lỗi, nút nhỏ, màn hình xác nhận ---------- */
 .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
@@ -348,9 +347,13 @@ body.modal-open { overflow: hidden; }
 .modal-head .icon-btn { font-size: 22px; line-height: 1; }
 .modal-body { padding: 8px 20px 12px; overflow-y: auto; }
 .modal-foot { display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--line); }
+
+/* Responsive cho UC06 */
 @media (max-width: 520px) {
     .kv { grid-template-columns: 120px 1fr; }
-=======
+}
+
+/* Responsive cho UC17 */
 @media (max-width: 700px) {
     .transfer-steps { display: grid; grid-template-columns: 1fr; gap: 12px; }
     .transfer-step { min-height: 36px; }
@@ -359,5 +362,4 @@ body.modal-open { overflow: hidden; }
     .uc17-draft { align-items: flex-start; flex-direction: column; }
     .uc17-reject-form { align-items: stretch; flex-direction: column; }
     .uc17-reject-form input { width: 100%; }
->>>>>>> origin/QLK03
 }
