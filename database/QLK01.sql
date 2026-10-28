@@ -93,14 +93,14 @@ CREATE TABLE LoHang (
     hanSuDung          DATETIME     NOT NULL,
     soLuongTon         DOUBLE       NOT NULL DEFAULT 0,
     viTriLuuTru        VARCHAR(100) NULL,
-    tinhTrang          VARCHAR(30)  NOT NULL DEFAULT 'Bình thường',
+    tinhTrang          VARCHAR(50)  NOT NULL DEFAULT 'Bình thường',
     trangThai          VARCHAR(30)  NOT NULL DEFAULT 'Đang sử dụng',
     tenLoHang          VARCHAR(255) NULL,                                           -- [TỪ ĐIỂN]
     soLuongTiepNhan    DOUBLE       NULL,                                           -- [TỪ ĐIỂN]
     donViTinh          VARCHAR(10)  NULL,                                           -- [TỪ ĐIỂN]
     thoiGianTiepNhan   DATETIME     NULL,                                           -- [TỪ ĐIỂN]
-    trangThaiChatLuong VARCHAR(30)  NOT NULL DEFAULT 'Chờ kiểm tra chất lượng',     -- [TỪ ĐIỂN]
-    trangThaiPhanBo    VARCHAR(30)  NOT NULL DEFAULT 'Chưa phân bổ',                -- [TỪ ĐIỂN]
+    trangThaiChatLuong VARCHAR(50)  NOT NULL DEFAULT 'Chờ kiểm tra chất lượng',     -- [TỪ ĐIỂN]
+    trangThaiPhanBo    VARCHAR(50)  NOT NULL DEFAULT 'Chưa phân bổ',                -- [TỪ ĐIỂN]
     ghiChu             VARCHAR(500) NULL,                                           -- [TỪ ĐIỂN]
     CONSTRAINT CK_LoHang_SoLuongTon CHECK (soLuongTon >= 0),
     CONSTRAINT CK_LoHang_TinhTrang  CHECK (tinhTrang IN ('Bình thường','Chờ kiểm tra','Cách ly','Hư hỏng','Hết hạn')),
@@ -121,7 +121,7 @@ CREATE TABLE DonHang (
     maDonHang      VARCHAR(15)  PRIMARY KEY,
     ngayDatHang    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ngayGiaoDuKien DATETIME     NULL,
-    trangThai      VARCHAR(30)  NOT NULL DEFAULT 'Chờ xử lý',
+    trangThai      VARCHAR(50)  NOT NULL DEFAULT 'Chờ xử lý',
     ghiChu         VARCHAR(500) NULL,
     CONSTRAINT CK_DonHang_NgayGiao  CHECK (ngayGiaoDuKien >= ngayDatHang),
     CONSTRAINT CK_DonHang_TrangThai CHECK (trangThai IN ('Chờ xử lý','Đang thực hiện','Đã hoàn tất','Đã hủy'))

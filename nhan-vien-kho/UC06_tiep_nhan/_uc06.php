@@ -95,6 +95,8 @@ function uc06_doc_bo_loc(array $get, array $dsNguon): array
 /**
  * Ghép mệnh đề WHERE từ bộ lọc. Tên cột truyền vào là hằng nội bộ (không lấy từ người dùng);
  * giá trị người dùng luôn đi qua tham số ?.
+ * Chuỗi cố định trong view/CASE và tham số có thể khác collation (tùy lúc import CSDL và cấu hình kết nối),
+ * nên so sánh chữ luôn ép COLLATE tường minh ở cả hai vế để tránh lỗi "Illegal mix of collations".
  * Khoảng ngày: tuNgay <= cột ngày < denNgay + 1 ngày (tính trọn ngày cuối).
  * Trả về [$where, $types, $params].
  */
@@ -105,17 +107,17 @@ function uc06_menh_de_loc(array $loc, string $cotSo, string $cotLoai, string $co
     $p = [];
 
     if (($loc['q'] ?? '') !== '') {
-        $w[] = "$cotSo LIKE ?";
+        $w[] = "$cotSo COLLATE utf8mb4_unicode_ci LIKE ? COLLATE utf8mb4_unicode_ci";
         $types .= 's';
         $p[] = '%' . addcslashes($loc['q'], '%_\\') . '%';
     }
     if (($loc['loai'] ?? '') !== '') {
-        $w[] = "$cotLoai = ?";
+        $w[] = "$cotLoai COLLATE utf8mb4_bin = ? COLLATE utf8mb4_bin";
         $types .= 's';
         $p[] = $loc['loai'];
     }
     if (($loc['nguon'] ?? '') !== '') {
-        $w[] = "$cotNguon = ?";
+        $w[] = "$cotNguon COLLATE utf8mb4_bin = ? COLLATE utf8mb4_bin";
         $types .= 's';
         $p[] = $loc['nguon'];
     }
