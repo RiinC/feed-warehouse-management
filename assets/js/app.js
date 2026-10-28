@@ -200,3 +200,82 @@
 
     initDocForm();
 })();
+
+/* ---------- UC06: popup chi tiết phiếu tiếp nhận ---------- */
+(function () {
+    function initDetailModal() {
+        var modal = document.getElementById('detailModal');
+        var body = document.getElementById('detailModalBody');
+        if (!modal || !body) return;
+
+        var lastFocus = null;
+        var reqId = 0;
+
+        function focusables() {
+            return Array.prototype.slice.call(modal.querySelectorAll('button, [href], input, select, textarea'));
+        }
+
+        function close() {
+            reqId++;                       // bỏ qua kết quả của yêu cầu đang chạy
+            modal.hidden = true;
+            document.body.classList.remove('modal-open');
+            if (lastFocus && lastFocus.focus) lastFocus.focus();
+        }
+
+        function open(url, trigger) {
+            lastFocus = trigger || document.activeElement;
+            body.innerHTML = '<p class="muted" style="padding:14px 0">Đang tải chi tiết phiếu...</p>';
+            modal.hidden = false;
+            document.body.classList.add('modal-open');
+            var closeBtn = modal.querySelector('.modal-foot [data-modal-close]');
+            if (closeBtn) closeBtn.focus();
+
+            var id = ++reqId;
+            fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
+                .then(function (res) {
+                    return res.text().then(function (text) { return { ok: res.ok, text: text }; });
+                })
+                .then(function (r) {
+                    if (id !== reqId) return;
+                    if (r.ok) {
+                        body.innerHTML = r.text;
+                    } else {
+                        body.innerHTML = '<div class="alert alert-error" role="alert">Không tải được chi tiết phiếu tiếp nhận. Vui lòng thử lại.</div>';
+                    }
+                })
+                .catch(function () {
+                    if (id !== reqId) return;
+                    body.innerHTML = '<div class="alert alert-error" role="alert">Không tải được chi tiết phiếu tiếp nhận. Vui lòng thử lại.</div>';
+                });
+        }
+
+        // Nhấn vào dòng (hoặc vào mã phiếu) -> mở popup; liên kết khác trong dòng giữ nguyên hành vi
+        document.addEventListener('click', function (ev) {
+            var row = ev.target.closest ? ev.target.closest('.js-row-detail') : null;
+            if (!row) return;
+            var a = ev.target.closest('a');
+            if (a && !a.classList.contains('js-detail-link')) return;
+            ev.preventDefault();
+            open(row.getAttribute('data-url'), row.querySelector('.js-detail-link') || row);
+        });
+
+        modal.addEventListener('click', function (ev) {
+            if (ev.target.closest('[data-modal-close]')) close();
+        });
+
+        document.addEventListener('keydown', function (ev) {
+            if (modal.hidden) return;
+            if (ev.key === 'Escape') {
+                close();
+            } else if (ev.key === 'Tab') {          // giữ con trỏ Tab trong popup
+                var f = focusables();
+                if (!f.length) return;
+                var first = f[0], last = f[f.length - 1];
+                if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+                else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+            }
+        });
+    }
+
+    initDetailModal();
+})();
