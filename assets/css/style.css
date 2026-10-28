@@ -208,6 +208,76 @@ input:disabled, select:disabled, textarea:disabled { background: #f4f6fa; color:
 .lines .total { font-size: 16px; font-weight: 700; color: var(--navy); }
 .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
+/* ---------- Style for UC17 ---------- */
+.transfer-steps { display: flex; align-items: center; gap: 0; padding: 4px 2px; }
+.transfer-step { display: flex; flex: 1 1 0; min-width: 0; align-items: center; gap: 12px; color: #51627d; }
+.transfer-step-number {
+    z-index: 1; width: 36px; height: 36px; flex: 0 0 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 2px solid #dfe8f5; border-radius: 50%; background: #f1f5fb;
+    color: #51627d; font-size: 15px; font-weight: 700;
+}
+.transfer-step small { flex: 0 0 auto; color: inherit; font-size: 13px; white-space: nowrap; }
+.transfer-step.active { color: var(--primary); font-weight: 700; }
+.transfer-step.active .transfer-step-number,
+.transfer-step.done .transfer-step-number {
+    border-color: var(--primary); background: var(--primary); color: #fff;
+    box-shadow: 0 2px 6px rgba(31, 111, 235, .22);
+}
+.transfer-step.done { color: var(--primary); }
+.transfer-connector { display: block; height: 2px; min-width: 16px; flex: 1 1 auto; margin-right: 14px; background: #dfe6f0; }
+.transfer-step.done .transfer-connector { background: #8db8fa; }
+
+.transfer-form .field>input:not([type=radio]),
+.transfer-form .field>select,
+.transfer-form .field>textarea {
+    height: 44px; min-height: 44px; padding: 0 13px; border: 1px solid #d4deeb;
+    border-radius: 9px; background-color: #fbfcfe;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    transition: border-color .15s, box-shadow .15s, background-color .15s;
+}
+.transfer-form .field>textarea { height: auto; min-height: 92px; padding: 10px 13px; }
+.transfer-form .field>input:hover,
+.transfer-form .field>select:hover,
+.transfer-form .field>textarea:hover { border-color: #aabbd2; }
+.transfer-form .field>input:focus,
+.transfer-form .field>select:focus,
+.transfer-form .field>textarea:focus {
+    border-color: var(--primary); background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, .13);
+}
+.transfer-form .uc17-quantity-grid { align-items: start; }
+
+.selected-row,
+.table tbody tr.selected-row,
+.table tbody tr.selected-row:hover { background: var(--info-bg); }
+.transfer-form [data-selectable-row] { cursor: pointer; }
+.sortable-table th[data-sortable] { cursor: pointer; user-select: none; }
+.sortable-table th[data-sortable]:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.uc17-filter-actions { flex-wrap: nowrap; white-space: nowrap; }
+.uc17-filter-actions .btn { flex: 0 0 auto; white-space: nowrap; }
+
+.uc17-detail .field>input[readonly],
+.uc17-detail .field>textarea[readonly] {
+    height: 42px; padding: 0 13px; border-color: #d4deeb;
+    border-top: 0; border-left: 0; border-radius: 9px;
+    background: #f7f9fc; color: #344054; box-shadow: none;
+}
+.uc17-detail .field>textarea[readonly] { height: auto; min-height: 92px; padding: 10px 13px; }
+.uc17-detail-actions { margin-top: 24px; margin-bottom: 18px; align-items: center; flex-wrap: wrap; }
+.uc17-detail-actions form { display: flex; align-items: center; gap: 8px; margin: 0; }
+.uc17-detail-actions form input[type=number] { width: 130px; }
+.uc17-reject-form { display: flex; align-items: center; gap: 8px; }
+.uc17-reject-form input { width: 220px; }
+.uc17-draft { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.uc17-draft .toolbar-actions { flex-wrap: wrap; }
+.uc17-unit-config>summary { color: var(--navy); font-weight: 700; cursor: pointer; }
+.uc17-unit-config-list { display: grid; gap: 12px; margin-top: 14px; }
+.uc17-unit-config-row { padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; }
+.uc17-unit-config-row>b { display: block; margin-bottom: 12px; }
+.uc17-unit-config-row .filter-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 12px; }
+.uc17-unit-config-row .toolbar-actions { align-self: end; margin-bottom: 4px; }
+
 /* ---------- Dashboard ---------- */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px; }
 .stat-card { display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
@@ -245,6 +315,7 @@ a.stat-card:hover { border-color: var(--primary); }
     .content { padding: 16px; }
     .topbar { padding: 0 14px; }
 }
+<<<<<<< HEAD
 
 /* ---------- Bổ sung cho UC06: trường lỗi, nút nhỏ, màn hình xác nhận ---------- */
 .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
@@ -279,4 +350,14 @@ body.modal-open { overflow: hidden; }
 .modal-foot { display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--line); }
 @media (max-width: 520px) {
     .kv { grid-template-columns: 120px 1fr; }
+=======
+@media (max-width: 700px) {
+    .transfer-steps { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .transfer-step { min-height: 36px; }
+    .transfer-connector { display: none; }
+    .uc17-filter-actions { justify-content: flex-start; }
+    .uc17-draft { align-items: flex-start; flex-direction: column; }
+    .uc17-reject-form { align-items: stretch; flex-direction: column; }
+    .uc17-reject-form input { width: 100%; }
+>>>>>>> origin/QLK03
 }

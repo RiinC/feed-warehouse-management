@@ -104,7 +104,9 @@ function has_module(string $module): bool
 {
     $u = current_user();
     if (!$u) return false;
-    return $u['role'] === 'admin' || in_array($module, $u['modules'], true);
+    return $u['role'] === 'admin'
+        || in_array($module, $u['modules'], true)
+        || ($u['role'] === 'nhan_vien_kho' && $module === 'UC17');
 }
 
 /** Admin và Quản lý kho có quyền quản lý phiếu. */
