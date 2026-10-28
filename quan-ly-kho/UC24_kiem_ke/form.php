@@ -817,7 +817,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
             $mysqli->commit();
 
-            flash('success', 'Biên bản kiểm kê <b>' . e($newCode) . '</b> (' . uc24_type_label($posted['loaiKiemKe']) . ') đã được lập thành công với ' . count($scopeLots) . ' lô hàng trong phạm vi.');
+            flash('success', 'Biên bản kiểm kê đã được lập thành công.');
             redirect(uc_url('UC24', 'form.php') . '?mode=detail&id=' . urlencode($newCode));
         } catch (Throwable $ex) {
             $mysqli->rollback();
