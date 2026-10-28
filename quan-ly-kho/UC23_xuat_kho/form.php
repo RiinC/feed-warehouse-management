@@ -745,7 +745,6 @@ include ROOT_PATH . '/includes/toolbar.php';
 
 <div class="uc23-page">
     <div class="uc23-heading">
-        <h2>Lập phiếu xuất kho</h2>
         <p>
             Chọn yêu cầu đã duyệt và đề xuất FEFO.
             Mỗi đề xuất thuộc một lô hàng và có thể có nhiều hàng hóa.

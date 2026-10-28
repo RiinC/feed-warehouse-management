@@ -563,7 +563,7 @@ if ($mode === 'detail') {
                         <th style="width: 14%;">Vị trí</th>
                         <th style="width: 11%; text-align: center;">Hạn sử dụng</th>
                         <th style="width: 6%; text-align: center;">ĐVT</th>
-                        <th style="width: 10%; text-align: center;">Theo sổ</th>
+                        <th style="width: 10%; text-align: center;">Số lượng</th>
                         <th style="width: 10%; text-align: center;">Kiểm kê</th>
                         <th style="width: 11%; text-align: center;">Chênh lệch</th>
                         <th style="width: 10%;">Tình trạng</th>
@@ -1328,7 +1328,7 @@ textarea.cukcuk-input-control {
                         <th style="width: 42%;">Tên hàng hóa</th>
                         <th class="center" style="width: 14%;">Hạn sử dụng</th>
                         <th class="center" style="width: 10%;">Đơn vị tính</th>
-                        <th class="num" style="width: 16%;">Theo sổ</th>
+                        <th class="num" style="width: 16%;">Số lượng</th>
                     </tr>
                 </thead>
                 <tbody id="lotTableBody">
@@ -1376,7 +1376,7 @@ textarea.cukcuk-input-control {
                 <?php if (!empty($scopeLots)): ?>
                 <tfoot>
                     <tr>
-                        <td colspan="4" style="text-align: right; padding: 11px 14px; color: #0f172a; font-weight: 700; background: #fafbfd; border-top: 1px solid var(--line); border-bottom: none;">Tổng theo sổ:</td>
+                        <td colspan="4" style="text-align: right; padding: 11px 14px; color: #0f172a; font-weight: 700; background: #fafbfd; border-top: 1px solid var(--line); border-bottom: none;">Tổng số lượng:</td>
                         <td class="num" style="padding: 11px 14px; color: #0f172a; font-weight: 700; font-size: 13.5px; background: #fafbfd; border-top: 1px solid var(--line); border-bottom: none;" id="totalBookQty"><?= fmt_qty($totalScopeQty) ?></td>
                     </tr>
                 </tfoot>
