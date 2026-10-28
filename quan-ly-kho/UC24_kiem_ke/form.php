@@ -447,9 +447,10 @@ if ($mode === 'detail') {
             <?= uc24_status_dot($bb['trangThai']) ?>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <!-- Nút Quay lại / Danh sách: lên đầu tiên, dạng icon -->
-            <a class="btn btn-ghost" href="<?= e(url(uc_url('UC24'))) ?>" title="Danh sách" style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; background: #ffffff; border: 1px solid #d0d5dd; color: #344054; border-radius: 6px;">
-                <span aria-hidden="true" style="font-size: 20px; line-height: 1;">←</span>
+            <!-- Nút quay lại danh sách biên bản -->
+            <a class="btn btn-ghost" href="<?= e(url(uc_url('UC24'))) ?>" title="Quay lại" style="height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 7px; justify-content: center; background: #ffffff; border: 1px solid #d0d5dd; color: #344054; border-radius: 6px;">
+                <span aria-hidden="true" style="font-size: 18px; line-height: 1;">←</span>
+                <span>Quay lại</span>
             </a>
 
             <!-- Nút In biên bản: dạng icon -->
@@ -532,7 +533,7 @@ if ($mode === 'detail') {
             <div style="padding: 0 20px; border-right: 1px solid #f1f5f9;">
                 <div class="cukcuk-field-label">Người lập</div>
                 <div class="cukcuk-field-value">
-                    <?= e($creatorName) ?><?php if (!empty($bb['maNhanVien'])): ?> <span style="font-weight: 500; color: #64748b;">(<?= e($bb['maNhanVien']) ?>)</span><?php endif; ?>
+                    <?= e($creatorName) ?>
                 </div>
             </div>
             <div style="grid-column: span 2; padding-left: 20px;">
@@ -877,7 +878,7 @@ $breadcrumb = [
     ['Kiểm kê', uc_url('UC24')],
     ['Lập biên bản', null]
 ];
-$toolbar_actions = '<a class="btn btn-ghost" href="' . e(url(uc_url('UC24'))) . '"><span aria-hidden="true">←</span> Danh sách</a>';
+$toolbar_actions = '<a class="btn btn-ghost" href="' . e(url(uc_url('UC24'))) . '"><span aria-hidden="true">←</span> Quay lại</a>';
 
 include ROOT_PATH . '/includes/head.php';
 include ROOT_PATH . '/includes/sidebar.php';
@@ -1297,15 +1298,12 @@ textarea.cukcuk-input-control {
                 <!-- Dòng 2: Trạng thái (lấy đúng từ database) -->
                 <div class="cukcuk-static-field">
                     <span class="cukcuk-static-label">Trạng thái</span>
-                    <span class="cukcuk-static-value" style="display: inline-flex; align-items: center; gap: 6px;">
-                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #94a3b8;"></span>
-                        Chờ kiểm kê
-                    </span>
+                    <span class="cukcuk-static-value"><?= uc24_status_dot('Chờ kiểm kê') ?></span>
                 </div>
                 <!-- Dòng 3: Người lập -->
                 <div class="cukcuk-static-field">
                     <span class="cukcuk-static-label">Người lập</span>
-                    <span class="cukcuk-static-value"><?= e($empName) ?> <small style="font-weight: normal; color: #64748b;">(<?= e($empCode) ?>)</small></span>
+                    <span class="cukcuk-static-value"><?= e($empName) ?></span>
                 </div>
             </div>
         </div>

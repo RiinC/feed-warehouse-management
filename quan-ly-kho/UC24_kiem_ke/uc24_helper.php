@@ -73,18 +73,20 @@ function uc24_type_badge(string $type): string
 }
 
 /**
- * Hiển thị trạng thái kiểm kê dạng chấm màu tối giản (Dot + Label)
+ * Hiển thị trạng thái kiểm kê dạng nhãn hộp màu.
+ * Màu chỉ dùng để phân biệt trạng thái đã có trong nghiệp vụ QLK05;
+ * không tạo thêm trạng thái mới ở tầng giao diện.
  */
 function uc24_status_dot(string $st): string
 {
-    $colors = [
-        'Chờ kiểm kê'    => '#2563eb',
-        'Đã đối chiếu'   => '#0d9488',
-        'Đã hủy'         => '#dc2626',
+    $styles = [
+        'Chờ kiểm kê'    => ['background:#eff6ff', 'color:#1d4ed8', 'border:1px solid #bfdbfe'],
+        'Đã đối chiếu'   => ['background:#ecfdf3', 'color:#047857', 'border:1px solid #a7f3d0'],
+        'Đã hủy'         => ['background:#fef2f2', 'color:#b91c1c', 'border:1px solid #fecaca'],
     ];
-    $c = $colors[$st] ?? '#64748b';
-    return '<span style="display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; color: #1e293b; white-space: nowrap;">'
-         . '<span style="width: 8px; height: 8px; border-radius: 50%; background: ' . $c . '; display: inline-block; flex-shrink: 0;"></span>'
+    $style = $styles[$st] ?? ['background:#f8fafc', 'color:#475569', 'border:1px solid #cbd5e1'];
+    return '<span class="uc24-status-badge" style="display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:3px 10px;border-radius:6px;font-size:13px;font-weight:600;line-height:1.2;white-space:nowrap;'
+         . implode(';', $style) . ';">'
          . htmlspecialchars($st, ENT_QUOTES, 'UTF-8')
          . '</span>';
 }
