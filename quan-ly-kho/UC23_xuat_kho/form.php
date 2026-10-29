@@ -18,9 +18,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Người lập phiếu cố định, không kiểm tra đăng nhập / NhanVienKho.
-const UC23_NGUOI_LAP = 'Trần Thị Kho';
-
 function uc23e($value): string
 {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
@@ -155,11 +152,9 @@ $proposal = null;
 $lines = [];
 $previewCode = 'PX' . date('YmdHis') . random_int(10, 99);
 
-// Người lập phiếu: mặc định là "Trần Thị Kho".
-$tenNguoiLapPhieu = trim((string)($_POST['nguoiLapPhieu'] ?? ''));
-if ($tenNguoiLapPhieu === '') {
-    $tenNguoiLapPhieu = UC23_NGUOI_LAP;
-}
+$nguoiDungHienTai = current_user();
+$tenNguoiLapPhieu = trim((string)($nguoiDungHienTai['ho_ten'] ?? ''));
+$tenDangNhapNguoiLap = (string)($nguoiDungHienTai['username'] ?? '');
 
 try {
     $requests = $db->query("
@@ -361,7 +356,7 @@ if (
 
             // Số lượng phải là số nguyên dương (không có dấu chấm/phẩy).
             if (!preg_match('/^\d+$/', $raw) || (int)$raw <= 0) {
-                $error = 'Số lượng thực xuất phải là số nguyên lớn hơn 0 (không có dấu chấm).';
+                $error = 'Số lượng thực xuất phải là số nguyên lớn hơn 0 ';
                 break;
             }
 
@@ -373,11 +368,11 @@ if (
                 - (int)round((float)$line['daXuatTheoLo'])
             );
 
-            $tonKhaDung = (int)floor((float)$line['tonKhaDung']);
+            $tonKhaDung = (float)$line['tonKhaDung'];
 
-            if ($qty > $fefoRemaining || $qty > $tonKhaDung) {
+            if ($qty > $fefoRemaining || $qty >= $tonKhaDung) {
                 $error =
-                    'Số lượng xuất vượt lượng FEFO còn lại hoặc tồn khả dụng: '
+                    'Số lượng thực xuất phải nhỏ hơn tồn khả dụng và không vượt lượng FEFO còn lại: '
                     . $line['maHangHoa'] . ' / lô '
                     . $line['maLoHang'] . '.';
                 break;
@@ -464,12 +459,33 @@ if (
 
                 $totalQty = (int)array_sum($sumByProduct);
 
+                $maNhanVienLapPhieu = null;
+                $stmt = $db->prepare("
+                    SELECT maNhanVien
+                    FROM NhanVienKho
+                    WHERE tenDangNhap = ? OR hoTen = ?
+                    ORDER BY (tenDangNhap = ?) DESC
+                    LIMIT 1
+                ");
+                $stmt->bind_param(
+                    'sss',
+                    $tenDangNhapNguoiLap,
+                    $tenNguoiLapPhieu,
+                    $tenDangNhapNguoiLap
+                );
+                $stmt->execute();
+                $nhanVienLapPhieu = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+                if ($nhanVienLapPhieu) {
+                    $maNhanVienLapPhieu = $nhanVienLapPhieu['maNhanVien'];
+                }
+
                 // Chỉ các cột có thật trong bảng mới được ghi (uc23Insert tự lọc).
                 $header = [
                     'maPhieuXuat' => $maPhieuXuat,
                     'maYeuCau' => $proposal['maYeuCau'],
                     'maDeXuatFEFO' => $proposal['maDeXuatFEFO'],
-                    'maNhanVien' => null,
+                    'maNhanVien' => $maNhanVienLapPhieu,
                     'tenNguoiLap' => $tenNguoiLapPhieu,
                     'nguoiLap' => $tenNguoiLapPhieu,
                     'nguoiLapPhieu' => $tenNguoiLapPhieu,
@@ -515,10 +531,10 @@ if (
                         || (
                             (float)$stock['soLuongTon']
                             - (float)$stock['soLuongDaGiu']
-                        ) < $qty
+                        ) <= $qty
                     ) {
                         throw new RuntimeException(
-                            'Tồn khả dụng không đủ cho hàng '
+                            'Số lượng thực xuất phải nhỏ hơn tồn khả dụng của hàng '
                             . $line['maHangHoa']
                             . ' tại lô ' . $line['maLoHang'] . '.'
                         );
@@ -548,7 +564,7 @@ if (
                         WHERE maChiTietLo = ?
                           AND maLoHang = ?
                           AND maHangHoa = ?
-                          AND (soLuongTon - soLuongDaGiu) >= ?
+                          AND (soLuongTon - soLuongDaGiu) > ?
                     ");
 
                     $stmt->bind_param(
@@ -737,7 +753,7 @@ include ROOT_PATH . '/includes/toolbar.php';
 
                     <div class="uc23-field">
                         <label for="nguoiLapPhieu">Người lập phiếu</label>
-                        <input type="text" name="nguoiLapPhieu" id="nguoiLapPhieu" value="<?= uc23e($tenNguoiLapPhieu) ?>">
+                        <input type="text" name="nguoiLapPhieu" id="nguoiLapPhieu" value="<?= uc23e($tenNguoiLapPhieu) ?>" readonly>
                     </div>
 
                     <div class="uc23-field">
@@ -821,10 +837,11 @@ include ROOT_PATH . '/includes/toolbar.php';
                                 - (int)round((float)$line['daXuatTheoLo'])
                             );
 
-                            $maxQty = (int)min(
-                                $remainingFefo,
-                                (int)floor((float)$line['tonKhaDung'])
+                            $maxTonKhaDung = max(
+                                0,
+                                (int)ceil((float)$line['tonKhaDung']) - 1
                             );
+                            $maxQty = min($remainingFefo, $maxTonKhaDung);
 
                             $qtyRaw = $qtyInput[$line['maChiTietDeXuat']] ?? $maxQty;
                             $qty = (int)$qtyRaw;
@@ -855,7 +872,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                                         min="1"
 max="<?= uc23e($maxQty) ?>"
 step="1"
-oninvalid="this.setCustomValidity('Vui lòng nhập số lượng từ 1  trở lên và không vượt quá số lượng tồn kho.')"
+oninvalid="this.setCustomValidity('Vui lòng nhập số lượng lớn hơn 0 và nhỏ hơn tồn khả dụng.')"
 oninput="this.setCustomValidity('')"
                                         inputmode="numeric"
                                         value="<?= (int)$qty ?>"
@@ -987,7 +1004,7 @@ oninput="this.setCustomValidity('')"
 
             if (qty > max) {
                 event.preventDefault();
-                alert('Số lượng thực xuất không được vượt quá giới hạn FEFO còn lại và tồn khả dụng (' + max + ').');
+                alert('Số lượng thực xuất phải nhỏ hơn tồn khả dụng và không vượt giới hạn FEFO (' + max + ').');
                 input.focus();
                 return;
             }
