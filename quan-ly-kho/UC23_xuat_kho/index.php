@@ -2,16 +2,19 @@
 require_once __DIR__ . '/../../includes/auth.php';
 require_module('UC23');
 
+// Tên người lập mặc định khi phiếu không gắn mã nhân viên.
+const UC23_NGUOI_LAP_MAC_DINH = 'Trần Thị Kho';
+
 $page_title = 'Danh sách phiếu xuất kho';
 $active_menu = 'UC23';
 $breadcrumb = [['Tổng quan', 'index.php'], ['Xuất kho', null]];
 $toolbar_actions = '<a class="btn btn-primary" href="' . e(url(uc_url('UC23', 'form.php'))) . '">' . icon('plus', 16) . ' Lập phiếu xuất</a>';
 
 $db = db(DB_UC23);
+$db->set_charset('utf8mb4');
 
 /*
  * XEM CHI TIẾT PHIẾU:
- * Tích hợp trực tiếp trong index.php để dự án chỉ cần index.php và form.php.
  * URL mẫu: index.php?view=detail&maPhieuXuat=PX...
  */
 if (($_GET['view'] ?? '') === 'detail') {
@@ -21,7 +24,7 @@ if (($_GET['view'] ?? '') === 'detail') {
     }
 
     $sqlHeader = "
-        SELECT p.*, nv.hoTen AS tenNguoiLap
+        SELECT p.*, COALESCE(nv.hoTen, ?) AS tenNguoiLap
         FROM PhieuXuatKho p
         LEFT JOIN NhanVienKho nv ON nv.maNhanVien = p.maNhanVien
         WHERE p.maPhieuXuat = ?
@@ -31,7 +34,8 @@ if (($_GET['view'] ?? '') === 'detail') {
     if (!$detailStmt) {
         die('Lỗi truy vấn thông tin phiếu: ' . e($db->error));
     }
-    $detailStmt->bind_param('s', $maPhieuXuat);
+    $defaultName = UC23_NGUOI_LAP_MAC_DINH;
+    $detailStmt->bind_param('ss', $defaultName, $maPhieuXuat);
     $detailStmt->execute();
     $phieu = $detailStmt->get_result()->fetch_assoc();
     $detailStmt->close();
@@ -63,11 +67,6 @@ if (($_GET['view'] ?? '') === 'detail') {
         exit;
     }
 
-    /*
-     * Truy vấn chi tiết theo mô hình một lô có nhiều hàng hóa.
-     * Nếu database hiện tại lưu hạn dùng trực tiếp ở LoHang, dùng COALESCE
-     * để ưu tiên hạn dùng trong ChiTietLoHang nếu có.
-     */
     $sqlLines = "
         SELECT
             ct.maHangHoa,
@@ -135,7 +134,7 @@ if (($_GET['view'] ?? '') === 'detail') {
                 <div class="info-item"><span class="label">Ngày lập</span><span class="value"><?= !empty($phieu['ngayLap']) ? e(date('d/m/Y H:i', strtotime($phieu['ngayLap']))) : '—' ?></span></div>
                 <div class="info-item"><span class="label">Trạng thái</span><span class="value"><?= e($statusLabelsDetail[$phieu['trangThai'] ?? ''] ?? ($phieu['trangThai'] ?? '—')) ?></span></div>
                 <div class="info-item"><span class="label">Mã yêu cầu</span><span class="value"><?= e($phieu['maYeuCau'] ?? '—') ?></span></div>
-                <div class="info-item"><span class="label">Người lập</span><span class="value"><?= e($phieu['tenNguoiLap'] ?? '—') ?></span></div>
+                <div class="info-item"><span class="label">Người lập</span><span class="value"><?= e($phieu['tenNguoiLap'] ?? UC23_NGUOI_LAP_MAC_DINH) ?></span></div>
                 <div class="info-item"><span class="label">Kho xuất</span><span class="value"><?= e($phieu['khoXuat'] ?? '—') ?></span></div>
                 <div class="info-item"><span class="label">Địa điểm xuất</span><span class="value"><?= e($phieu['diaDiemXuat'] ?? '—') ?></span></div>
                 <div class="info-item"><span class="label">Người phê duyệt</span><span class="value"><?= e($phieu['maNguoiPheDuyet'] ?? '—') ?></span></div>
@@ -161,7 +160,7 @@ if (($_GET['view'] ?? '') === 'detail') {
                         <td><?= e($d['donViTinh'] ?? '—') ?></td>
                         <td><?= e($d['maLoHang'] ?? '—') ?></td>
                         <td><?= !empty($d['ngayHetHan']) ? e(date('d/m/Y H:i', strtotime($d['ngayHetHan']))) : '—' ?></td>
-                        <td><?= number_format((float)($d['soLuongXuat'] ?? 0), 3, ',', '.') ?></td>
+                        <td><?= (int)round((float)($d['soLuongXuat'] ?? 0)) ?></td>
                         <td><?= number_format((float)($d['donGia'] ?? 0), 0, ',', '.') ?> đ</td>
                         <td><?= number_format((float)($d['thanhTien'] ?? 0), 0, ',', '.') ?> đ</td>
                         <td><?= e($d['ghiChu'] ?? '—') ?></td>
@@ -207,7 +206,7 @@ $sql = "
         p.maYeuCau,
         p.khoXuat,
         p.diaDiemXuat,
-        nv.hoTen AS tenNguoiLap,
+        COALESCE(nv.hoTen, ?) AS tenNguoiLap,
         COALESCE((
             SELECT SUM(ct.soLuongXuat)
             FROM ChiTietPhieuXuatKho ct
@@ -222,13 +221,14 @@ $sql = "
     LEFT JOIN NhanVienKho nv ON nv.maNhanVien = p.maNhanVien
     WHERE 1 = 1
 ";
-$types = '';
-$params = [];
+$defaultName = UC23_NGUOI_LAP_MAC_DINH;
+$types = 's';
+$params = [$defaultName];
 if ($keyword !== '') {
-    $sql .= ' AND (p.maPhieuXuat LIKE ? OR p.maYeuCau LIKE ? OR nv.hoTen LIKE ?)';
+    $sql .= ' AND (p.maPhieuXuat LIKE ? OR p.maYeuCau LIKE ? OR COALESCE(nv.hoTen, ?) LIKE ?)';
     $like = '%' . $keyword . '%';
-    $types .= 'sss';
-    array_push($params, $like, $like, $like);
+    $types .= 'ssss';
+    array_push($params, $like, $like, $defaultName, $like);
 }
 if (isset($statusLabels[$status])) {
     $sql .= ' AND p.trangThai = ?';
@@ -240,9 +240,7 @@ $stmt = $db->prepare($sql);
 if (!$stmt) {
     die('Lỗi truy vấn danh sách phiếu xuất kho: ' . e($db->error));
 }
-if ($types !== '') {
-    $stmt->bind_param($types, ...$params);
-}
+$stmt->bind_param($types, ...$params);
 if (!$stmt->execute()) {
     die('Không thể tải danh sách phiếu xuất kho: ' . e($stmt->error));
 }
@@ -340,17 +338,17 @@ include ROOT_PATH . '/includes/toolbar.php';
                     <td><span class="uc23-code"><?= e($row['maPhieuXuat']) ?></span></td>
                     <td><?= !empty($row['ngayLap']) ? e(date('d/m/Y H:i', strtotime($row['ngayLap']))) : '—' ?></td>
                     <td><?= e($row['maYeuCau'] ?? '—') ?></td>
-                    <td><?= e($row['tenNguoiLap'] ?? '—') ?></td>
+                    <td><?= e($row['tenNguoiLap'] ?? UC23_NGUOI_LAP_MAC_DINH) ?></td>
                     <td><?= e($row['khoXuat'] ?? '—') ?></td>
                     <td><?= e($row['diaDiemXuat'] ?? '—') ?></td>
-                    <td><?= number_format((float)$row['soLuongThucXuat'], 3, ',', '.') ?></td>
+                    <td><?= (int)round((float)$row['soLuongThucXuat']) ?></td>
                     <td><span class="uc23-status status-<?= e($statusClasses[$row['trangThai']] ?? 'pending') ?>"><?= e($statusLabels[$row['trangThai']] ?? $row['trangThai']) ?></span></td>
                     <td><a class="uc23-btn" href="<?= e(url(uc_url('UC23', 'index.php'))) ?>?view=detail&amp;maPhieuXuat=<?= rawurlencode($row['maPhieuXuat']) ?>"><?= icon('eye', 15) ?> Xem chi tiết</a></td>
                 </tr>
             <?php endforeach; endif; ?>
             </tbody>
         </table></div>
-        <div class="uc23-summary"><span>Tổng số phiếu: <strong><?= count($rows) ?></strong></span><span>Tổng số lượng xuất: <strong><?= number_format($totalQuantity, 3, ',', '.') ?></strong></span></div>
+        <div class="uc23-summary"><span>Tổng số phiếu: <strong><?= count($rows) ?></strong></span><span>Tổng số lượng xuất: <strong><?= (int)round($totalQuantity) ?></strong></span></div>
     </section>
 </div>
 <?php
