@@ -43,6 +43,13 @@ function fmt_date(?string $d): string
     return $t ? date('d/m/Y', $t) : '';
 }
 
+function fmt_time(?string $t): string
+{
+    if (!$t) return '';
+    $ts = strtotime($t);
+    return $ts ? date('H:i', $ts) : '';
+}
+
 /* ---------- Flash message ---------- */
 function flash(string $type, string $msg): void
 {
@@ -145,10 +152,21 @@ function forbidden(): void
     exit;
 }
 
-/* ---------- Trạng thái phiếu ---------- */
+/* ---------- Nhãn trạng thái / tình trạng ---------- */
 function status_list(): array
 {
-    return ['Chờ xử lý' => 'warn', 'Đang kiểm tra' => 'info', 'Đã nhập kho' => 'ok'];
+    return [
+        'Chờ tiếp nhận' => 'warn',
+        'Đã tiếp nhận một phần' => 'info',
+        'Đã tiếp nhận' => 'ok',
+        'Chờ kiểm định' => 'info',
+        'Chờ kiểm tra chất lượng' => 'warn',
+        'Chờ xử lý' => 'warn',
+        'Đang kiểm tra' => 'info',
+        'Đã nhập kho' => 'ok',
+        'Đang sử dụng' => 'ok',
+        'Ngừng sử dụng' => 'muted',
+    ];
 }
 
 function status_badge(string $st): string
@@ -187,7 +205,7 @@ function uc_url(string $module, string $file = 'index.php'): string
         'UC23' => 'UC23_xuat_kho',
         'UC24' => 'UC24_kiem_ke',
     ];
-    if (!isset($folders[$module]) || !in_array($file, ['index.php', 'form.php'], true)) {
+    if (!isset($folders[$module]) || !in_array($file, ['index.php', 'form.php', 'xac_nhan.php', 'chi_tiet.php'], true)) {
         throw new InvalidArgumentException('Đường dẫn UC không hợp lệ.');
     }
 

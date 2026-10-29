@@ -118,7 +118,7 @@ h1, h2, h3 { margin: 0; }
 .breadcrumb a:hover { color: var(--primary); }
 .breadcrumb .current { color: var(--text); }
 .toolbar-actions { display: flex; gap: 10px; }
-
+/*---------------UC06 dùng chung các dạng CSS------------------*/
 /* ---------- Thông báo ---------- */
 .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid transparent; }
 .alert ul { margin: 6px 0 0; padding-left: 20px; }
@@ -126,7 +126,7 @@ h1, h2, h3 { margin: 0; }
 .alert-error { background: var(--danger-bg); color: #8a2218; border-color: #f6c2bc; }
 .alert-info { background: var(--info-bg); color: #164a9e; border-color: #bcd3fb; }
 
-/* ---------- Card ---------- */
+/* ----------UC06 Card  thông báo---------- */
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 18px; }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .card-head h2, .card-title { font-size: 16px; font-weight: 700; color: var(--navy); }
@@ -244,4 +244,39 @@ a.stat-card:hover { border-color: var(--primary); }
     .user-info { display: none; }
     .content { padding: 16px; }
     .topbar { padding: 0 14px; }
+}
+
+/* ---------- Bổ sung cho UC06: trường lỗi, nút nhỏ, màn hình xác nhận ---------- */
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+.err-msg { display: block; color: var(--danger); font-size: 12px; margin-top: 4px; }
+.field.invalid input, .field.invalid select, input.is-invalid { border-color: var(--danger); background: #fff7f6; }
+.field.invalid input:focus, .field.invalid select:focus, input.is-invalid:focus { box-shadow: 0 0 0 3px rgba(192, 57, 43, .15); }
+.field .hint { margin: 0; }
+.lines input[type=number] { min-width: 110px; }
+.kv { margin: 0; display: grid; grid-template-columns: 150px 1fr; }
+.kv dt, .kv dd { margin: 0; padding: 9px 0; border-bottom: 1px dashed var(--line); }
+.kv dt { color: var(--muted); font-weight: 600; font-size: 13px; }
+.kv dd { font-weight: 500; }
+.kv dt:last-of-type, .kv dd:last-of-type { border-bottom: 0; }
+code { background: #eef2f8; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+
+/* ---------- UC06: dòng bấm được + popup chi tiết phiếu tiếp nhận ---------- */
+.cell-nguon { white-space: normal !important; min-width: 200px; max-width: 320px; }
+.filter-grid select { text-overflow: ellipsis; }
+.row-link { cursor: pointer; }
+.row-link:hover { background: #eef4ff !important; }
+.row-link .js-detail-link { color: var(--primary); }
+
+body.modal-open { overflow: hidden; }
+.modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal[hidden] { display: none; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(16, 24, 40, .5); }
+.modal-dialog { position: relative; width: min(560px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #fff; border-radius: var(--radius); box-shadow: 0 20px 50px rgba(16, 24, 40, .3); }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+.modal-head h3 { font-size: 16px; font-weight: 700; color: var(--navy); }
+.modal-head .icon-btn { font-size: 22px; line-height: 1; }
+.modal-body { padding: 8px 20px 12px; overflow-y: auto; }
+.modal-foot { display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--line); }
+@media (max-width: 520px) {
+    .kv { grid-template-columns: 120px 1fr; }
 }
