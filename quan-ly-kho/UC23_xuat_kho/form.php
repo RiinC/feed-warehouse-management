@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . '/../../includes/auth.php';
 require_module('UC23');
@@ -19,6 +18,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Người lập phiếu cố định, không kiểm tra đăng nhập / NhanVienKho.
+const UC23_NGUOI_LAP = 'Trần Thị Kho';
+
 function uc23e($value): string
 {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
@@ -27,6 +29,12 @@ function uc23e($value): string
 function uc23money($value): string
 {
     return number_format((float)$value, 0, ',', '.') . ' đ';
+}
+
+/** Số lượng hiển thị dạng số nguyên, không dấu chấm/phẩy thập phân. */
+function uc23int($value): string
+{
+    return (string)(int)round((float)$value);
 }
 
 /**
@@ -53,7 +61,6 @@ function taoMaPhieuXuat(mysqli $db): string
 
 /**
  * Đọc danh sách cột thực tế của bảng.
- * Giúp kiểm tra schema QLK04 trước khi INSERT.
  */
 function uc23Columns(mysqli $db, string $table): array
 {
@@ -110,7 +117,13 @@ function uc23Insert(mysqli $db, string $table, array $data): void
     $types = '';
 
     foreach ($values as $value) {
-        $types .= is_int($value) || is_float($value) ? 'd' : 's';
+        if (is_int($value)) {
+            $types .= 'i';
+        } elseif (is_float($value)) {
+            $types .= 'd';
+        } else {
+            $types .= 's';
+        }
     }
 
     $stmt->bind_param($types, ...$values);
@@ -127,17 +140,10 @@ $selectedProposal = trim((string)(
     ''
 ));
 
-
-$ngayLapInput = trim((string)(
-    $_POST['ngayLap']
-    ?? date('Y-m-d\TH:i')
-));
-
 $khoXuat = trim((string)($_POST['khoXuat'] ?? ''));
 $diaDiemXuat = trim((string)($_POST['diaDiemXuat'] ?? ''));
 $ghiChu = trim((string)($_POST['ghiChu'] ?? ''));
 
-// Danh sách lựa chọn lấy từ các yêu cầu xuất kho hiện có.
 $warehouseOptions = [];
 $locationOptions = [];
 
@@ -147,14 +153,15 @@ $lineNotes = $_POST['ghiChuDong'] ?? [];
 $requests = [];
 $proposal = null;
 $lines = [];
-$employees = [];
 $previewCode = 'PX' . date('YmdHis') . random_int(10, 99);
 
+// Người lập phiếu: mặc định là "Trần Thị Kho".
+$tenNguoiLapPhieu = trim((string)($_POST['nguoiLapPhieu'] ?? ''));
+if ($tenNguoiLapPhieu === '') {
+    $tenNguoiLapPhieu = UC23_NGUOI_LAP;
+}
+
 try {
-    /*
-     * Mỗi lựa chọn là một đề xuất FEFO đã được duyệt.
-     * DeXuatFEFO.maDeXuatFEFO là khóa của đề xuất.
-     */
     $requests = $db->query("
         SELECT
             d.maDeXuatFEFO,
@@ -186,52 +193,36 @@ try {
         ORDER BY d.ngayTao DESC, d.maDeXuatFEFO DESC
     ")->fetch_all(MYSQLI_ASSOC);
 
-    /*
-     * Nhân viên lập phiếu.
-     */
-    $employees = $db->query("
-        SELECT maNhanVien, hoTen
-        FROM NhanVienKho
-        ORDER BY hoTen
-    ")->fetch_all(MYSQLI_ASSOC);
-    
-foreach ($requests as $r) {
-    $warehouse = trim((string)($r['khoXuat'] ?? ''));
-    $location = trim((string)($r['diaDiemXuat'] ?? ''));
+    foreach ($requests as $r) {
+        $warehouse = trim((string)($r['khoXuat'] ?? ''));
+        $location = trim((string)($r['diaDiemXuat'] ?? ''));
 
-    if ($warehouse !== '') {
-        $warehouseOptions[$warehouse] = $warehouse;
+        if ($warehouse !== '') {
+            $warehouseOptions[$warehouse] = $warehouse;
+        }
+
+        if ($location !== '') {
+            $locationOptions[$location] = $location;
+        }
     }
 
-    if ($location !== '') {
-        $locationOptions[$location] = $location;
+    if ($khoXuat !== '') {
+        $warehouseOptions[$khoXuat] = $khoXuat;
     }
-}
 
-// Giữ lại lựa chọn khi người dùng gửi form nhưng gặp lỗi.
-if ($khoXuat !== '') {
-    $warehouseOptions[$khoXuat] = $khoXuat;
-}
+    if ($diaDiemXuat !== '') {
+        $locationOptions[$diaDiemXuat] = $diaDiemXuat;
+    }
 
-if ($diaDiemXuat !== '') {
-    $locationOptions[$diaDiemXuat] = $diaDiemXuat;
-}
+    if (!$warehouseOptions) {
+        $warehouseOptions['Kho QLK04'] = 'Kho QLK04';
+    }
 
-// Giá trị mặc định nếu chưa có yêu cầu nào cung cấp dữ liệu.
-if (!$warehouseOptions) {
-    $warehouseOptions['Kho QLK04'] = 'Kho QLK04';
-}
+    if (!$locationOptions) {
+        $locationOptions['Ke A1'] = 'Kệ A1';
+        $locationOptions['Ke B1'] = 'Kệ B1';
+    }
 
-if (!$locationOptions) {
-    $locationOptions['Ke A1'] = 'Kệ A1';
-    $locationOptions['Ke B1'] = 'Kệ B1';
-}
-
-
-    /*
-     * Lấy một đề xuất cụ thể.
-     * Không sử dụng d.maDeXuat vì cột đúng là maDeXuatFEFO.
-     */
     if ($selectedProposal !== '') {
         $stmt = $db->prepare("
             SELECT
@@ -266,16 +257,6 @@ if (!$locationOptions) {
         $stmt->close();
 
         if ($proposal) {
-            /*
-             * QUAN TRỌNG:
-             *
-             * Một đề xuất FEFO -> một lô hàng.
-             * Một lô hàng -> nhiều hàng hóa trong ChiTietLoHang.
-             * ChiTietDeXuatFEFO lưu các dòng hàng của đề xuất.
-             *
-             * Không JOIN LoHang bằng l.maHangHoa vì mã hàng nằm
-             * trong bảng ChiTietLoHang.
-             */
             $stmt = $db->prepare("
                 SELECT
                     c.maChiTietDeXuat,
@@ -369,100 +350,53 @@ if (
     if (!$proposal || !$lines) {
         $error = 'Vui lòng chọn đề xuất FEFO hợp lệ có chi tiết hàng hóa.';
     } else {
-        $maNhanVien = trim((string)($_POST['maNhanVien'] ?? ''));
-
-        $employeeExists = false;
-        foreach ($employees as $employee) {
-            if ($employee['maNhanVien'] === $maNhanVien) {
-                $employeeExists = true;
-                break;
-            }
-        }
-
-        if (!$employeeExists) {
-            $error = 'Vui lòng chọn nhân viên lập phiếu hợp lệ.';
-        }
-        
-$dateTime = null;
-
-if ($error === '') {
-    $dateTime = DateTime::createFromFormat(
-        'Y-m-d\TH:i',
-        $ngayLapInput
-    );
-
-    if (
-        !$dateTime
-        || $dateTime->format('Y-m-d\TH:i') !== $ngayLapInput
-    ) {
-        $error = 'Vui lòng chọn ngày giờ lập phiếu hợp lệ.';
-    }
-}
-
+        $dateTime = new DateTime('now');
 
         $checked = [];
         $sumByProduct = [];
 
-        if ($error === '') {
-            foreach ($lines as $line) {
-                $id = (string)$line['maChiTietDeXuat'];
-                $raw = trim((string)($qtyInput[$id] ?? '0'));
+        foreach ($lines as $line) {
+            $id = (string)$line['maChiTietDeXuat'];
+            $raw = trim((string)($qtyInput[$id] ?? ''));
 
-                if ($raw === '') {
-                    $raw = '0';
-                }
-
-                if ($raw === '' || !is_numeric($raw) || (float)$raw <= 0) {
-                    $error = 'Số lượng thực xuất của từng hàng hóa phải lớn hơn 0.';
-                    break;
-                }
-
-                $qty = (float)$raw;
-
-                $fefoRemaining = max(
-                    0,
-                    (float)$line['soLuongDeXuat']
-                    - (float)$line['daXuatTheoLo']
-                );
-
-                $requestRemaining = max(
-                    0,
-                    (float)$line['soLuongYeuCau']
-                    - (float)$line['daXuatTheoHang']
-                );
-
-                if (
-                    $qty > $fefoRemaining
-                    || $qty > (float)$line['tonKhaDung']
-                ) {
-                    $error =
-                        'Số lượng xuất vượt lượng FEFO còn lại hoặc tồn khả dụng: '
-                        . $line['maHangHoa'] . ' / lô '
-                        . $line['maLoHang'] . '.';
-                    break;
-                }
-
-                $sumByProduct[$line['maHangHoa']] =
-                    ($sumByProduct[$line['maHangHoa']] ?? 0) + $qty;
-
-                $checked[] = [
-                    'line' => $line,
-                    'qty' => $qty,
-                    'note' => trim(
-                        (string)($lineNotes[$id] ?? '')
-                    )
-                ];
+            // Số lượng phải là số nguyên dương (không có dấu chấm/phẩy).
+            if (!preg_match('/^\d+$/', $raw) || (int)$raw <= 0) {
+                $error = 'Số lượng thực xuất phải là số nguyên lớn hơn 0 (không có dấu chấm).';
+                break;
             }
+
+            $qty = (int)$raw;
+
+            $fefoRemaining = max(
+                0,
+                (int)round((float)$line['soLuongDeXuat'])
+                - (int)round((float)$line['daXuatTheoLo'])
+            );
+
+            $tonKhaDung = (int)floor((float)$line['tonKhaDung']);
+
+            if ($qty > $fefoRemaining || $qty > $tonKhaDung) {
+                $error =
+                    'Số lượng xuất vượt lượng FEFO còn lại hoặc tồn khả dụng: '
+                    . $line['maHangHoa'] . ' / lô '
+                    . $line['maLoHang'] . '.';
+                break;
+            }
+
+            $sumByProduct[$line['maHangHoa']] =
+                ($sumByProduct[$line['maHangHoa']] ?? 0) + $qty;
+
+            $checked[] = [
+                'line' => $line,
+                'qty' => $qty,
+                'note' => trim((string)($lineNotes[$id] ?? ''))
+            ];
         }
 
         if ($error === '' && !$checked) {
             $error = 'Vui lòng nhập số lượng thực xuất lớn hơn 0.';
         }
 
-        /*
-         * Không cho tổng số lượng xuất của một mặt hàng
-         * vượt số lượng yêu cầu còn lại.
-         */
         if ($error === '') {
             foreach ($lines as $line) {
                 $productId = $line['maHangHoa'];
@@ -473,8 +407,8 @@ if ($error === '') {
 
                 $remaining = max(
                     0,
-                    (float)$line['soLuongYeuCau']
-                    - (float)$line['daXuatTheoHang']
+                    (int)round((float)$line['soLuongYeuCau'])
+                    - (int)round((float)$line['daXuatTheoHang'])
                 );
 
                 if ($sumByProduct[$productId] > $remaining) {
@@ -490,10 +424,6 @@ if ($error === '') {
             try {
                 $db->begin_transaction();
 
-                /*
-                 * Khóa đề xuất và lô hàng, sau đó kiểm tra lại
-                 * trạng thái trước khi ghi dữ liệu.
-                 */
                 $stmt = $db->prepare("
                     SELECT d.maDeXuatFEFO, d.maYeuCau, d.maLoHang
                     FROM DeXuatFEFO d
@@ -532,44 +462,34 @@ if ($error === '') {
                     ? $diaDiemXuat
                     : (string)($proposal['diaDiemXuat'] ?? '');
 
-                $totalQty = array_sum($sumByProduct);
+                $totalQty = (int)array_sum($sumByProduct);
 
-                /*
-                 * Các cột được lọc theo cấu trúc thực tế.
-                 * Nếu bảng có cột bắt buộc khác không có mặc định,
-                 * MySQL sẽ báo lỗi cụ thể để xác định cần bổ sung.
-                 */
-                
-$header = [
-    'maPhieuXuat' => $maPhieuXuat,
-    'maYeuCau' => $proposal['maYeuCau'],
+                // Chỉ các cột có thật trong bảng mới được ghi (uc23Insert tự lọc).
+                $header = [
+                    'maPhieuXuat' => $maPhieuXuat,
+                    'maYeuCau' => $proposal['maYeuCau'],
+                    'maDeXuatFEFO' => $proposal['maDeXuatFEFO'],
+                    'maNhanVien' => null,
+                    'tenNguoiLap' => $tenNguoiLapPhieu,
+                    'nguoiLap' => $tenNguoiLapPhieu,
+                    'nguoiLapPhieu' => $tenNguoiLapPhieu,
+                    'ngayLap' => $dateTime->format('Y-m-d H:i:s'),
+                    'khoXuat' => $warehouse,
+                    'diaDiemXuat' => $location,
+                    'trangThai' => 'Da xuat',
+                    'ghiChu' => $ghiChu,
+                    'soLuongThucXuat' => $totalQty
+                ];
 
-    // Bổ sung mã đề xuất FEFO để thỏa mãn khóa ngoại
-    'maDeXuatFEFO' => $proposal['maDeXuatFEFO'],
-
-    'maNhanVien' => $maNhanVien,
-    'ngayLap' => $dateTime->format('Y-m-d H:i:s'),
-    'khoXuat' => $warehouse,
-    'diaDiemXuat' => $location,
-    'trangThai' => 'Da xuat',
-    'ghiChu' => $ghiChu,
-    'soLuongThucXuat' => $totalQty
-];
-
-uc23Insert($db, 'PhieuXuatKho', $header);
-
-
+                uc23Insert($db, 'PhieuXuatKho', $header);
 
                 foreach ($checked as $item) {
                     $line = $item['line'];
-                    $qty = (float)$item['qty'];
+                    $qty = (int)$item['qty'];
                     $price = (float)$line['donGiaNhap'];
                     $amount = $qty * $price;
+                    $maChiTietLo = (int)$line['maChiTietLo'];
 
-                    /*
-                     * Khóa đúng dòng hàng hóa trong lô.
-                     * Một lô có nhiều ChiTietLoHang.
-                     */
                     $stmt = $db->prepare("
                         SELECT soLuongTon, soLuongDaGiu
                         FROM ChiTietLoHang
@@ -581,7 +501,7 @@ uc23Insert($db, 'PhieuXuatKho', $header);
 
                     $stmt->bind_param(
                         'iss',
-                        $line['maChiTietLo'],
+                        $maChiTietLo,
                         $line['maLoHang'],
                         $line['maHangHoa']
                     );
@@ -606,8 +526,7 @@ uc23Insert($db, 'PhieuXuatKho', $header);
 
                     $note = $item['note'] !== ''
                         ? $item['note']
-                        : 'Theo đề xuất FEFO '
-                            . $proposal['maDeXuatFEFO'];
+                        : 'Theo đề xuất FEFO ' . $proposal['maDeXuatFEFO'];
 
                     uc23Insert(
                         $db,
@@ -623,9 +542,6 @@ uc23Insert($db, 'PhieuXuatKho', $header);
                         ]
                     );
 
-                    /*
-                     * Chỉ cập nhật đúng mặt hàng thuộc lô đã chọn.
-                     */
                     $stmt = $db->prepare("
                         UPDATE ChiTietLoHang
                         SET soLuongTon = soLuongTon - ?
@@ -636,9 +552,9 @@ uc23Insert($db, 'PhieuXuatKho', $header);
                     ");
 
                     $stmt->bind_param(
-                        'dissd',
+                        'iissi',
                         $qty,
-                        $line['maChiTietLo'],
+                        $maChiTietLo,
                         $line['maLoHang'],
                         $line['maHangHoa'],
                         $qty
@@ -657,10 +573,6 @@ uc23Insert($db, 'PhieuXuatKho', $header);
                     $stmt->close();
                 }
 
-                /*
-                 * Cập nhật trạng thái yêu cầu theo số lượng
-                 * đã xuất thực tế của từng mặt hàng.
-                 */
                 $stmt = $db->prepare("
                     SELECT
                         cy.maHangHoa,
@@ -686,19 +598,14 @@ uc23Insert($db, 'PhieuXuatKho', $header);
                 $allDone = true;
 
                 while ($row = $result->fetch_assoc()) {
-                    if (
-                        (float)$row['daXuat']
-                        < (float)$row['soLuongYeuCau']
-                    ) {
+                    if ((float)$row['daXuat'] < (float)$row['soLuongYeuCau']) {
                         $allDone = false;
                     }
                 }
 
                 $stmt->close();
 
-                $requestStatus = $allDone
-                    ? 'Da xuat'
-                    : 'Da xuat mot phan';
+                $requestStatus = $allDone ? 'Da xuat' : 'Da xuat mot phan';
 
                 $stmt = $db->prepare("
                     UPDATE YeuCauXuatKho
@@ -706,12 +613,7 @@ uc23Insert($db, 'PhieuXuatKho', $header);
                     WHERE maYeuCau = ?
                 ");
 
-                $stmt->bind_param(
-                    'ss',
-                    $requestStatus,
-                    $proposal['maYeuCau']
-                );
-
+                $stmt->bind_param('ss', $requestStatus, $proposal['maYeuCau']);
                 $stmt->execute();
                 $stmt->close();
 
@@ -730,8 +632,7 @@ uc23Insert($db, 'PhieuXuatKho', $header);
                 } catch (Throwable $ignored) {
                 }
 
-                $error = 'Không thể lập phiếu xuất kho: '
-                    . $e->getMessage();
+                $error = 'Không thể lập phiếu xuất kho: ' . $e->getMessage();
             }
         }
     }
@@ -745,7 +646,6 @@ include ROOT_PATH . '/includes/toolbar.php';
 
 <div class="uc23-page">
     <div class="uc23-heading">
-        <h2>Lập phiếu xuất kho</h2>
         <p>
             Chọn yêu cầu đã duyệt và đề xuất FEFO.
             Mỗi đề xuất thuộc một lô hàng và có thể có nhiều hàng hóa.
@@ -761,19 +661,13 @@ include ROOT_PATH . '/includes/toolbar.php';
     <form method="get" class="uc23-picker">
         <div class="uc23-field">
             <label for="maDeXuatFEFO">Yêu cầu xuất kho / Đề xuất FEFO *</label>
-            <select
-                name="maDeXuatFEFO"
-                id="maDeXuatFEFO"
-                required
-            >
+            <select name="maDeXuatFEFO" id="maDeXuatFEFO" required>
                 <option value="">-- Chọn yêu cầu xuất kho --</option>
 
                 <?php foreach ($requests as $r): ?>
                     <option
                         value="<?= uc23e($r['maDeXuatFEFO']) ?>"
-                        <?= $selectedProposal === $r['maDeXuatFEFO']
-                            ? 'selected'
-                            : '' ?>
+                        <?= $selectedProposal === $r['maDeXuatFEFO'] ? 'selected' : '' ?>
                     >
                         <?= uc23e(
                             $r['maYeuCau']
@@ -787,9 +681,7 @@ include ROOT_PATH . '/includes/toolbar.php';
             </select>
         </div>
 
-        <button class="btn btn-primary" type="submit">
-            Xem đề xuất
-        </button>
+        <button class="btn btn-primary" type="submit">Xem chi tiết</button>
     </form>
 
     <?php if (!$requests): ?>
@@ -823,122 +715,72 @@ include ROOT_PATH . '/includes/toolbar.php';
                         <input value="<?= uc23e($previewCode) ?>" readonly>
                     </div>
 
-                    
-<div class="uc23-field">
-    <label for="ngayLap">Ngày lập *</label>
-    <input
-        type="datetime-local"
-        id="ngayLap"
-        name="ngayLap"
-        value="<?= uc23e($ngayLapInput) ?>"
-        step="60"
-        required
-    >
-</div>
-
+                    <div class="uc23-field">
+                        <label>Ngày lập</label>
+                        <input type="text" value="<?= uc23e(date('d/m/Y H:i')) ?>" readonly>
+                    </div>
 
                     <div class="uc23-field">
                         <label>Mã yêu cầu</label>
-                        <input
-                            value="<?= uc23e($proposal['maYeuCau']) ?>"
-                            readonly
-                        >
+                        <input value="<?= uc23e($proposal['maYeuCau']) ?>" readonly>
                     </div>
 
                     <div class="uc23-field">
                         <label>Mã đề xuất FEFO</label>
-                        <input
-                            value="<?= uc23e($proposal['maDeXuatFEFO']) ?>"
-                            readonly
-                        >
+                        <input value="<?= uc23e($proposal['maDeXuatFEFO']) ?>" readonly>
                     </div>
 
                     <div class="uc23-field">
                         <label>Mã lô hàng</label>
-                        <input
-                            value="<?= uc23e($proposal['maLoHang']) ?>"
-                            readonly
-                        >
+                        <input value="<?= uc23e($proposal['maLoHang']) ?>" readonly>
                     </div>
 
                     <div class="uc23-field">
-                        <label>Người lập phiếu *</label>
-                        <select name="maNhanVien" required>
-                            <option value="">-- Chọn nhân viên --</option>
-                            <?php foreach ($employees as $emp): ?>
+                        <label for="nguoiLapPhieu">Người lập phiếu</label>
+                        <input type="text" name="nguoiLapPhieu" id="nguoiLapPhieu" value="<?= uc23e($tenNguoiLapPhieu) ?>">
+                    </div>
+
+                    <div class="uc23-field">
+                        <label for="khoXuat">Kho xuất *</label>
+                        <select name="khoXuat" id="khoXuat" required>
+                            <option value="">-- Chọn kho xuất --</option>
+                            <?php foreach ($warehouseOptions as $value => $label): ?>
                                 <option
-                                    value="<?= uc23e($emp['maNhanVien']) ?>"
-                                    <?= ($_POST['maNhanVien'] ?? '')
-                                        === $emp['maNhanVien']
-                                        ? 'selected'
-                                        : '' ?>
+                                    value="<?= uc23e($value) ?>"
+                                    <?= (
+                                        $khoXuat !== ''
+                                            ? $khoXuat
+                                            : (string)($proposal['khoXuat'] ?? '')
+                                    ) === (string)$value ? 'selected' : '' ?>
                                 >
-                                    <?= uc23e(
-                                        $emp['maNhanVien']
-                                        . ' — '
-                                        . $emp['hoTen']
-                                    ) ?>
+                                    <?= uc23e($label) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
-                    
-<div class="uc23-field">
-    <label for="khoXuat">Kho xuất *</label>
-
-    <select name="khoXuat" id="khoXuat" required>
-        <option value="">-- Chọn kho xuất --</option>
-
-        <?php foreach ($warehouseOptions as $value => $label): ?>
-            <option
-                value="<?= uc23e($value) ?>"
-                <?= (
-                    $khoXuat !== ''
-                        ? $khoXuat
-                        : (string)($proposal['khoXuat'] ?? '')
-                ) === $value ? 'selected' : '' ?>
-            >
-                <?= uc23e($label) ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
-
-
-                    
-<div class="uc23-field">
-    <label for="diaDiemXuat">Địa điểm xuất *</label>
-
-    <select
-        name="diaDiemXuat"
-        id="diaDiemXuat"
-        required
-    >
-        <option value="">-- Chọn địa điểm xuất --</option>
-
-        <?php foreach ($locationOptions as $value => $label): ?>
-            <option
-                value="<?= uc23e($value) ?>"
-                <?= (
-                    $diaDiemXuat !== ''
-                        ? $diaDiemXuat
-                        : (string)($proposal['diaDiemXuat'] ?? '')
-                ) === $value ? 'selected' : '' ?>
-            >
-                <?= uc23e($label) ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
-
+                    <div class="uc23-field">
+                        <label for="diaDiemXuat">Địa điểm xuất *</label>
+                        <select name="diaDiemXuat" id="diaDiemXuat" required>
+                            <option value="">-- Chọn địa điểm xuất --</option>
+                            <?php foreach ($locationOptions as $value => $label): ?>
+                                <option
+                                    value="<?= uc23e($value) ?>"
+                                    <?= (
+                                        $diaDiemXuat !== ''
+                                            ? $diaDiemXuat
+                                            : (string)($proposal['diaDiemXuat'] ?? '')
+                                    ) === (string)$value ? 'selected' : '' ?>
+                                >
+                                    <?= uc23e($label) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
                     <div class="uc23-field uc23-wide">
                         <label>Ghi chú phiếu xuất</label>
-                        <textarea
-                            name="ghiChu"
-                            rows="2"
-                        ><?= uc23e($ghiChu) ?></textarea>
+                        <textarea name="ghiChu" rows="2"><?= uc23e($ghiChu) ?></textarea>
                     </div>
                 </div>
             </section>
@@ -948,7 +790,7 @@ include ROOT_PATH . '/includes/toolbar.php';
                 <p class="uc23-help">
                     Tất cả hàng hóa bên dưới thuộc cùng một lô.
                     Hạn sử dụng được lấy từ ChiTietLoHang.
-                    Không nhập vượt số lượng FEFO còn lại hoặc tồn khả dụng.
+                    Số lượng là số nguyên, không nhập vượt số lượng FEFO còn lại hoặc tồn khả dụng.
                 </p>
 
                 <div class="uc23-table-wrap">
@@ -975,22 +817,20 @@ include ROOT_PATH . '/includes/toolbar.php';
                         <?php foreach ($lines as $i => $line):
                             $remainingFefo = max(
                                 0,
-                                (float)$line['soLuongDeXuat']
-                                - (float)$line['daXuatTheoLo']
+                                (int)round((float)$line['soLuongDeXuat'])
+                                - (int)round((float)$line['daXuatTheoLo'])
                             );
 
-                            $maxQty = min(
+                            $maxQty = (int)min(
                                 $remainingFefo,
-                                (float)$line['tonKhaDung']
+                                (int)floor((float)$line['tonKhaDung'])
                             );
 
-                            $qty = (string)(
-                                $qtyInput[$line['maChiTietDeXuat']]
-                                ?? $maxQty
-                            );
+                            $qtyRaw = $qtyInput[$line['maChiTietDeXuat']] ?? $maxQty;
+                            $qty = (int)$qtyRaw;
 
                             $price = (float)$line['donGiaNhap'];
-                            $rowTotal = (float)$qty * $price;
+                            $rowTotal = $qty * $price;
                         ?>
                             <tr>
                                 <td><?= $i + 1 ?></td>
@@ -1000,14 +840,11 @@ include ROOT_PATH . '/includes/toolbar.php';
                                 <td><?= uc23e($line['maLoHang']) ?></td>
                                 <td>
                                     <?= uc23e(
-                                        date(
-                                            'd/m/Y H:i',
-                                            strtotime($line['ngayHetHan'])
-                                        )
+                                        date('d/m/Y H:i', strtotime($line['ngayHetHan']))
                                     ) ?>
                                 </td>
-                                <td><?= uc23e($line['soLuongYeuCau']) ?></td>
-                                <td><?= uc23e($line['tonKhaDung']) ?></td>
+                                <td><?= uc23e(uc23int($line['soLuongYeuCau'])) ?></td>
+                                <td><?= uc23e(uc23int($line['tonKhaDung'])) ?></td>
                                 <td><?= uc23e($remainingFefo) ?></td>
 
                                 <td>
@@ -1015,10 +852,13 @@ include ROOT_PATH . '/includes/toolbar.php';
                                         class="uc23-qty"
                                         type="number"
                                         name="qty[<?= (int)$line['maChiTietDeXuat'] ?>]"
-                                        min="0.001"
-                                        max="<?= uc23e($maxQty) ?>"
-                                        step="0.001"
-                                        value="<?= uc23e($qty) ?>"
+                                        min="1"
+max="<?= uc23e($maxQty) ?>"
+step="1"
+oninvalid="this.setCustomValidity('Vui lòng nhập số lượng từ 1  trở lên và không vượt quá số lượng tồn kho.')"
+oninput="this.setCustomValidity('')"
+                                        inputmode="numeric"
+                                        value="<?= (int)$qty ?>"
                                         data-price="<?= uc23e($price) ?>"
                                         data-total="total-<?= (int)$line['maChiTietDeXuat'] ?>"
                                         required
@@ -1035,15 +875,11 @@ include ROOT_PATH . '/includes/toolbar.php';
                                 </td>
 
                                 <td>
-                                    <input
-                                        type="text"
+                                    <textarea
                                         name="ghiChuDong[<?= (int)$line['maChiTietDeXuat'] ?>]"
-                                        value="<?= uc23e(
-                                            $lineNotes[$line['maChiTietDeXuat']]
-                                            ?? ''
-                                        ) ?>"
-                                        placeholder="Ghi chú"
-                                    >
+                                        rows="2"
+                                        placeholder="Nhập ghi chú"
+                                    ><?= uc23e($lineNotes[$line['maChiTietDeXuat']] ?? '') ?></textarea>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -1127,27 +963,31 @@ include ROOT_PATH . '/includes/toolbar.php';
 
     inputs.forEach(input => {
         input.addEventListener('input', updateTotals);
+
+        // Chặn nhập dấu chấm, dấu phẩy, e, +, - (chỉ cho số nguyên).
+        input.addEventListener('keydown', function (e) {
+            if (['.', ',', 'e', 'E', '+', '-'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
     });
 
     form.addEventListener('submit', function (event) {
         for (const input of inputs) {
-            const qty = Number(input.value);
+            const raw = input.value.trim();
+            const qty = Number(raw);
             const max = Number(input.max);
 
-            if (
-                input.value.trim() === '' ||
-                !Number.isFinite(qty) ||
-                qty <= 0 ||
-                qty > max
-            ) {
+            if (!/^\d+$/.test(raw) || qty <= 0) {
                 event.preventDefault();
+                alert('Số lượng thực xuất phải là số nguyên lớn hơn 0 (không có dấu chấm).');
+                input.focus();
+                return;
+            }
 
-                if (!Number.isFinite(qty) || input.value.trim() === '' || qty <= 0) {
-                    alert('Số lượng thực xuất của từng hàng hóa phải lớn hơn 0.');
-                } else {
-                    alert('Số lượng thực xuất không được vượt quá giới hạn FEFO còn lại và tồn khả dụng (' + max + ').');
-                }
-
+            if (qty > max) {
+                event.preventDefault();
+                alert('Số lượng thực xuất không được vượt quá giới hạn FEFO còn lại và tồn khả dụng (' + max + ').');
                 input.focus();
                 return;
             }
