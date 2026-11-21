@@ -1,0 +1,9 @@
+# Dành cho XAMPP/Laragon khi mở http://localhost/feedware/ (DocumentRoot chưa trỏ vào public/).
+# Mọi yêu cầu được chuyển vào public/; core/, app/, config/, database/ không thể truy cập từ trình duyệt.
+# Khuyến nghị: cấu hình VirtualHost/DocumentRoot trỏ thẳng vào thư mục public/ (xem docs/TAI-LIEU-TRIEN-KHAI.md).
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^public/ - [L]
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
