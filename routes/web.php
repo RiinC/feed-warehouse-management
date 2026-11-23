@@ -53,9 +53,26 @@ $router->get('chat-luong', [ChatLuongController::class, 'index'], 'chat-luong', 
 
 // ---- dieu-chuyen ----
 $router->get('dieu-chuyen', [DieuChuyenController::class, 'index'], 'dieu-chuyen', 'view');
+$router->get('dieu-chuyen/create', [DieuChuyenController::class, 'create'], 'dieu-chuyen', 'create');
+$router->post('dieu-chuyen/create/lot', [DieuChuyenController::class, 'createLot'], 'dieu-chuyen', 'create');
+$router->get('dieu-chuyen/create/source', [DieuChuyenController::class, 'createSource'], 'dieu-chuyen', 'create');
+$router->post('dieu-chuyen/create/source', [DieuChuyenController::class, 'createSourceSave'], 'dieu-chuyen', 'create');
+$router->get('dieu-chuyen/create/destination', [DieuChuyenController::class, 'createDestination'], 'dieu-chuyen', 'create');
+$router->post('dieu-chuyen/create/destination', [DieuChuyenController::class, 'createDestinationSave'], 'dieu-chuyen', 'create');
+$router->get('dieu-chuyen/create/info', [DieuChuyenController::class, 'createInfo'], 'dieu-chuyen', 'create');
+$router->post('dieu-chuyen/create/info', [DieuChuyenController::class, 'createInfoSave'], 'dieu-chuyen', 'create');
+$router->get('dieu-chuyen/create/confirm', [DieuChuyenController::class, 'createConfirm'], 'dieu-chuyen', 'create');
+$router->post('dieu-chuyen/create/reset', [DieuChuyenController::class, 'createReset'], 'dieu-chuyen', 'create');
+$router->post('dieu-chuyen/store', [DieuChuyenController::class, 'store'], 'dieu-chuyen', 'create');
+$router->get('dieu-chuyen/detail', [DieuChuyenController::class, 'detail'], 'dieu-chuyen', 'view');
+$router->get('dieu-chuyen/approve', [DieuChuyenController::class, 'approve'], 'dieu-chuyen', 'approve');
+$router->post('dieu-chuyen/approve/save', [DieuChuyenController::class, 'approveSave'], 'dieu-chuyen', 'approve');
+$router->post('dieu-chuyen/execute', [DieuChuyenController::class, 'execute'], 'dieu-chuyen', 'execute');
+$router->post('dieu-chuyen/cancel', [DieuChuyenController::class, 'cancel'], 'dieu-chuyen', 'create');
 
 // ---- gan-lo-hang ----
 $router->get('gan-lo-hang', [GanLoHangController::class, 'index'], 'gan-lo-hang', 'view');
+$router->post('gan-lo-hang/assign', [GanLoHangController::class, 'assign'], 'gan-lo-hang', 'assign');
 
 // ---- hang-bat-thuong ----
 $router->get('hang-bat-thuong', [HangBatThuongController::class, 'index'], 'hang-bat-thuong', 'view');
@@ -84,6 +101,13 @@ $router->get('ton-kho', [TonKhoController::class, 'index'], 'ton-kho', 'view');
 
 // ---- vi-tri-luu-tru ----
 $router->get('vi-tri-luu-tru', [ViTriLuuTruController::class, 'index'], 'vi-tri-luu-tru', 'view');
+$router->get('vi-tri-luu-tru/detail', [ViTriLuuTruController::class, 'detail'], 'vi-tri-luu-tru', 'view');
+$router->get('vi-tri-luu-tru/create', [ViTriLuuTruController::class, 'create'], 'vi-tri-luu-tru', 'create');
+$router->post('vi-tri-luu-tru/store', [ViTriLuuTruController::class, 'store'], 'vi-tri-luu-tru', 'create');
+$router->get('vi-tri-luu-tru/edit', [ViTriLuuTruController::class, 'edit'], 'vi-tri-luu-tru', 'edit');
+$router->post('vi-tri-luu-tru/update', [ViTriLuuTruController::class, 'update'], 'vi-tri-luu-tru', 'edit');
+$router->get('vi-tri-luu-tru/stop-using', [ViTriLuuTruController::class, 'stopUsing'], 'vi-tri-luu-tru', 'stop');
+$router->post('vi-tri-luu-tru/stop', [ViTriLuuTruController::class, 'stop'], 'vi-tri-luu-tru', 'stop');
 
 // ---- xuat-kho ----
 $router->get('xuat-kho/yeu-cau', [XuatKhoController::class, 'requests'], 'xuat-kho', 'view');
@@ -133,22 +157,6 @@ $router->get('xuat-kho/yeu-cau', [XuatKhoController::class, 'requests'], 'xuat-k
 // ------------------------------------------------------------------
 // TODO UC10 — Lập phiếu nhập kho  [quyền: nhap-kho/create]
 // $router->get('nhap-kho/create', [NhapKhoController::class, 'create'], 'nhap-kho', 'create');
-
-// ------------------------------------------------------------------
-// CHỜ TRIỂN KHAI - ĐIỀU CHUYỂN NỘI BỘ  (trang chính: dieu-chuyen)
-// ------------------------------------------------------------------
-// TODO UC17 — Lập phiếu điều chuyển  [quyền: dieu-chuyen/create]
-// $router->get('dieu-chuyen/create', [DieuChuyenController::class, 'create'], 'dieu-chuyen', 'create');
-
-// ------------------------------------------------------------------
-// CHỜ TRIỂN KHAI - QUẢN LÝ VỊ TRÍ LƯU TRỮ  (trang chính: vi-tri-luu-tru)
-// ------------------------------------------------------------------
-// TODO UC12 — Thêm thông tin vị trí lưu trữ  [quyền: vi-tri-luu-tru/create]
-// $router->get('vi-tri-luu-tru/create', [ViTriLuuTruController::class, 'create'], 'vi-tri-luu-tru', 'create');
-// TODO UC13 — Sửa thông tin vị trí lưu trữ  [quyền: vi-tri-luu-tru/edit]
-// $router->get('vi-tri-luu-tru/edit', [ViTriLuuTruController::class, 'edit'], 'vi-tri-luu-tru', 'edit');
-// TODO UC14 — Ngừng sử dụng vị trí lưu trữ  [quyền: vi-tri-luu-tru/stop]
-// $router->get('vi-tri-luu-tru/stop-using', [ViTriLuuTruController::class, 'stopUsing'], 'vi-tri-luu-tru', 'stop');
 
 // ------------------------------------------------------------------
 // CHỜ TRIỂN KHAI - XUẤT KHO  (trang chính: xuat-kho/yeu-cau)

@@ -56,7 +56,11 @@ return [
     ROLE_MANAGER => [
         $home,
         ['label' => 'Quản lý hàng hóa', 'icon' => 'package', 'route' => 'hang-hoa'],
-        ['label' => 'Quản lý vị trí lưu trữ', 'icon' => 'pin', 'route' => 'vi-tri-luu-tru'],
+        ['label' => 'Quản lý kho', 'icon' => 'archive', 'items' => [
+            ['Vị trí lưu trữ', 'vi-tri-luu-tru'],
+            ['Gán lô hàng vào vị trí', 'gan-lo-hang'],
+            ['Điều chuyển nội bộ', 'dieu-chuyen'],
+        ]],
         ['label' => 'Xuất kho', 'icon' => 'upload', 'route' => 'xuat-kho/yeu-cau'],
         ['label' => 'Kiểm kê', 'icon' => 'clipboard', 'route' => 'kiem-ke'],
         ['label' => 'Xử lý hàng bất thường', 'icon' => 'alert', 'route' => 'hang-bat-thuong'],

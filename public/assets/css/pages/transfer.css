@@ -1,1 +1,29 @@
 /* Điều chuyển hàng nội bộ (UC17) */
+.transfer-route { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 14px; }
+.transfer-route .box { padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #f8fafc; }
+.route-arrow { color: var(--muted); font-weight: 700; }
+.flow { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 12px; }
+.flow-step { padding: 4px 10px; border-radius: 999px; background: #eef0f4; color: var(--muted); font-size: 12px; }
+.flow-step.active { background: var(--primary); color: #fff; }
+.flow-step.done { background: #dcf5ea; color: var(--success); }
+.flow-step.rejected { background: #fde2e2; color: var(--danger); }
+.card form + form { margin-top: 14px; }
+@media (max-width: 640px) { .transfer-route { flex-direction: column; align-items: flex-start; } }
+
+
+.steps { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 4px 0 18px; }
+.step { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.step .num { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); display: inline-flex; align-items: center; justify-content: center; background: #fff; font-weight: 700; }
+.step.active { color: var(--primary); font-weight: 600; }
+.step.active .num { background: var(--primary); border-color: var(--primary); color: #fff; }
+.step.done .num { background: #dcf5ea; border-color: #bfe8d3; color: var(--success); }
+.step-line { width: 28px; height: 1px; background: var(--line); }
+.step-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.review-table { width: 100%; border-collapse: collapse; }
+.review-table th, .review-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+.review-table th { width: 32%; color: var(--muted); font-weight: 500; }
+.btn-link-danger { border: 0; background: transparent; color: var(--danger); cursor: pointer; padding: 0; font: inherit; }
+@media (max-width: 640px) { .step-line { width: 12px; } .steps { gap: 4px; } }
+
+.modal[hidden] { display: none; }
+.table table { min-width: 1200px; }

@@ -57,5 +57,9 @@ $user = current_user();
 <script src="<?= e(asset('js/modal.js')) ?>"></script>
 <script src="<?= e(asset('js/notifications.js')) ?>"></script>
 <script src="<?= e(asset('js/validation.js')) ?>"></script>
+<script src="<?= e(asset('js/dependent-select.js')) ?>"></script>
+<script src="<?= e(asset('js/table-select.js')) ?>"></script>
+<script src="<?= e(asset('js/storage.js')) ?>"></script>
+<script src="<?= e(asset('js/approval.js')) ?>"></script>
 </body>
 </html>

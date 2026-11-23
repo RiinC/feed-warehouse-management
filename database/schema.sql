@@ -309,6 +309,7 @@ CREATE TABLE IF NOT EXISTS `PhieuYeuCauNhapKho` (
   `maXuong` VARCHAR(9) NULL,
   `maNhanVienLap` VARCHAR(8) NOT NULL,
   `ngayYeuCau` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ngayDuyet` DATETIME NULL,
   `trangThai` NVARCHAR(15) NOT NULL DEFAULT 'Chờ xử lý',
   `lyDoNhap` NVARCHAR(200) NULL,
   PRIMARY KEY (`maYeuCauNhap`),
@@ -437,15 +438,18 @@ CREATE TABLE IF NOT EXISTS `PhieuDieuChuyen` (
   `soLuongThucChuyen` DOUBLE NULL,
   `maNhanVienYeuCau` VARCHAR(8) NOT NULL,
   `maNhanVienThucHien` VARCHAR(8) NULL,
+  `maNhanVienDuyet` VARCHAR(8) NULL,
   `ngayYeuCau` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ngayDuyet` DATETIME NULL,
   `ngayHoanTat` DATETIME NULL,
   `trangThai` NVARCHAR(15) NOT NULL DEFAULT 'Chờ điều chuyển',
   `lyDoDieuChuyen` NVARCHAR(200) NOT NULL,
+  `lyDoTuChoi` NVARCHAR(255) NULL,
   PRIMARY KEY (`maPhieuDieuChuyen`),
   CONSTRAINT `ck_PhieuDieuChuyen_1` CHECK (maPhieuDieuChuyen REGEXP '^PDC[0-9]{10}$'),
   CONSTRAINT `ck_PhieuDieuChuyen_2` CHECK (soLuongDuKien > 0),
   CONSTRAINT `ck_PhieuDieuChuyen_3` CHECK (soLuongThucChuyen >= 0),
-  CONSTRAINT `ck_PhieuDieuChuyen_4` CHECK (trangThai IN ('Chờ điều chuyển', 'Đang thực hiện', 'Đã hoàn tất', 'Đã hủy')),
+  CONSTRAINT `ck_PhieuDieuChuyen_4` CHECK (trangThai IN ('Chờ duyệt', 'Đã duyệt', 'Đã từ chối', 'Chờ điều chuyển', 'Đang thực hiện', 'Đã hoàn tất', 'Đã hủy')),
   CONSTRAINT `ck_PhieuDieuChuyen_5` CHECK (CHAR_LENGTH(TRIM(lyDoDieuChuyen)) > 0),
   CONSTRAINT `ck_PhieuDieuChuyen_6` CHECK (maViTriNguon <> maViTriDich),
   CONSTRAINT `ck_PhieuDieuChuyen_7` CHECK (ngayHoanTat IS NULL OR ngayHoanTat >= ngayYeuCau),
@@ -456,9 +460,33 @@ CREATE TABLE IF NOT EXISTS `PhieuDieuChuyen` (
   CONSTRAINT `fk_PhieuDieuChuyen_3` FOREIGN KEY (`maViTriDich`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChuyen_4` FOREIGN KEY (`maNhanVienYeuCau`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChuyen_5` FOREIGN KEY (`maNhanVienThucHien`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `ck_PhieuDieuChuyen_10` CHECK (ngayDuyet IS NULL OR ngayDuyet >= ngayYeuCau),
+  CONSTRAINT `ck_PhieuDieuChuyen_11` CHECK (trangThai NOT IN ('Đã duyệt', 'Đã từ chối') OR (maNhanVienDuyet IS NOT NULL AND ngayDuyet IS NOT NULL)),
+  CONSTRAINT `ck_PhieuDieuChuyen_12` CHECK (trangThai <> 'Đã từ chối' OR (lyDoTuChoi IS NOT NULL AND CHAR_LENGTH(TRIM(lyDoTuChoi)) > 0)),
+  CONSTRAINT `ck_PhieuDieuChuyen_13` CHECK (maNhanVienDuyet IS NULL OR maNhanVienDuyet <> maNhanVienYeuCau),
+  CONSTRAINT `fk_PhieuDieuChuyen_6` FOREIGN KEY (`maNhanVienDuyet`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   INDEX idx_PDC_trangThai (trangThai, ngayYeuCau)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [22b] LuuKho (UC16 - phân bổ vị trí lưu trữ; không thay đổi TonKho)
+CREATE TABLE IF NOT EXISTS `LuuKho` (
+  `maLuuKho` BIGINT NOT NULL AUTO_INCREMENT,
+  `maLoHang` VARCHAR(12) NOT NULL,
+  `maViTri` VARCHAR(14) NOT NULL,
+  `maPhieuNhapKho` VARCHAR(13) NULL,
+  `soLuongPhanBo` DOUBLE NOT NULL,
+  `maNhanVienThucHien` VARCHAR(8) NOT NULL,
+  `thoiDiemPhanBo` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ghiChu` NVARCHAR(255) NULL,
+  PRIMARY KEY (`maLuuKho`),
+  CONSTRAINT `ck_LuuKho_1` CHECK (`soLuongPhanBo` > 0),
+  CONSTRAINT `fk_LuuKho_1` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_LuuKho_2` FOREIGN KEY (`maViTri`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_LuuKho_3` FOREIGN KEY (`maPhieuNhapKho`) REFERENCES `PhieuNhapKho`(`maPhieuNhapKho`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_LuuKho_4` FOREIGN KEY (`maNhanVienThucHien`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  INDEX `idx_LuuKho_lo_tg` (`maLoHang`, `thoiDiemPhanBo`),
+  INDEX `idx_LuuKho_vitri` (`maViTri`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- [23] DonHang
 CREATE TABLE IF NOT EXISTS `DonHang` (
   `maDonHang` VARCHAR(12) NOT NULL,

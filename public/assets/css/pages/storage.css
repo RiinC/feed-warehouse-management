@@ -1,1 +1,41 @@
 /* Vị trí lưu trữ, gán lô hàng (UC12-UC16) */
+.inline-form { display: inline; }
+.card h2 { font-size: 18px; margin-bottom: 10px; }
+.card hr { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
+.muted.small { font-size: 13px; }
+.pos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 16px; }
+.stat-strip { display: flex; flex-wrap: wrap; gap: 18px; margin: 12px 0; }
+.stat-strip .stat b { display: block; font-size: 20px; }
+.capacity { display: flex; align-items: center; gap: 8px; }
+.capacity-bar { flex: 1; height: 6px; border-radius: 999px; background: #e7ecf3; overflow: hidden; }
+.capacity-bar span { display: block; height: 100%; background: var(--primary); }
+.capacity-bar.full span { background: var(--warning); }
+.capacity-bar.over span { background: var(--danger); }
+.option-hint { display: block; color: var(--muted); font-size: 12px; }
+@media (max-width: 640px) { .stat-strip { gap: 10px; } .pos-grid { grid-template-columns: 1fr; } }
+
+
+.req { color: var(--danger); margin-left: 2px; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 20px; margin: 12px 0; }
+.info-item { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: #f8fafc; }
+.info-item span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 3px; }
+.info-item b { font-size: 14px; }
+.info-strip { display: flex; flex-wrap: wrap; gap: 12px; }
+.info-strip > div { min-width: 140px; }
+.info-strip label { display: block; color: var(--muted); font-size: 12px; }
+.info-strip b { font-size: 14px; }
+.table .nowrap, .nowrap { white-space: nowrap; }
+.table .wrap { white-space: normal; min-width: 220px; }
+.w-code { min-width: 130px; }
+.w-name { min-width: 190px; }
+.w-num { min-width: 110px; text-align: right; }
+.w-status { min-width: 160px; white-space: nowrap; }
+.w-date { min-width: 105px; }
+#lotTable tr.selected td { background: #eaf2ff; }
+.lot-radio { width: auto; }
+.assign-lot-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 10px 0 16px; }
+.assign-lot-info div { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.assign-lot-info label { display: block; color: var(--muted); font-size: 12px; }
+.assign-lot-info b { font-size: 14px; }
+
+.table > table { min-width: 920px; }

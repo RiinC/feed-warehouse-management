@@ -1,23 +1,72 @@
 <?php
 namespace App\Controllers;
 
-/**
- * GanLoHangController — module "gan-lo-hang".
- * Mỗi phương thức = một trang (GET). Route + quyền khai báo ở routes/web.php.
- * Khi cài đặt: lấy dữ liệu từ Model (app/Models), truyền vào view (app/Views); xử lý form (POST) thêm phương thức store/update/... và route POST.
- */
+use App\Models\Kho;
+use App\Models\KhuVuc;
+use App\Models\LoHang;
+use App\Models\LuuKho;
+use App\Models\ViTriLuuTru;
+use Core\Auth;
+use Core\Request;
+
+/** UC16 - Gán lô hàng vào vị trí lưu trữ. Nhân viên kho gán; quản lý kho theo dõi. */
 class GanLoHangController extends Controller
 {
-    /** UC16 — Gán lô hàng vào vị trí lưu trữ. GET gan-lo-hang · quyền gan-lo-hang/view · view gan-lo-hang/index */
     public function index(): void
     {
-        // TODO (UC16): lấy dữ liệu từ Model, kiểm tra tham số (id...) rồi truyền vào view.
-        $this->render('gan-lo-hang/index', [], [
+        $scope = $this->warehouseScope();
+        if ($scope === '') {
+            $this->flash('error', 'Tài khoản của bạn chưa được phân công kho.');
+            $this->redirect('dashboard');
+            return;
+        }
+        $f = ['q' => (string)Request::get('q')];
+        $page = max(1, Request::int('page', 1));
+        $perPage = (int)config('per_page', 10);
+        $hpage = max(1, Request::int('hpage', 1));
+        [$rows, $total] = LoHang::candidates($f, $page, $perPage, $scope);
+        [$history, $hTotal] = LuuKho::history($f, $hpage, 15, $scope);
+        $this->render('gan-lo-hang/index', [
+            'rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => $perPage,
+            'history' => $history, 'hTotal' => $hTotal, 'hPage' => $hpage, 'hPerPage' => 15,
+            'lotOptions' => LoHang::candidateOptions($scope),
+            'positions' => ViTriLuuTru::positionOptions($scope, true), 'areas' => KhuVuc::optionsWithKho($scope),
+            'khoOptions' => Kho::activeOptions($scope), 'scope' => $scope,
+        ], [
             'title'      => 'Gán lô hàng vào vị trí lưu trữ',
             'module'     => 'gan-lo-hang',
-            'breadcrumb' => [
-            ['Gán lô hàng', null]
-            ],
+            'breadcrumb' => [['Gán lô hàng', null]],
         ]);
     }
+
+    /** POST gan-lo-hang/assign */
+    public function assign(): void
+    {
+        $scope = $this->warehouseScope();
+        if ($scope === '') {
+            $this->flash('error', 'Tài khoản của bạn chưa được phân công kho.');
+            $this->redirect('dashboard');
+            return;
+        }
+        $data = [
+            'maLoHang' => (string)Request::post('maLoHang'),
+            'maViTri' => (string)Request::post('maViTri'),
+            'soLuong' => (float)str_replace(',', '.', (string)Request::post('soLuong')),
+            'ghiChu' => (string)Request::post('ghiChu'),
+            'maKho' => $scope,
+        ];
+        if ($data['maLoHang'] === '' || $data['maViTri'] === '' || $data['soLuong'] <= 0) {
+            $this->flash('error', 'Vui lòng chọn lô, vị trí và nhập số lượng lớn hơn 0.');
+            $this->redirect('gan-lo-hang');
+            return;
+        }
+        try {
+            $r = LuuKho::assign($data, Auth::staffId());
+            $this->flash('success', 'Đã gán ' . fmt_number($r['soLuong'], 2) . ' kg của lô ' . $r['maLoHang'] . ' vào vị trí ' . $r['maViTri'] . '.');
+        } catch (\RuntimeException $ex) {
+            $this->flash('error', $ex->getMessage());
+        }
+        $this->redirect('gan-lo-hang');
+    }
 }
+
