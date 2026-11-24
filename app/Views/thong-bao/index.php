@@ -1,5 +1,8 @@
 <?php
-/** Danh sách thông báo. Biến: $rows, $total, $page, $perPage. */
+/** Danh sách thông báo. Biến: $rows, $total, $page, $perPage, $setupError. */
+if (!empty($setupError)) {
+    render_alert('error', $setupError);
+}
 render_search_form(
     ['loc' => ['label' => 'Hiển thị', 'type' => 'select', 'options' => ['chua-doc' => 'Chỉ thông báo chưa đọc']]],
     $_GET

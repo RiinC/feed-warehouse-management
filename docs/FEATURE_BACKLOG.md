@@ -16,27 +16,27 @@ Tài liệu này ghi lại các route/trang con **đã gỡ khỏi Sidebar và k
 3. Với thao tác POST (lưu/sửa/ngừng sử dụng): thêm `$router->post(...)` cùng module + action để Router kiểm tra quyền và CSRF.
 4. Xóa dòng tương ứng khỏi tài liệu này.
 
+## Đã lập trình, CHỜ NGHIỆM THU (UC01–UC06)
+
+Chưa coi là hoàn thành: xem `docs/KIEM-THU-UC01-UC06.md` (kết quả kiểm thử, kiểm thử thủ công còn lại, câu hỏi nghiệp vụ Q1–Q12).
+
+| UC | Chức năng | Nơi thực hiện trong giao diện | Quyền |
+|---|---|---|---|
+| UC01 | Thêm thông tin hàng hóa | `hang-hoa` → nút "Thêm hàng hóa" (cửa sổ) · `POST hang-hoa/store` | `hang-hoa/create` |
+| UC02 | Sửa thông tin hàng hóa | `hang-hoa` → "Sửa" ở từng dòng · `POST hang-hoa/update` | `hang-hoa/edit` |
+| UC03 | Ngừng sử dụng hàng hóa | `hang-hoa` → "Ngừng sử dụng" ở từng dòng · `POST hang-hoa/stop` | `hang-hoa/stop` |
+| UC04 | Tra cứu thông tin hàng hóa | `hang-hoa` (tìm kiếm, lọc, "Xem" chi tiết) | `hang-hoa/view` |
+| UC05 | Tra cứu thông tin lô hàng | `lo-hang` (tìm kiếm, lọc, "Xem chi tiết") | `lo-hang/view` |
+| UC06 | Tiếp nhận hàng vào kho | `tiep-nhan` → "Tiếp nhận" → xác nhận · `POST tiep-nhan/xac-nhan`, `tiep-nhan/luu` | `tiep-nhan/create` |
+
+Ghi chú triển khai và giới hạn của CSDL `feed_wms`:
+- **Lý do/ngày ngừng sử dụng hàng hóa**: CSDL không có cột riêng, nên được ghi vào cuối cột `moTa` dạng ` [Ngừng sử dụng dd/mm/yyyy HH:ii: lý do]` (kích hoạt lại thì tự bỏ). Nếu cần truy vấn/báo cáo theo lý do, nên bổ sung cột `ngayNgungSuDung`, `lyDoNgungSuDung` vào `HangHoa`.
+- **Trạng thái hiển thị** theo tài liệu UC: "Đang sử dụng" = `Đang kinh doanh`; "Ngừng sử dụng" = `Đã ngừng sử dụng`.
+- **Thời gian nhập/xuất** của hàng hóa lấy từ `LichSuBienDongTonKho` (lần nhập/xuất gần nhất); **số lượng tồn** cộng từ `TonKho` (kg).
+- **Tiếp nhận (UC06)** tạo `PhieuTiepNhan` ('Chờ kiểm định') và mỗi dòng một `LoHang` ('Chờ kiểm tra', số lượng quy đổi ra kg); chưa ghi `TonKho` (thuộc bước nhập kho). Phiếu giao NCC chuyển 'Đang tiếp nhận' (một phần) hoặc 'Đã tiếp nhận'; phiếu yêu cầu nhập từ xưởng chuyển 'Đang nhập kho' (không theo dõi tiếp nhận một phần vì không có cột số lượng đã nhận). Chưa cập nhật "số lượng thực tế" của `KeHoachSanXuat` vì CSDL không liên kết phiếu xưởng với kế hoạch cụ thể.
+- Nhân viên kho chỉ chọn được vị trí tạm trong kho của mình; quản trị viên chọn được mọi kho.
+
 ## Danh sách chờ triển khai
-
-### Quản lý hàng hóa  _(trang chính: `hang-hoa`)_
-
-| UC | Chức năng | Route (đang comment) | Quyền | Vai trò được phép* | Controller → View (còn nguyên) | Gợi ý bố trí trong trang chính |
-|---|---|---|---|---|---|---|
-| UC01 | Thêm thông tin hàng hóa | `hang-hoa/create` | `hang-hoa/create` | Quản trị viên, Quản lý kho | `HangHoaController::create` → `app/Views/hang-hoa/create.php` | Nút "Thêm mới" phía trên bảng → Modal/Drawer (hoặc trang form) — chỉ hiện khi có quyền |
-| UC02 | Sửa thông tin hàng hóa | `hang-hoa/edit` | `hang-hoa/edit` | Quản trị viên, Quản lý kho | `HangHoaController::edit` → `app/Views/hang-hoa/edit.php` | Nút "Sửa" ở từng dòng → Modal/Drawer |
-| UC03 | Ngừng sử dụng hàng hóa | `hang-hoa/stop-using` | `hang-hoa/stop` | Quản trị viên, Quản lý kho | `HangHoaController::stopUsing` → `app/Views/hang-hoa/stop-using.php` | Nút "Ngừng sử dụng" ở từng dòng, có hộp thoại xác nhận |
-
-### Quản lý hàng hóa › Lô hàng  _(trang chính: `lo-hang`)_
-
-| UC | Chức năng | Route (đang comment) | Quyền | Vai trò được phép* | Controller → View (còn nguyên) | Gợi ý bố trí trong trang chính |
-|---|---|---|---|---|---|---|
-| UC05 | Chi tiết lô hàng | `lo-hang/detail` | `lo-hang/view` | Quản trị viên, Quản lý kho, Nhân viên kho | `LoHangController::detail` → `app/Views/lo-hang/detail.php` | Nút/liên kết "Xem chi tiết" ở từng dòng → Drawer hoặc trang chi tiết |
-
-### Nhập hàng vào kho › Tiếp nhận  _(trang chính: `tiep-nhan`)_
-
-| UC | Chức năng | Route (đang comment) | Quyền | Vai trò được phép* | Controller → View (còn nguyên) | Gợi ý bố trí trong trang chính |
-|---|---|---|---|---|---|---|
-| UC06 | Tiếp nhận hàng | `tiep-nhan/create` | `tiep-nhan/create` | Quản trị viên, Nhân viên kho | `TiepNhanController::create` → `app/Views/tiep-nhan/create.php` | Nút "Thêm mới" phía trên bảng → Modal/Drawer (hoặc trang form) — chỉ hiện khi có quyền |
 
 ### Kiểm tra chất lượng  _(trang chính: `chat-luong`)_
 
@@ -95,7 +95,7 @@ Tài liệu này ghi lại các route/trang con **đã gỡ khỏi Sidebar và k
 
 ## Mục Sidebar đã loại bỏ (thao tác trở thành nút trong trang chính)
 
-Thêm/Sửa/Ngừng sử dụng hàng hóa · Tra cứu/Chi tiết lô hàng (chi tiết) · Lập phiếu nhập kho · Ghi nhận/Xác nhận kết quả kiểm tra chất lượng · Thêm/Sửa/Ngừng sử dụng vị trí lưu trữ · Lập phiếu điều chuyển · Lập/Sửa/Phê duyệt yêu cầu xuất kho · Đề xuất lô FEFO · Lập phiếu xuất kho · Lập biên bản/Ghi nhận/Đối chiếu/Xử lý chênh lệch kiểm kê · Báo cáo tồn kho/Báo cáo hạn sử dụng (thành tab trong Báo cáo).
+Lập phiếu nhập kho · Ghi nhận/Xác nhận kết quả kiểm tra chất lượng · Thêm/Sửa/Ngừng sử dụng vị trí lưu trữ · Lập phiếu điều chuyển · Lập/Sửa/Phê duyệt yêu cầu xuất kho · Đề xuất lô FEFO · Lập phiếu xuất kho · Lập biên bản/Ghi nhận/Đối chiếu/Xử lý chênh lệch kiểm kê · Báo cáo tồn kho/Báo cáo hạn sử dụng (thành tab trong Báo cáo).
 
 ## Ghi nhận cần xác nhận thêm (chưa tự suy đoán)
 

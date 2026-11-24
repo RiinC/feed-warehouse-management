@@ -115,3 +115,17 @@
 .notif-foot { display: block; padding: 11px 14px; text-align: center; font-weight: 600; color: var(--primary); background: #f8fafc; }
 .notif-foot:hover { background: #eef3fb; }
 .notif-link.unread { font-weight: 700; }
+
+/* Form nhiều cột, danh sách chi tiết, cửa sổ lớn (dùng cho thao tác trong trang chính) */
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+.form-grid .full { grid-column: 1 / -1; }
+.req { color: var(--danger); }
+.hint { display: block; margin-top: 4px; color: var(--muted); font-size: 12.5px; }
+.modal-dialog.modal-lg { width: min(780px, 94vw); max-height: 92vh; overflow-y: auto; }
+.modal-actions.flat { margin-top: 12px; }
+.detail-grid { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px 16px; margin: 12px 0; }
+.detail-grid dt { color: var(--muted); font-weight: 600; font-size: 13px; }
+.detail-grid dd { margin: 0; word-break: break-word; }
+.sub-title { margin: 14px 0 6px; font-size: 14px; }
+.form-grid .field input[disabled], .form-grid .field select[disabled] { background: #f3f5f8; color: var(--muted); }
+@media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .detail-grid { grid-template-columns: 1fr; gap: 2px 0; } .detail-grid dd { margin-bottom: 8px; } }

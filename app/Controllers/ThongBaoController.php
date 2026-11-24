@@ -14,7 +14,14 @@ class ThongBaoController extends Controller
         $filter  = Request::get('loc') === 'chua-doc' ? 'chua-doc' : '';
         $page    = max(1, Request::int('page', 1));
         $perPage = (int)config('per_page', 10);
-        [$rows, $total] = ThongBao::page(Auth::staffId(), $page, $perPage, $filter);
+        $setupError = null;
+        try {
+            [$rows, $total] = ThongBao::page(Auth::staffId(), $page, $perPage, $filter);
+        } catch (\Throwable $ex) {
+            // Thường do chưa import database/thong-bao.sql (chưa có bảng ThongBao)
+            [$rows, $total] = [[], 0];
+            $setupError = 'Không đọc được bảng thông báo. Hãy kiểm tra đã import database/thong-bao.sql vào CSDL feed_wms chưa.';
+        }
 
         $readAll = '<form method="post" action="' . e(route('thong-bao/read-all')) . '">'
                  . csrf_field()
@@ -22,7 +29,7 @@ class ThongBaoController extends Controller
                  . '<button class="btn" type="submit">Đánh dấu đã đọc tất cả</button></form>';
 
         $this->render('thong-bao/index', [
-            'rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => $perPage,
+            'rows' => $rows, 'total' => $total, 'page' => $page, 'perPage' => $perPage, 'setupError' => $setupError,
         ], [
             'title'      => 'Thông báo',
             'subtitle'   => 'Bấm vào một thông báo để chuyển tới trang liên quan.',

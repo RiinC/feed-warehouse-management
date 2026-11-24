@@ -2169,23 +2169,23 @@ INSERT INTO `PhuongAnXuLy` (`maPhuongAn`, `maChenhLech`, `maHangBatThuong`, `bie
 -- [37/38] PhieuDieuChinhTonKho | 17 dong
 -- Đủ Tăng/Giảm/Hủy; chỉ DaThiHanh ảnh hưởng tồn
 INSERT INTO `PhieuDieuChinhTonKho` (`maPhieuDieuChinh`, `maPhuongAn`, `maLoHang`, `maViTri`, `loaiDieuChinh`, `soLuongDieuChinh`, `maNhanVienThiHanh`, `ngayThiHanh`, `trangThai`, `ghiChu`) VALUES
-  ('PDCTK2611090001', 'PAXL2611090001', 'LO2611020001', 'VT010301010005', 'Giam', 20, 'NV000003', '2026-10-26 18:00:00', 'Đã thi hành', 'Phiếu điều chỉnh riceDecrease; chỉ DaThiHanh ghi sổ'),
-  ('PDCTK2611090002', 'PAXL2611090002', 'LO2611010003', 'VT010202010004', 'Tang', 10, 'NV000003', '2026-10-26 18:00:00', 'Đã thi hành', 'Phiếu điều chỉnh soyIncrease; chỉ DaThiHanh ghi sổ'),
-  ('PDCTK2611090003', 'PAXL2611090009', 'LO2611020005', 'VT010101010043', 'Giam', 1, 'NV000003', '2026-10-26 18:00:00', 'Đã hủy', 'Phiếu điều chỉnh canceledAdjust; chỉ DaThiHanh ghi sổ'),
-  ('PDCTK2611090004', 'PAXL2611090004', 'LO2611010001', 'VT010101010001', 'Tang', 10, 'NV000003', '2026-10-26 18:00:00', 'Đã hủy', 'Phiếu điều chỉnh tăng bị hủy do phương án xử lý bị từ chối'),
-    ('PDCTK2611100001', 'PAXL2611100004', 'LO2611010003', 'VT010202010004', 'Giam', 10, 'NV000003', '2026-10-27 18:30:00', 'Đã thi hành', 'Điều chỉnh giảm 10 kg cám gạo theo BBKK2611110001'),
-    ('PDCTK2611100002', 'PAXL2611100005', 'LO2611010001', 'VT010102010080', 'Tang', 10, 'NV000003', '2026-10-27 18:30:00', 'Đã thi hành', 'Điều chỉnh tăng 10 kg ngô hạt theo BBKK2611110004'),
-    ('PDCTK2611100003', 'PAXL2611100002', 'LO2611020003', 'VT010000010013', 'Giam', 15, 'NV000003', '2026-10-27 17:30:00', 'Đã hủy', 'Hủy phiếu điều chỉnh giảm do PAXL2611100002 bị từ chối phê duyệt'),
-    ('PDCTK2607250001', 'PAXL2607250001', 'LO2607040001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-07-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2607250002', 'PAXL2607250002', 'LO2607040001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-07-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
-    ('PDCTK2608250001', 'PAXL2608250001', 'LO2608040001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-08-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2608250002', 'PAXL2608250002', 'LO2608040001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-08-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
-    ('PDCTK2609250001', 'PAXL2609250001', 'LO2609040001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-09-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2609250002', 'PAXL2609250002', 'LO2609040001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-09-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
-    ('PDCTK2610257001', 'PAXL2610257001', 'LO2610047001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-10-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2610257002', 'PAXL2610257002', 'LO2610047001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-10-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
-    ('PDCTK2611258001', 'PAXL2611258001', 'LO2611048001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-11-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2611258002', 'PAXL2611258002', 'LO2611048001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-11-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet');
+  ('PDCTK2611090001', 'PAXL2611090001', 'LO2611020001', 'VT010301010005', 'Giảm', 20, 'NV000003', '2026-10-26 18:00:00', 'Đã thi hành', 'Phiếu điều chỉnh riceDecrease; chỉ DaThiHanh ghi sổ'),
+  ('PDCTK2611090002', 'PAXL2611090002', 'LO2611010003', 'VT010202010004', 'Tăng', 10, 'NV000003', '2026-10-26 18:00:00', 'Đã thi hành', 'Phiếu điều chỉnh soyIncrease; chỉ DaThiHanh ghi sổ'),
+  ('PDCTK2611090003', 'PAXL2611090009', 'LO2611020005', 'VT010101010043', 'Giảm', 1, 'NV000003', '2026-10-26 18:00:00', 'Đã hủy', 'Phiếu điều chỉnh canceledAdjust; chỉ DaThiHanh ghi sổ'),
+  ('PDCTK2611090004', 'PAXL2611090004', 'LO2611010001', 'VT010101010001', 'Tăng', 10, 'NV000003', '2026-10-26 18:00:00', 'Đã hủy', 'Phiếu điều chỉnh tăng bị hủy do phương án xử lý bị từ chối'),
+    ('PDCTK2611100001', 'PAXL2611100004', 'LO2611010003', 'VT010202010004', 'Giảm', 10, 'NV000003', '2026-10-27 18:30:00', 'Đã thi hành', 'Điều chỉnh giảm 10 kg cám gạo theo BBKK2611110001'),
+    ('PDCTK2611100002', 'PAXL2611100005', 'LO2611010001', 'VT010102010080', 'Tăng', 10, 'NV000003', '2026-10-27 18:30:00', 'Đã thi hành', 'Điều chỉnh tăng 10 kg ngô hạt theo BBKK2611110004'),
+    ('PDCTK2611100003', 'PAXL2611100002', 'LO2611020003', 'VT010000010013', 'Giảm', 15, 'NV000003', '2026-10-27 17:30:00', 'Đã hủy', 'Hủy phiếu điều chỉnh giảm do PAXL2611100002 bị từ chối phê duyệt'),
+    ('PDCTK2607250001', 'PAXL2607250001', 'LO2607040001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-07-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2607250002', 'PAXL2607250002', 'LO2607040001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-07-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
+    ('PDCTK2608250001', 'PAXL2608250001', 'LO2608040001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-08-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2608250002', 'PAXL2608250002', 'LO2608040001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-08-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
+    ('PDCTK2609250001', 'PAXL2609250001', 'LO2609040001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-09-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2609250002', 'PAXL2609250002', 'LO2609040001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-09-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
+    ('PDCTK2610257001', 'PAXL2610257001', 'LO2610047001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-10-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2610257002', 'PAXL2610257002', 'LO2610047001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-10-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
+    ('PDCTK2611258001', 'PAXL2611258001', 'LO2611048001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-11-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2611258002', 'PAXL2611258002', 'LO2611048001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-11-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet');
 
 -- [38/38] BienBanTraHang | 22 dong
 -- Chờ/đã trả/NCC từ chối; ngày trả chỉ khi DaTraHang

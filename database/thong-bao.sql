@@ -28,3 +28,10 @@ INSERT INTO `ThongBao` (`maNhanVien`,`tieuDe`,`noiDung`,`duongDan`,`loai`,`daDoc
 ('NV000009','Có phiếu giao hàng chờ tiếp nhận','Nhà cung cấp đã gửi phiếu giao hàng mới.','tiep-nhan','info',0,NOW() - INTERVAL 10 MINUTE,NULL),
 ('NV000009','Yêu cầu xuất kho đã được duyệt','Bạn có thể lập phiếu xuất kho.','xuat-kho/yeu-cau','success',1,NOW() - INTERVAL 1 DAY,NOW() - INTERVAL 20 HOUR),
 ('NV000018','Có lô hàng cần kiểm tra chất lượng','Vui lòng ghi nhận kết quả kiểm tra.','chat-luong','warning',0,NOW() - INTERVAL 15 MINUTE,NULL);
+
+-- Mỗi nhân viên đang làm việc mà chưa có thông báo nào sẽ có một thông báo chào mừng (chạy lại file này không tạo trùng)
+INSERT INTO `ThongBao` (`maNhanVien`,`tieuDe`,`noiDung`,`duongDan`,`loai`,`daDoc`,`thoiDiemTao`)
+SELECT n.`maNhanVien`, 'Chào mừng đến với FeedWare', 'Thông báo về công việc của bạn sẽ hiện ở đây.', 'dashboard', 'success', 0, NOW()
+FROM `NhanVien` n
+WHERE n.`trangThai` = 'Đang làm việc'
+  AND NOT EXISTS (SELECT 1 FROM `ThongBao` t WHERE t.`maNhanVien` = n.`maNhanVien`);

@@ -61,7 +61,10 @@ $router->get('gan-lo-hang', [GanLoHangController::class, 'index'], 'gan-lo-hang'
 $router->get('hang-bat-thuong', [HangBatThuongController::class, 'index'], 'hang-bat-thuong', 'view');
 
 // ---- hang-hoa ----
-$router->get('hang-hoa', [HangHoaController::class, 'index'], 'hang-hoa', 'view');
+$router->get('hang-hoa', [HangHoaController::class, 'index'], 'hang-hoa', 'view');   // danh sách + cửa sổ xem/thêm/sửa/ngừng (?mode=...)
+$router->post('hang-hoa/store', [HangHoaController::class, 'store'], 'hang-hoa', 'create');      // UC01
+$router->post('hang-hoa/update', [HangHoaController::class, 'update'], 'hang-hoa', 'edit');      // UC02
+$router->post('hang-hoa/stop', [HangHoaController::class, 'stop'], 'hang-hoa', 'stop');          // UC03
 
 // ---- kiem-ke ----
 $router->get('kiem-ke', [KiemKeController::class, 'index'], 'kiem-ke', 'view');
@@ -77,7 +80,9 @@ $router->get('nhap-kho/history', [NhapKhoController::class, 'history'], 'nhap-kh
 $router->get('tai-khoan', [TaiKhoanController::class, 'index'], 'tai-khoan', 'view');
 
 // ---- tiep-nhan ----
-$router->get('tiep-nhan', [TiepNhanController::class, 'index'], 'tiep-nhan', 'view');
+$router->get('tiep-nhan', [TiepNhanController::class, 'index'], 'tiep-nhan', 'view');   // danh sách + màn hình tiếp nhận (?chung_tu=...)
+$router->post('tiep-nhan/xac-nhan', [TiepNhanController::class, 'confirm'], 'tiep-nhan', 'create');   // UC06 bước xác nhận
+$router->post('tiep-nhan/luu', [TiepNhanController::class, 'store'], 'tiep-nhan', 'create');          // UC06 ghi nhận
 
 // ---- ton-kho ----
 $router->get('ton-kho', [TonKhoController::class, 'index'], 'ton-kho', 'view');
@@ -97,28 +102,6 @@ $router->get('xuat-kho/yeu-cau', [XuatKhoController::class, 'requests'], 'xuat-k
 // trong app/Controllers, app/Views — chỉ cần bỏ comment dòng route khi triển khai.
 // Danh sách đầy đủ + mô tả: docs/FEATURE_BACKLOG.md
 // =====================================================================================
-
-// ------------------------------------------------------------------
-// CHỜ TRIỂN KHAI - QUẢN LÝ HÀNG HÓA  (trang chính: hang-hoa)
-// ------------------------------------------------------------------
-// TODO UC01 — Thêm thông tin hàng hóa  [quyền: hang-hoa/create]
-// $router->get('hang-hoa/create', [HangHoaController::class, 'create'], 'hang-hoa', 'create');
-// TODO UC02 — Sửa thông tin hàng hóa  [quyền: hang-hoa/edit]
-// $router->get('hang-hoa/edit', [HangHoaController::class, 'edit'], 'hang-hoa', 'edit');
-// TODO UC03 — Ngừng sử dụng hàng hóa  [quyền: hang-hoa/stop]
-// $router->get('hang-hoa/stop-using', [HangHoaController::class, 'stopUsing'], 'hang-hoa', 'stop');
-
-// ------------------------------------------------------------------
-// CHỜ TRIỂN KHAI - LÔ HÀNG  (trang chính: lo-hang)
-// ------------------------------------------------------------------
-// TODO UC05 — Chi tiết lô hàng  [quyền: lo-hang/view]
-// $router->get('lo-hang/detail', [LoHangController::class, 'detail'], 'lo-hang', 'view');
-
-// ------------------------------------------------------------------
-// CHỜ TRIỂN KHAI - TIẾP NHẬN HÀNG VÀO KHO  (trang chính: tiep-nhan)
-// ------------------------------------------------------------------
-// TODO UC06 — Tiếp nhận hàng  [quyền: tiep-nhan/create]
-// $router->get('tiep-nhan/create', [TiepNhanController::class, 'create'], 'tiep-nhan', 'create');
 
 // ------------------------------------------------------------------
 // CHỜ TRIỂN KHAI - KIỂM TRA CHẤT LƯỢNG  (trang chính: chat-luong)

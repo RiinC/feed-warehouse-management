@@ -1,1 +1,7 @@
 /* Tiếp nhận, kiểm tra chất lượng, nhập kho (UC06-UC11) */
+.recv-table input[type="text"], .recv-table input[type="date"] { width: 100%; min-width: 110px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.recv-table .w-check { width: 36px; }
+.recv-table tr.row-invalid input { border-color: var(--danger); }
+.recv-table tr.row-error td { padding-top: 0; border-top: 0; }
+.recv-hint { margin: 10px 0 0; }
+.recv-meta { grid-template-columns: 220px minmax(0, 1fr); }

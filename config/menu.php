@@ -67,11 +67,6 @@ CHỜ TRIỂN KHAI — lối tắt/mục danh mục của các route thao tác (
 Khi triển khai: bỏ comment route, rồi đưa chức năng vào trang quản lý chính (nút Thêm mới / thao tác theo dòng)
 thay vì thêm lại mục Sidebar. Chi tiết: docs/FEATURE_BACKLOG.md
 =====================================================================================
-  ['label' => 'Thêm hàng hóa', 'icon' => 'plus', 'route' => 'hang-hoa/create', 'show' => 'dash'],
-  ['label' => 'Sửa hàng hóa', 'icon' => 'package', 'route' => 'hang-hoa/edit', 'show' => 'none'],
-  ['label' => 'Ngừng sử dụng hàng hóa', 'icon' => 'package', 'route' => 'hang-hoa/stop-using', 'show' => 'none'],
-  ['label' => 'Chi tiết lô hàng', 'icon' => 'layers', 'route' => 'lo-hang/detail', 'show' => 'none'],
-  ['label' => 'Tiếp nhận hàng mới', 'icon' => 'plus', 'route' => 'tiep-nhan/create', 'show' => 'dash'],
   ['label' => 'Ghi nhận kết quả kiểm tra', 'icon' => 'clipboard', 'route' => 'chat-luong/record-result', 'show' => 'dash'],
   ['label' => 'Xác nhận kết quả kiểm tra', 'icon' => 'clipboard', 'route' => 'chat-luong/confirm-result', 'show' => 'dash'],
   ['label' => 'Lập phiếu nhập kho', 'icon' => 'plus', 'route' => 'nhap-kho/create', 'show' => 'dash'],

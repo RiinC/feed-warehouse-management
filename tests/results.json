@@ -1,0 +1,200 @@
+[
+ [
+  "UC01",
+  "Sinh mã tự động đúng định dạng HH+nhóm+6 số, tăng liên tiếp cho từng nhóm hàng (5 nhóm)",
+  "ĐẠT",
+  "Mã sinh: HH01000037, HH02000031, HH03000019, HH04000019, HH05000019"
+ ],
+ [
+  "UC01",
+  "Hai lần thêm liên tiếp cùng nhóm không trùng mã",
+  "ĐẠT",
+  "HH01000037 → HH01000038"
+ ],
+ [
+  "UC01",
+  "Hàng mới mặc định \"Đang sử dụng\"; hạn sử dụng/điều kiện bảo quản để trống được lưu NULL",
+  "ĐẠT",
+  "Trạng thái mặc định \"Đang sử dụng\", cột tùy chọn lưu NULL"
+ ],
+ [
+  "UC01",
+  "Dữ liệu không hợp lệ bị CSDL từ chối (đơn vị tính ngoài kg/bao/thùng, quy cách ≤ 0, hạn < 0, tên trống)",
+  "ĐẠT",
+  "CSDL chặn: đơn vị lạ, hệ số ≤0, hạn <0, tên rỗng (lớp bảo vệ thứ hai ngoài kiểm tra ở PHP)"
+ ],
+ [
+  "UC02",
+  "Cập nhật tên, đơn vị tính, quy cách, mô tả, hạn; mã hàng giữ nguyên; đọc lại đúng",
+  "ĐẠT",
+  "Cập nhật đủ trường, mã không đổi, hiển thị lại được sau khi lưu"
+ ],
+ [
+  "UC02",
+  "Hàng không tồn tại → find() trả null (3.1.1)",
+  "ĐẠT",
+  "Trả về null → controller báo \"Không tìm thấy hàng hóa\""
+ ],
+ [
+  "UC02",
+  "Kích hoạt lại: gỡ ghi chú ngừng sử dụng khỏi mô tả, mô tả gốc còn nguyên (mô phỏng hàm PHP)",
+  "ĐẠT",
+  "Ghi chú ngừng sử dụng tách/gỡ đúng; mô tả thường không bị ảnh hưởng"
+ ],
+ [
+  "UC03",
+  "Hàng đang có phiếu giao chưa tiếp nhận xong bị chặn ngừng sử dụng, nêu rõ lý do (8.1)",
+  "ĐẠT",
+  "HH01000004 bị chặn: ['1 phiếu giao hàng nhà cung cấp chưa tiếp nhận xong', '1 yêu cầu xuất kho chưa hoàn tất', '1 lô hàng đang chờ kiểm tra chất lượng']; 105/120 hàng không vướng nghiệp vụ dở dang"
+ ],
+ [
+  "UC03",
+  "Các câu kiểm tra nghiệp vụ dở dang đều chạy được trên dữ liệu thật (6 loại)",
+  "ĐẠT",
+  "Các loại vướng mắc phát hiện trong seed: phiếu giao hàng nhà cung cấp chưa tiếp nhận xong (vd HH01000001); yêu cầu xuất kho chưa hoàn tất (vd HH01000001); đơn hàng chưa xuất đủ (vd HH01000001); kế hoạch sản xuất chưa hoàn thành (vd HH01000001); lô hàng đang chờ kiểm tra chất lượng (vd HH01000001); yêu cầu nhập kho chưa hoàn tất (vd HH01000003)"
+ ],
+ [
+  "UC03",
+  "Ngừng sử dụng hàng hợp lệ: trạng thái đổi, ngày + lý do được ghi lại",
+  "ĐẠT",
+  "HH01000005 → Ngừng sử dụng; lý do/ngày ghi ở cuối mô tả"
+ ],
+ [
+  "UC03",
+  "Mô tả dài + lý do dài không vượt 255 ký tự của cột moTa",
+  "ĐẠT",
+  "Mô tả 250 ký tự + lý do 400 ký tự → 255 ký tự (≤255), ghi chú vẫn đọc được"
+ ],
+ [
+  "UC04",
+  "Không nhập tiêu chí → tìm toàn bộ (3.1) và phân trang",
+  "ĐẠT",
+  "Không nhập tiêu chí → toàn bộ 120 hàng; phân trang 10/trang đúng (trang cuối 5)"
+ ],
+ [
+  "UC04",
+  "Lọc theo mã/tên, nhóm hàng, trạng thái, kết hợp; không có kết quả (5.1)",
+  "ĐẠT",
+  "Nguyên liệu=36, đang SD=120, ngừng=0; lọc kết hợp mã/tên/nhóm/trạng thái đúng; không khớp → 0 (hiện \"Không tìm thấy hàng hóa phù hợp\")"
+ ],
+ [
+  "UC04",
+  "Số lượng tồn trong danh sách = chi tiết = tổng TonKho; thời gian nhập/xuất khớp lịch sử biến động",
+  "ĐẠT",
+  "Tồn HH01000001 = 59195.0 kg (danh sách = chi tiết); lần nhập gần nhất 2026-11-04 15:00:00, lần xuất 2026-11-21 11:00:00"
+ ],
+ [
+  "UC04",
+  "Mỗi hàng hóa chỉ xuất hiện một dòng trong danh sách (không bị nhân bản bởi JOIN tồn kho)",
+  "ĐẠT",
+  "JOIN tồn kho không làm nhân bản dòng hàng hóa"
+ ],
+ [
+  "UC05",
+  "Không nhập tiêu chí → toàn bộ 96 lô, không trùng dòng (3.1)",
+  "ĐẠT",
+  "96 lô, mỗi lô một dòng"
+ ],
+ [
+  "UC05",
+  "Trạng thái lô suy ra đúng quy tắc (Còn hạn/Hết hạn/Đã xuất hết/Ngừng sử dụng) và bộ lọc trạng thái khớp",
+  "ĐẠT",
+  "Phân bố trạng thái: {'Còn hạn': 86, 'Ngừng sử dụng': 1, 'Đã xuất hết': 3, 'Hết hạn': 6}; lọc theo từng trạng thái khớp số đếm"
+ ],
+ [
+  "UC05",
+  "Lọc theo mã lô, tên hàng, vị trí lưu trữ; không có kết quả (5.1)",
+  "ĐẠT",
+  "Lọc vị trí VT010301010023: 3 lô; tìm theo mã lô/tên hàng đúng; không khớp → 0 (\"Không tìm thấy lô hàng\")"
+ ],
+ [
+  "UC05",
+  "Chi tiết lô: tổng tồn theo từng vị trí khớp SL tồn; nhà cung cấp; lô không tồn tại → null",
+  "ĐẠT",
+  "Tổng tồn theo vị trí = SL tồn ở danh sách cho cả 96 lô; 70 lô có tên nhà cung cấp; mã lô lạ → null"
+ ],
+ [
+  "UC05",
+  "Tiêu chí tìm kiếm không hợp lệ bị từ chối, yêu cầu nhập lại (5.2) — mô phỏng regex",
+  "ĐẠT",
+  "Chấp nhận chữ/số/dấu cách/._-; từ chối ký tự đặc biệt và >60 ký tự (mô phỏng regex PHP; Unicode \\p{L} tương đương \\w)"
+ ],
+ [
+  "UC06",
+  "Danh sách chỉ gồm chứng từ còn dòng cần nhận (Chờ tiếp nhận / Đã tiếp nhận một phần / phiếu xưởng); tìm theo số chứng từ",
+  "ĐẠT",
+  "3 chứng từ chờ: YCNK2611060005, PG2611060001, PG2611050001"
+ ],
+ [
+  "UC06",
+  "Mọi chứng từ trên danh sách đều mở được màn hình tiếp nhận",
+  "ĐẠT",
+  "Không còn chứng từ \"liệt kê được nhưng bấm vào báo lỗi\" (lỗi đã phát hiện và sửa trong lần kiểm thử này)"
+ ],
+ [
+  "UC06",
+  "Tiếp nhận ĐỦ hàng (NCC): tạo phiếu \"Chờ kiểm định\", lô \"Chờ kiểm tra\", quy đổi kg, cập nhật chứng từ",
+  "ĐẠT",
+  "PTN2611240001 + lô LO2611240001: 15 bao × 50 = 750 kg, lô \"Chờ kiểm tra\", phiếu giao → \"Đã tiếp nhận\", chưa ghi tồn kho, biến khỏi danh sách chờ"
+ ],
+ [
+  "UC06",
+  "Tiếp nhận MỘT PHẦN rồi nhận nốt; sau khi đủ không nhận thêm được",
+  "ĐẠT",
+  "Nhận 10/15 → \"Đã tiếp nhận một phần\"; nhận nốt 5 → \"Đã tiếp nhận\"; nhận thêm bị từ chối"
+ ],
+ [
+  "UC06",
+  "Chứng từ seed \"Đã tiếp nhận một phần\": chỉ hiện dòng còn thiếu; hoàn tất khi nhận đủ mọi dòng",
+  "ĐẠT",
+  "Chứng từ seed đang nhận dở (dòng 5/10 và 0/12): nhận từng dòng, trạng thái chuyển đúng khi đủ cả hai"
+ ],
+ [
+  "UC06",
+  "Tiếp nhận từ XƯỞNG sản xuất: phiếu gắn xưởng (không gắn phiếu giao), lô tạo đúng, yêu cầu → \"Đang nhập kho\"",
+  "ĐẠT",
+  "PTN2611240001: nguồn xưởng XSX000002 (không có phiếu giao), lô LO2611240001 50 kg, hạn = ngày SX + hạn tiêu chuẩn"
+ ],
+ [
+  "UC06",
+  "Lỗi khi lưu giữa chừng → hoàn tác toàn bộ (hậu điều kiện: không tạo phiếu, không tạo lô, không đổi chứng từ)",
+  "ĐẠT",
+  "Lỗi giữa chừng → không tạo phiếu/lô, không đổi số lượng đã nhận hay tình trạng chứng từ"
+ ],
+ [
+  "UC06",
+  "Dữ liệu không hợp lệ (6.1, 3.1.1): SL ≤ 0, vượt quá, không chọn dòng, vị trí/chứng từ không tồn tại",
+  "ĐẠT",
+  "Bị từ chối: SL=0, SL<0, SL vượt còn lại, không chọn dòng, dòng lạ, vị trí lạ, chứng từ không tồn tại — và không để lại dữ liệu"
+ ],
+ [
+  "UC06",
+  "Hàng hóa trên chứng từ đã \"Ngừng sử dụng\" → không cho tiếp nhận (tiền điều kiện 3)",
+  "ĐẠT",
+  "Hàng đã \"Ngừng sử dụng\" trên chứng từ → không cho tiếp nhận (tiền điều kiện 3)"
+ ],
+ [
+  "UC06",
+  "Vị trí lưu trữ tạm: đúng khu, đúng kho nhân viên, loại ô không dùng được (tiền điều kiện 4)",
+  "ĐẠT",
+  "Chỉ khu \"Tiếp nhận tạm\"; nhân viên kho chỉ thấy kho mình (6/30); ô bảo trì/khóa/lấp đầy bị loại; kho K06 không có vị trí tạm → danh sách rỗng"
+ ],
+ [
+  "UC06",
+  "Đánh số phiếu/lô theo ngày, liên tiếp, mỗi dòng một lô",
+  "ĐẠT",
+  "PTN2611240001,PTN2611240002; lô ['LO2611240001', 'LO2611240002', 'LO2611240003'] — đánh số theo ngày, tăng liên tiếp, một lô cho mỗi dòng"
+ ],
+ [
+  "UC05+UC06",
+  "Liên thông: lô vừa tiếp nhận tra cứu được ở UC05 với thông tin đúng",
+  "ĐẠT",
+  "Lô LO2611240001 vừa tạo tra cứu được ở UC05: \"Còn hạn\", tồn 0 (chưa nhập kho), nhà cung cấp \"Công ty TNHH Alltech Việt Nam\", chất lượng \"Chờ kiểm tra\""
+ ],
+ [
+  "UC01+UC04",
+  "Liên thông: hàng vừa thêm xuất hiện ngay trong tra cứu với tồn = 0",
+  "ĐẠT",
+  "Hàng vừa thêm (HH05000019) tra cứu được ngay, tồn 0"
+ ]
+]

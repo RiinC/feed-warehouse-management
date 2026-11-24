@@ -1,10 +1,15 @@
 <?php
 /**
- * View tiep-nhan/index — Tiếp nhận hàng vào kho. Biến từ TiepNhanController::index().
- * TODO (UC06): viết giao diện tại đây (dùng render_search_form, render_data_table, render_pagination... trong app/Helpers).
+ * tiep-nhan/index — Tiếp nhận hàng vào kho (UC06), 3 bước ngay trong trang chính:
+ *   list     danh sách chứng từ chờ tiếp nhận
+ *   form     nhập thông tin tiếp nhận của một chứng từ
+ *   confirm  xem lại và xác nhận
+ * Biến từ TiepNhanController. CSS: assets/css/pages/receiving.css
  */
-partial('components/placeholder', [
-    'uc'    => 'UC06',
-    'title' => 'Tiếp nhận hàng vào kho',
-    'files' => ['Controller' => 'app/Controllers/TiepNhanController.php (index)', 'View' => 'app/Views/tiep-nhan/index.php'],
-]);
+if ($step === 'list') {
+    partial('tiep-nhan/_list', get_defined_vars());
+} elseif ($step === 'confirm') {
+    partial('tiep-nhan/_confirm', get_defined_vars());
+} else {
+    partial('tiep-nhan/_form', get_defined_vars());
+}
