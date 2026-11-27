@@ -239,10 +239,10 @@ INSERT INTO `KhuVuc` (`maKhuVuc`, `maKho`, `tenKhuVuc`, `loaiKhuVuc`, `trangThai
 -- [08/38] ViTriLuuTru | 98 dong
 -- 96 vị trí (3 kệ x 2 tầng cho 5 khu lưu trữ chính; 6 vị trí mặt sàn cho 11 khu vực còn lại)
 INSERT INTO `ViTriLuuTru` (`maViTri`, `tenViTri`, `maKhuVuc`, `day`, `ke`, `tang`, `o`, `sucChuaToiDa`, `trangThai`) VALUES
-  ('VT010101010001', 'Kệ 01 - Tầng 01 - Ô 01', 'KV010001', '01', '01', '01', '01', 52000, 'Đang chứa hàng'),
-  ('VT010102010002', 'Kệ 01 - Tầng 02 - Ô 01', 'KV010001', '01', '01', '02', '01', 32000, 'Đang chứa hàng'),
-  ('VT010201010003', 'Kệ 02 - Tầng 01 - Ô 01', 'KV010001', '01', '02', '01', '01', 48000, 'Đang chứa hàng'),
-  ('VT010202010004', 'Kệ 02 - Tầng 02 - Ô 01', 'KV010001', '01', '02', '02', '01', 28000, 'Đang chứa hàng'),
+  ('VT010101010001', 'Kệ 01 - Tầng 01 - Ô 01', 'KV010001', '01', '01', '01', '01', 8000, 'Đang chứa hàng'),
+  ('VT010102010002', 'Kệ 01 - Tầng 02 - Ô 01', 'KV010001', '01', '01', '02', '01', 8000, 'Đang chứa hàng'),
+  ('VT010201010003', 'Kệ 02 - Tầng 01 - Ô 01', 'KV010001', '01', '02', '01', '01', 8000, 'Đang chứa hàng'),
+  ('VT010202010004', 'Kệ 02 - Tầng 02 - Ô 01', 'KV010001', '01', '02', '02', '01', 8000, 'Đang chứa hàng'),
   ('VT010301010005', 'Kệ 03 - Tầng 01 - Ô 01', 'KV010001', '01', '03', '01', '01', 8000, 'Đang chứa hàng'),
   ('VT010302010006', 'Kệ 03 - Tầng 02 - Ô 01', 'KV010001', '01', '03', '02', '01', 8000, 'Đang chứa hàng'),
   ('VT010000010007', 'Sàn - Ô 01', 'KV020001', '01', '00', '00', '01', 10000, 'Đang để trống'),
@@ -258,7 +258,7 @@ INSERT INTO `ViTriLuuTru` (`maViTri`, `tenViTri`, `maKhuVuc`, `day`, `ke`, `tang
   ('VT010000050017', 'Sàn - Ô 05', 'KV030001', '01', '00', '00', '05', 2000, 'Đang để trống'),
   ('VT010000060018', 'Sàn - Ô 06', 'KV030001', '01', '00', '00', '06', 2000, 'Đang để trống'),
   ('VT010101010019', 'Kệ 01 - Tầng 01 - Ô 01', 'KV010002', '01', '01', '01', '01', 5000, 'Đang chứa hàng'),
-  ('VT010102010020', 'Kệ 01 - Tầng 02 - Ô 01', 'KV010002', '01', '01', '02', '01', 6000, 'Đang chứa hàng'),
+  ('VT010102010020', 'Kệ 01 - Tầng 02 - Ô 01', 'KV010002', '01', '01', '02', '01', 5000, 'Đang chứa hàng'),
   ('VT010201010021', 'Kệ 02 - Tầng 01 - Ô 01', 'KV010002', '01', '02', '01', '01', 5000, 'Đang chứa hàng'),
   ('VT010202010022', 'Kệ 02 - Tầng 02 - Ô 01', 'KV010002', '01', '02', '02', '01', 5000, 'Đang chứa hàng'),
   ('VT010301010023', 'Kệ 03 - Tầng 01 - Ô 01', 'KV010002', '01', '03', '01', '01', 5000, 'Đang chứa hàng'),
@@ -283,8 +283,8 @@ INSERT INTO `ViTriLuuTru` (`maViTri`, `tenViTri`, `maKhuVuc`, `day`, `ke`, `tang
   ('VT010000060042', 'Sàn - Ô 06', 'KV050001', '01', '00', '00', '06', 8000, 'Đang để trống'),
   ('VT010101010043', 'Kệ 01 - Tầng 01 - Ô 01', 'KV010003', '01', '01', '01', '01', 4000, 'Đang chứa hàng'),
   ('VT010102010044', 'Kệ 01 - Tầng 02 - Ô 01', 'KV010003', '01', '01', '02', '01', 4000, 'Đang chứa hàng'),
-  ('VT010201010045', 'Kệ 02 - Tầng 01 - Ô 01', 'KV010003', '01', '02', '01', '01', 27000, 'Đang chứa hàng'),
-  ('VT010202010046', 'Kệ 02 - Tầng 02 - Ô 01', 'KV010003', '01', '02', '02', '01', 27000, 'Đang chứa hàng'),
+  ('VT010201010045', 'Kệ 02 - Tầng 01 - Ô 01', 'KV010003', '01', '02', '01', '01', 4000, 'Đang chứa hàng'),
+  ('VT010202010046', 'Kệ 02 - Tầng 02 - Ô 01', 'KV010003', '01', '02', '02', '01', 4000, 'Đang chứa hàng'),
   ('VT010301010047', 'Kệ 03 - Tầng 01 - Ô 01', 'KV010003', '01', '03', '01', '01', 4000, 'Đang để trống'),
   ('VT010302010048', 'Kệ 03 - Tầng 02 - Ô 01', 'KV010003', '01', '03', '02', '01', 4000, 'Đang để trống'),
   ('VT010000010049', 'Sàn - Ô 01', 'KV020003', '01', '00', '00', '01', 2000, 'Đang để trống'),
@@ -2169,23 +2169,23 @@ INSERT INTO `PhuongAnXuLy` (`maPhuongAn`, `maChenhLech`, `maHangBatThuong`, `bie
 -- [37/38] PhieuDieuChinhTonKho | 17 dong
 -- Đủ Tăng/Giảm/Hủy; chỉ DaThiHanh ảnh hưởng tồn
 INSERT INTO `PhieuDieuChinhTonKho` (`maPhieuDieuChinh`, `maPhuongAn`, `maLoHang`, `maViTri`, `loaiDieuChinh`, `soLuongDieuChinh`, `maNhanVienThiHanh`, `ngayThiHanh`, `trangThai`, `ghiChu`) VALUES
-  ('PDCTK2611090001', 'PAXL2611090001', 'LO2611020001', 'VT010301010005', 'Giam', 20, 'NV000003', '2026-10-26 18:00:00', 'Đã thi hành', 'Phiếu điều chỉnh riceDecrease; chỉ DaThiHanh ghi sổ'),
-  ('PDCTK2611090002', 'PAXL2611090002', 'LO2611010003', 'VT010202010004', 'Tang', 10, 'NV000003', '2026-10-26 18:00:00', 'Đã thi hành', 'Phiếu điều chỉnh soyIncrease; chỉ DaThiHanh ghi sổ'),
-  ('PDCTK2611090003', 'PAXL2611090009', 'LO2611020005', 'VT010101010043', 'Giam', 1, 'NV000003', '2026-10-26 18:00:00', 'Đã hủy', 'Phiếu điều chỉnh canceledAdjust; chỉ DaThiHanh ghi sổ'),
-  ('PDCTK2611090004', 'PAXL2611090004', 'LO2611010001', 'VT010101010001', 'Tang', 10, 'NV000003', '2026-10-26 18:00:00', 'Đã hủy', 'Phiếu điều chỉnh tăng bị hủy do phương án xử lý bị từ chối'),
-    ('PDCTK2611100001', 'PAXL2611100004', 'LO2611010003', 'VT010202010004', 'Giam', 10, 'NV000003', '2026-10-27 18:30:00', 'Đã thi hành', 'Điều chỉnh giảm 10 kg cám gạo theo BBKK2611110001'),
-    ('PDCTK2611100002', 'PAXL2611100005', 'LO2611010001', 'VT010102010080', 'Tang', 10, 'NV000003', '2026-10-27 18:30:00', 'Đã thi hành', 'Điều chỉnh tăng 10 kg ngô hạt theo BBKK2611110004'),
-    ('PDCTK2611100003', 'PAXL2611100002', 'LO2611020003', 'VT010000010013', 'Giam', 15, 'NV000003', '2026-10-27 17:30:00', 'Đã hủy', 'Hủy phiếu điều chỉnh giảm do PAXL2611100002 bị từ chối phê duyệt'),
-    ('PDCTK2607250001', 'PAXL2607250001', 'LO2607040001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-07-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2607250002', 'PAXL2607250002', 'LO2607040001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-07-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
-    ('PDCTK2608250001', 'PAXL2608250001', 'LO2608040001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-08-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2608250002', 'PAXL2608250002', 'LO2608040001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-08-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
-    ('PDCTK2609250001', 'PAXL2609250001', 'LO2609040001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-09-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2609250002', 'PAXL2609250002', 'LO2609040001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-09-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
-    ('PDCTK2610257001', 'PAXL2610257001', 'LO2610047001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-10-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2610257002', 'PAXL2610257002', 'LO2610047001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-10-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
-    ('PDCTK2611258001', 'PAXL2611258001', 'LO2611048001', 'VT010101010001', 'Giam', 10, 'NV000003', '2026-11-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
-    ('PDCTK2611258002', 'PAXL2611258002', 'LO2611048001', 'VT010301010005', 'Tang', 10, 'NV000003', '2026-11-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet');
+  ('PDCTK2611090001', 'PAXL2611090001', 'LO2611020001', 'VT010301010005', 'Giảm', 20, 'NV000003', '2026-10-26 18:00:00', 'Đã thi hành', 'Phiếu điều chỉnh riceDecrease; chỉ DaThiHanh ghi sổ'),
+  ('PDCTK2611090002', 'PAXL2611090002', 'LO2611010003', 'VT010202010004', 'Tăng', 10, 'NV000003', '2026-10-26 18:00:00', 'Đã thi hành', 'Phiếu điều chỉnh soyIncrease; chỉ DaThiHanh ghi sổ'),
+  ('PDCTK2611090003', 'PAXL2611090009', 'LO2611020005', 'VT010101010043', 'Giảm', 1, 'NV000003', '2026-10-26 18:00:00', 'Đã hủy', 'Phiếu điều chỉnh canceledAdjust; chỉ DaThiHanh ghi sổ'),
+  ('PDCTK2611090004', 'PAXL2611090004', 'LO2611010001', 'VT010101010001', 'Tăng', 10, 'NV000003', '2026-10-26 18:00:00', 'Đã hủy', 'Phiếu điều chỉnh tăng bị hủy do phương án xử lý bị từ chối'),
+    ('PDCTK2611100001', 'PAXL2611100004', 'LO2611010003', 'VT010202010004', 'Giảm', 10, 'NV000003', '2026-10-27 18:30:00', 'Đã thi hành', 'Điều chỉnh giảm 10 kg cám gạo theo BBKK2611110001'),
+    ('PDCTK2611100002', 'PAXL2611100005', 'LO2611010001', 'VT010102010080', 'Tăng', 10, 'NV000003', '2026-10-27 18:30:00', 'Đã thi hành', 'Điều chỉnh tăng 10 kg ngô hạt theo BBKK2611110004'),
+    ('PDCTK2611100003', 'PAXL2611100002', 'LO2611020003', 'VT010000010013', 'Giảm', 15, 'NV000003', '2026-10-27 17:30:00', 'Đã hủy', 'Hủy phiếu điều chỉnh giảm do PAXL2611100002 bị từ chối phê duyệt'),
+    ('PDCTK2607250001', 'PAXL2607250001', 'LO2607040001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-07-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2607250002', 'PAXL2607250002', 'LO2607040001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-07-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
+    ('PDCTK2608250001', 'PAXL2608250001', 'LO2608040001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-08-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2608250002', 'PAXL2608250002', 'LO2608040001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-08-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
+    ('PDCTK2609250001', 'PAXL2609250001', 'LO2609040001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-09-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2609250002', 'PAXL2609250002', 'LO2609040001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-09-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
+    ('PDCTK2610257001', 'PAXL2610257001', 'LO2610047001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-10-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2610257002', 'PAXL2610257002', 'LO2610047001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-10-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet'),
+    ('PDCTK2611258001', 'PAXL2611258001', 'LO2611048001', 'VT010101010001', 'Giảm', 10, 'NV000003', '2026-11-25 15:00:00', 'Đã thi hành', 'Điều chỉnh giảm hao hụt định mức'),
+    ('PDCTK2611258002', 'PAXL2611258002', 'LO2611048001', 'VT010301010005', 'Tăng', 10, 'NV000003', '2026-11-25 15:30:00', 'Đã thi hành', 'Điều chỉnh tăng khớp pallet');
 
 -- [38/38] BienBanTraHang | 22 dong
 -- Chờ/đã trả/NCC từ chối; ngày trả chỉ khi DaTraHang
@@ -2215,6 +2215,26 @@ INSERT INTO `BienBanTraHang` (`maBienBanTraHang`, `maLoHang`, `maPhieuGiao`, `so
 
 
 COMMIT;
+
+-- ---------------------------------------------------------------------
+-- [39-40] Pham vi vi tri + so sach dong bang cho cac bien ban kiem ke mau (UC24)
+--   Dan xuat tu KetQuaKiemKe da seed de du lieu mau tu nhat quan (bien ban da ghi ket qua
+--   thi phai co pham vi vi tri + snapshot tuong ung).
+-- ---------------------------------------------------------------------
+INSERT INTO `PhamViKiemKe` (`maBienBanKiemKe`, `maViTri`, `trangThaiKiemTra`, `maNhanVienKiemTra`, `thoiDiemKiemTra`)
+SELECT q.`maBienBanKiemKe`, q.`maViTri`, 'Đã kiểm tra', MIN(q.`maNhanVienKiemKe`), MIN(b.`ngayBatDau`) + INTERVAL 2 HOUR
+FROM `KetQuaKiemKe` q
+JOIN `BienBanKiemKe` b ON b.`maBienBanKiemKe` = q.`maBienBanKiemKe`
+GROUP BY q.`maBienBanKiemKe`, q.`maViTri`;
+
+INSERT INTO `SnapshotTonKhoKiemKe` (`maBienBanKiemKe`, `maLoHang`, `maViTri`, `soLuongTon`, `soLuongDaGiu`)
+SELECT q.`maBienBanKiemKe`, q.`maLoHang`, q.`maViTri`, q.`soLuongSoSach`,
+       LEAST(COALESCE((SELECT t.`soLuongDaGiu` FROM `TonKho` t
+                       WHERE t.`maLoHang` = q.`maLoHang` AND t.`maViTri` = q.`maViTri`), 0), q.`soLuongSoSach`)
+FROM `KetQuaKiemKe` q
+WHERE NOT EXISTS (SELECT 1 FROM `SnapshotTonKhoKiemKe` s
+                  WHERE s.`maBienBanKiemKe` = q.`maBienBanKiemKe`
+                    AND s.`maLoHang` = q.`maLoHang` AND s.`maViTri` = q.`maViTri`);
 
 -- =====================================================================
 -- DOI SOAT SAU IMPORT: Chay cac SELECT nay de kiem tra du lieu (READ-ONLY)

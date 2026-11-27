@@ -12,4 +12,5 @@ return [
     'session_name' => 'fw_session',
     'debug'        => true,          // true: hiện lỗi PHP khi phát triển; false khi chạy thật
     'per_page'     => 10,            // số dòng mỗi trang cho danh sách
+    'expiry_warning_days' => 30,     // ngưỡng cảnh báo lô sắp hết hạn (UC28/UC30)
 ];

@@ -24,7 +24,7 @@ $minCap = (float)$used['daDung'] > 0 ? (float)$used['daDung'] : 0.01;
         </div>
         <div class="field">
             <label for="sucChuaToiDa">Sức chứa tối đa (kg) <span class="req">*</span></label>
-            <input id="sucChuaToiDa" name="sucChuaToiDa" type="number" min="<?= e($minCap) ?>" step="0.01" value="<?= e($old['sucChuaToiDa'] ?? $pos['sucChuaToiDa']) ?>" required>
+            <input id="sucChuaToiDa" name="sucChuaToiDa" type="text" inputmode="numeric" data-qty="positive" data-min="<?= e((int)ceil($minCap)) ?>" value="<?= e((int)round((float)($old['sucChuaToiDa'] ?? $pos['sucChuaToiDa']))) ?>" required>
         </div>
     </div>
     <p class="muted small">Đang lưu trữ: <?= e(fmt_number($used['daDung'], 2)) ?> kg (tồn thực tế <?= e(fmt_number($used['ton'], 2)) ?> kg, đã phân bổ <?= e(fmt_number($used['phanBo'], 2)) ?> kg). Không được giảm sức chứa thấp hơn mức này. Mã, kho, khu vực và tọa độ không thay đổi.</p>

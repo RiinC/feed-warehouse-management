@@ -223,14 +223,14 @@ class DieuChuyenController extends Controller
         if (!$this->requireScope()) { return; }
         $d = $this->draft();
         if (empty($d['maViTriNguon']) || empty($d['maViTriDich'])) { $this->redirect('dieu-chuyen/create/source'); return; }
-        $qty = (float)str_replace(',', '.', (string)Request::post('soLuong'));
+        $qty = parse_qty(Request::post('soLuong'), false, 2);
         $reason = trim((string)Request::post('lyDoDieuChuyen'));
         $src = TonKho::findRow((string)$d['maLoHang'], (string)$d['maViTriNguon']);
         $avail = $src ? ((float)$src['soLuongTon'] - (float)$src['soLuongDaGiu']) : 0;
         $destQ = ViTriLuuTru::quantities((string)$d['maViTriDich']);
         $dv = ViTriLuuTru::find((string)$d['maViTriDich']);
         $destCon = $dv ? ((float)$dv['sucChuaToiDa'] - $destQ['daDung']) : 0;
-        if ($qty <= 0 || $qty > $avail + 0.000001 || $qty > $destCon + 0.000001) { $this->flash('error', 'Số lượng không hợp lệ hoặc vượt tồn nguồn/sức chứa đích.'); $this->redirect('dieu-chuyen/create/info'); return; }
+        if ($qty === null || $qty > $avail + 0.000001 || $qty > $destCon + 0.000001) { $this->flash('error', 'Số lượng không hợp lệ hoặc vượt tồn nguồn/sức chứa đích.'); $this->redirect('dieu-chuyen/create/info'); return; }
         if ($reason === '') { $this->flash('error', 'Vui lòng nhập lý do điều chuyển.'); $this->redirect('dieu-chuyen/create/info'); return; }
         $d['soLuong'] = $qty; $d['lyDoDieuChuyen'] = $reason; $this->saveDraft($d);
         $this->redirect('dieu-chuyen/create/confirm');
@@ -389,9 +389,12 @@ class DieuChuyenController extends Controller
             return;
         }
         $id = (string)Request::post('id');
-        $qty = (float)str_replace(',', '.', (string)Request::post('soLuongThucChuyen'));
+        $qty = parse_qty(Request::post('soLuongThucChuyen'), false, 2);
         $back = 'dieu-chuyen/detail?id=' . urlencode($id);
         try {
+            if ($qty === null) {
+                throw new \RuntimeException('Số lượng thực chuyển chỉ được nhập số nguyên lớn hơn 0.');
+            }
             $r = PhieuDieuChuyen::execute($id, Auth::staffId(), $scope, $qty);
             $msg = $r['hoanTat']
                 ? 'Phiếu ' . $id . ' đã hoàn tất: ' . fmt_number($r['luyKe'], 2) . ' kg từ ' . $r['tenNguon'] . ' đến ' . $r['tenDich'] . '.'

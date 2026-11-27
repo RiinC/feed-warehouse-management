@@ -55,15 +55,21 @@ return [
     // ---------------- Quản lý kho ----------------
     ROLE_MANAGER => [
         $home,
-        ['label' => 'Quản lý hàng hóa', 'icon' => 'package', 'route' => 'hang-hoa'],
         ['label' => 'Quản lý kho', 'icon' => 'archive', 'items' => [
             ['Vị trí lưu trữ', 'vi-tri-luu-tru'],
             ['Gán lô hàng vào vị trí', 'gan-lo-hang'],
             ['Điều chuyển nội bộ', 'dieu-chuyen'],
         ]],
-        ['label' => 'Xuất kho', 'icon' => 'upload', 'route' => 'xuat-kho/yeu-cau'],
-        ['label' => 'Kiểm kê', 'icon' => 'clipboard', 'route' => 'kiem-ke'],
-        ['label' => 'Xử lý hàng bất thường', 'icon' => 'alert', 'route' => 'hang-bat-thuong'],
+        ['label' => 'Quản lý xuất kho', 'icon' => 'upload', 'route' => 'xuat-kho/yeu-cau'],
+        ['label' => 'Quản lý kiểm kê', 'icon' => 'list', 'items' => [
+            ['Kiểm kê kho', 'kiem-ke'],
+            ['Xử lý hàng bất thường', 'hang-bat-thuong'],
+        ]],
+        ['label' => 'Tra cứu', 'icon' => 'search', 'items' => [
+            ['Hàng hóa', 'hang-hoa'],
+            ['Lô hàng', 'lo-hang'],
+            ['Tồn kho', 'ton-kho'],
+        ]],
         ['label' => 'Báo cáo', 'icon' => 'chart', 'route' => 'bao-cao'],
         $notice,
     ],
@@ -78,6 +84,10 @@ return [
         ['label' => 'Lưu kho', 'icon' => 'link', 'route' => 'gan-lo-hang'],
         ['label' => 'Điều chuyển nội bộ', 'icon' => 'repeat', 'route' => 'dieu-chuyen'],
         ['label' => 'Quản lý xuất kho', 'icon' => 'upload', 'route' => 'xuat-kho/yeu-cau'],
+        ['label' => 'Quản lý kiểm kê', 'icon' => 'list', 'items' => [
+            ['Kiểm kê kho', 'kiem-ke'],
+            ['Xử lý hàng bất thường', 'hang-bat-thuong'],
+        ]],
         ['label' => 'Tra cứu', 'icon' => 'search', 'items' => [
             ['Hàng hóa', 'hang-hoa'],
             ['Lô hàng', 'lo-hang'],
@@ -92,12 +102,18 @@ return [
         ['label' => 'Kiểm tra chất lượng', 'icon' => 'clipboard', 'route' => 'chat-luong'],
         // Vai trò này không có quyền xem 'nhap-kho' (chỉ 'create' và 'history'): trang chính của họ là lịch sử nhập kho.
         ['label' => 'Nhập kho', 'icon' => 'archive', 'route' => 'nhap-kho/history'],
+        ['label' => 'Quản lý kiểm kê', 'icon' => 'list', 'items' => [
+            ['Kiểm kê kho', 'kiem-ke'],
+            ['Xử lý hàng bất thường', 'hang-bat-thuong'],
+        ]],
+        ['label' => 'Tra cứu tồn kho', 'icon' => 'search', 'route' => 'ton-kho'],
         $notice,
     ],
 
     // ---------------- Ban giám đốc ----------------
     ROLE_DIRECTOR => [
         $home,
+        ['label' => 'Xử lý hàng bất thường', 'icon' => 'list', 'route' => 'hang-bat-thuong'],
         ['label' => 'Báo cáo', 'icon' => 'chart', 'route' => 'bao-cao'],
         $notice,
     ],

@@ -14,7 +14,7 @@ $user = current_user();
     <link rel="stylesheet" href="<?= e(asset('css/reset.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('css/variables.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('css/layout.css')) ?>">
-    <link rel="stylesheet" href="<?= e(asset('css/components.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('css/components.css')) ?>?v=<?= @filemtime(ROOT_PATH . '/public/assets/css/components.css') ?: 1 ?>">
     <?php if (!empty($page['css'])): ?>
         <link rel="stylesheet" href="<?= e(asset('css/pages/' . $page['css'] . '.css')) ?>">
     <?php endif; ?>
@@ -56,10 +56,10 @@ $user = current_user();
 <script src="<?= e(asset('js/sidebar.js')) ?>"></script>
 <script src="<?= e(asset('js/modal.js')) ?>"></script>
 <script src="<?= e(asset('js/notifications.js')) ?>"></script>
-<script src="<?= e(asset('js/validation.js')) ?>"></script>
+<script src="<?= e(asset('js/validation.js')) ?>?v=<?= e((string)@filemtime(ROOT_PATH . '/public/assets/js/validation.js')) ?>"></script>
 <script src="<?= e(asset('js/dependent-select.js')) ?>"></script>
 <script src="<?= e(asset('js/table-select.js')) ?>"></script>
-<script src="<?= e(asset('js/storage.js')) ?>"></script>
+<script src="<?= e(asset('js/storage.js')) ?>?v=<?= e((string)@filemtime(ROOT_PATH . '/public/assets/js/storage.js')) ?>"></script>
 <script src="<?= e(asset('js/approval.js')) ?>"></script>
 </body>
 </html>

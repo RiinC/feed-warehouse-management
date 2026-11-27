@@ -2,6 +2,11 @@
 /**
  * Ma trận phân quyền: module -> hành động -> danh sách vai trò được phép.
  * Quản trị viên (ROLE_ADMIN) luôn được phép mọi thao tác nên không cần liệt kê.
+ *
+ * Hành động dùng chung: view (xem/tra cứu), create, edit, stop (ngừng sử dụng), approve (phê duyệt)...
+ * Mỗi route ở routes/web.php khai báo module + action cần có; Router kiểm tra trước khi gọi Controller.
+ * Trong View: if (can('hang-hoa', 'edit')) { ... }
+ * Thêm vai trò mới: khai báo ở config/constants.php, thêm vào các hành động ở đây và bố cục menu ở config/menu-layout.php.
  */
 return [
     'dashboard' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY, ROLE_DIRECTOR]],
@@ -14,11 +19,10 @@ return [
     'gan-lo-hang' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'assign' => [ROLE_WAREHOUSE]],
     'dieu-chuyen' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'create' => [ROLE_WAREHOUSE], 'approve' => [ROLE_MANAGER], 'execute' => [ROLE_WAREHOUSE]],
     'xuat-kho' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'request' => [ROLE_WAREHOUSE], 'approve' => [ROLE_MANAGER], 'fefo' => [ROLE_WAREHOUSE], 'issue' => [ROLE_WAREHOUSE]],
-    'kiem-ke' => ['view' => [ROLE_MANAGER, ROLE_INVENTORY], 'create' => [ROLE_MANAGER], 'record' => [ROLE_MANAGER, ROLE_INVENTORY], 'reconcile' => [ROLE_MANAGER], 'handle' => [ROLE_MANAGER]],
-    'hang-bat-thuong' => ['view' => [ROLE_MANAGER, ROLE_INVENTORY], 'handle' => [ROLE_MANAGER]],
+    'kiem-ke' => ['view' => [ROLE_MANAGER, ROLE_INVENTORY, ROLE_WAREHOUSE], 'create' => [ROLE_MANAGER], 'record' => [ROLE_INVENTORY, ROLE_WAREHOUSE], 'reconcile' => [ROLE_MANAGER], 'handle' => [ROLE_MANAGER]],
+    'hang-bat-thuong' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY, ROLE_DIRECTOR], 'record' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY], 'scan' => [ROLE_MANAGER, ROLE_INVENTORY], 'propose' => [ROLE_MANAGER, ROLE_INVENTORY], 'handle' => [ROLE_DIRECTOR], 'execute' => [ROLE_MANAGER]],
     'ton-kho' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY, ROLE_DIRECTOR]],
     'bao-cao' => ['view' => [ROLE_MANAGER, ROLE_DIRECTOR]],
-    'thong-bao' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY, ROLE_DIRECTOR]],
-    'tai-khoan' => ['view' => []],
+    'thong-bao' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY, ROLE_DIRECTOR]],   // mọi vai trò xem thông báo của mình
+    'tai-khoan' => ['view' => []],   // chỉ Quản trị viên
 ];
-

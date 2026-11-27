@@ -1,1 +1,158 @@
 /* Kiểm kê, hàng bất thường, tồn kho, báo cáo (UC24-UC30) */
+
+/* Dải thẻ số liệu đầu trang */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.stat-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 13px 16px; box-shadow: var(--shadow); }
+.stat-label { display: block; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 6px; }
+.stat-value { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.stat-value small { font-size: 12px; font-weight: 500; color: var(--muted); }
+.stat-card.ok .stat-value { color: var(--success); }
+.stat-card.warn .stat-value { color: var(--warning); }
+.stat-card.danger .stat-value { color: var(--danger); }
+.stat-card.info .stat-value { color: var(--info); }
+
+/* Tiến độ */
+.progress { height: 8px; border-radius: 999px; background: #eef0f4; overflow: hidden; }
+.progress > span { display: block; height: 100%; background: var(--primary); }
+.progress.ok > span { background: var(--success); }
+.progress.warn > span { background: var(--warning); }
+.progress-meta { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+/* Bố cục & khối phụ */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.toolbar .spacer { flex: 1; }
+.split-2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 1000px) { .split-2 { grid-template-columns: 1fr; } }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; font-size: 14px; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-weight: 600; }
+.note { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+/* Số chênh lệch */
+.diff-plus { color: var(--success); font-weight: 600; }
+.diff-minus { color: var(--danger); font-weight: 600; }
+.diff-zero { color: var(--muted); }
+
+/* Ô nhập gọn trong bảng (ghi nhận kết quả, đối chiếu) */
+.table input[type="number"], .table input[type="text"], .table select { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font: inherit; }
+.table input[type="number"]:focus, .table input[type="text"]:focus, .table select:focus { outline: 2px solid rgba(31, 111, 235, .25); border-color: var(--primary); }
+.table td.tight { padding-top: 6px; padding-bottom: 6px; }
+.table td input.qty { text-align: right; }
+.check-cell { text-align: center; width: 46px; }
+.group-row td { background: #f7f9fc; font-weight: 600; }
+.inline-form { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.inline-form input[type="text"], .inline-form select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; font: inherit; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* Phân bố hạn sử dụng */
+.bar-list { display: grid; gap: 9px; }
+.bar-row { display: grid; grid-template-columns: 150px 1fr 110px; gap: 10px; align-items: center; font-size: 13px; }
+.bar-track { height: 10px; border-radius: 999px; background: #eef0f4; overflow: hidden; }
+.bar-fill { display: block; height: 100%; background: var(--primary); }
+.bar-fill.danger { background: var(--danger); }
+.bar-fill.warn { background: var(--warning); }
+.bar-fill.ok { background: var(--success); }
+.bar-value { text-align: right; color: var(--muted); }
+
+/* Thanh lưu cố định cuối form dài */
+.sticky-save { position: sticky; bottom: 0; z-index: 5; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 0; margin-top: 4px; display: flex; justify-content: flex-end; gap: 8px; }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+.checklist { margin: 8px 0 0; padding-left: 18px; font-size: 13px; }
+.checklist li { margin-bottom: 4px; }
+.checklist li.done { color: var(--success); }
+.checklist li.todo { color: var(--danger); }
+
+/* In biên bản chứng từ chuẩn A4 */
+.print-only { display: none; }
+
+@media print {
+    @page { size: A4 portrait; margin: 14mm 15mm; }
+    html, body, .app-body { background: #fff !important; color: #000 !important; margin: 0 !important; padding: 0 !important; }
+    .screen-only, .no-print, .sidebar, .topbar, .footer, .breadcrumb, .page-actions, .pagination, .alert, .alert-close { display: none !important; }
+    .app-shell { display: block !important; }
+    .main { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+    .content { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+    .print-only { display: block !important; }
+    .print-voucher {
+        font-family: "Times New Roman", Times, Georgia, serif;
+        font-size: 12pt;
+        line-height: 1.45;
+        color: #000;
+        width: 100%;
+    }
+    .print-voucher .pv-head {
+        display: table;
+        width: 100%;
+        margin-bottom: 14px;
+    }
+    .print-voucher .pv-head-left,
+    .print-voucher .pv-head-right {
+        display: table-cell;
+        vertical-align: top;
+        width: 50%;
+    }
+    .print-voucher .pv-head-right { text-align: center; }
+    .print-voucher .pv-title {
+        text-align: center;
+        margin: 10px 0 4px;
+        font-size: 15pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .02em;
+    }
+    .print-voucher .pv-sub {
+        text-align: center;
+        font-style: italic;
+        margin-bottom: 14px;
+        font-size: 11.5pt;
+    }
+    .print-voucher .pv-meta { margin-bottom: 12px; }
+    .print-voucher .pv-meta p { margin: 3px 0; }
+    .print-voucher .pv-sec {
+        font-weight: 700;
+        margin: 12px 0 6px;
+        text-transform: uppercase;
+        font-size: 11.5pt;
+    }
+    .print-voucher table.pv-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+        font-size: 11pt;
+    }
+    .print-voucher table.pv-table th,
+    .print-voucher table.pv-table td {
+        border: 1px solid #000;
+        padding: 5px 7px;
+        vertical-align: middle;
+    }
+    .print-voucher table.pv-table th {
+        text-align: center;
+        font-weight: 700;
+        background: #f5f5f5 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .print-voucher .pv-num { text-align: right; }
+    .print-voucher .pv-center { text-align: center; }
+    .print-voucher .pv-sign {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        margin-top: 22px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    .print-voucher .pv-sign-col {
+        display: table-cell;
+        text-align: center;
+        vertical-align: top;
+        padding: 0 6px;
+    }
+    .print-voucher .pv-sign-title { font-weight: 700; font-size: 11pt; }
+    .print-voucher .pv-sign-note { font-style: italic; font-size: 10pt; margin-top: 2px; }
+    .print-voucher .pv-sign-space { height: 64px; }
+    .print-voucher .pv-sign-name { font-weight: 700; font-size: 11pt; }
+}
+

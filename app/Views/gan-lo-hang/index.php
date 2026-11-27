@@ -59,7 +59,7 @@ render_search_form(['q' => ['label' => 'Từ khóa', 'placeholder' => 'Mã lô h
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="field"><label for="assignQty">Số lượng cần gán (kg) <span class="req">*</span></label><input id="assignQty" name="soLuong" type="number" min="0.01" step="0.01" required></div>
+            <div class="field"><label for="assignQty">Số lượng cần gán (kg) <span class="req">*</span></label><input id="assignQty" name="soLuong" type="text" inputmode="numeric" data-qty="positive" data-min="1" required></div>
             <div class="field"><label for="ghiChu">Ghi chú</label><input id="ghiChu" name="ghiChu" maxlength="255" placeholder="VD: Gán phần còn lại của lô"></div>
         </div>
         <p class="muted small" id="assignHint">Chọn lô rồi chọn khu vực, vị trí để xem sức chứa còn lại. Thao tác chỉ ghi nhận phân bổ vị trí, không thay đổi tổng tồn kho của lô.</p>

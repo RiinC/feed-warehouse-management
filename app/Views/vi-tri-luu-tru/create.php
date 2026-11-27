@@ -40,7 +40,7 @@ $oldArea = (string)($old['maKhuVuc'] ?? '' );
         </div>
         <div class="field">
             <label for="sucChuaToiDa">Sức chứa tối đa (kg) <span class="req">*</span></label>
-            <input id="sucChuaToiDa" name="sucChuaToiDa" type="number" min="0.01" step="0.01" placeholder="VD: 8000" value="<?= e($old['sucChuaToiDa'] ?? '') ?>" required>
+            <input id="sucChuaToiDa" name="sucChuaToiDa" type="text" inputmode="numeric" data-qty="positive" data-min="1" placeholder="VD: 8000" value="<?= e($old['sucChuaToiDa'] ?? '') ?>" required>
         </div>
     </div>
     <div class="filter-grid">

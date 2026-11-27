@@ -58,7 +58,7 @@ class AuthController extends Controller
         if (!$row || !$ok) {
             return 'Tên đăng nhập hoặc mật khẩu không đúng.';
         }
-        if ($row['trangThaiTaiKhoan'] !== 'Đang hoạt động' || $row['trangThaiNhanVien'] !== 'Đang làm việc') {
+        if (!in_array($row['trangThaiTaiKhoan'], ['Đang hoạt động', 'Hoạt động'], true) || $row['trangThaiNhanVien'] !== 'Đang làm việc') {
             return 'Tài khoản đang bị khóa hoặc ngừng hoạt động.';
         }
         $role = ROLE_FROM_DB[$row['vaiTro']] ?? null;
@@ -73,6 +73,7 @@ class AuthController extends Controller
             'username'   => $row['tenDangNhap'],
             'hoTen'      => $row['hoTen'],
             'vaiTro'     => $row['vaiTro'],
+            'maKho'      => $row['maKho'] ?? null,
             'role'       => $role,
         ]);
         return null;

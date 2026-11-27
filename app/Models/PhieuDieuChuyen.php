@@ -25,7 +25,7 @@ class PhieuDieuChuyen extends Model
         return static::one("SELECT p.*, l.maHangHoa, l.ngayHetHan, l.soLuongBanDau, l.trangThaiQC, l.trangThaiVongDoi,
                 hh.tenHangHoa, hh.donViTinhChuan,
                 vn.tenViTri AS tenViTriNguon, vn.sucChuaToiDa AS sucChuaNguon, vn.trangThai AS trangThaiNguon,
-                kn.tenKhuVuc AS tenKhuVucNguon, kn.maKho AS maKhoNguon, khoN.tenKho AS tenKhoNguon,
+                kn.maKhuVuc AS maKhuVucNguon, kn.tenKhuVuc AS tenKhuVucNguon, kn.maKho AS maKhoNguon, khoN.tenKho AS tenKhoNguon,
                 vd.tenViTri AS tenViTriDich, vd.sucChuaToiDa AS sucChuaDich, vd.trangThai AS trangThaiDich,
                 kd.tenKhuVuc AS tenKhuVucDich, kd.maKho AS maKhoDich, khoD.tenKho AS tenKhoDich,
                 nvl.hoTen AS nguoiLap, nvd.hoTen AS nguoiDuyet, nvt.hoTen AS nguoiThucHien

@@ -142,3 +142,137 @@ tr.selectable-row.selected td { background: #eaf2ff; }
 .input-with-action { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .input-with-action input { flex: 1; min-width: 220px; }
 .input-with-action .btn { margin-top: 0; white-space: nowrap; }
+
+/* Bố cục 2 bảng thông tin chung đồng bộ (.kv-grid) */
+.kv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+    align-items: stretch;
+}
+.kv-grid--60-40 {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
+}
+.kv-grid--60-40 .kv-card:last-child .kv-table th {
+    width: 135px;
+}
+@media (max-width: 992px) {
+    .kv-grid,
+    .kv-grid--60-40 { grid-template-columns: 1fr; }
+}
+.kv-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin-bottom: 0;
+}
+.kv-card-head {
+    min-height: 42px;
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+.kv-card-head h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.3;
+}
+.kv-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.kv-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+.kv-table tr {
+    border-bottom: 1px solid #f1f5f9;
+}
+.kv-table tr:last-child {
+    border-bottom: 0;
+}
+.kv-table th,
+.kv-table td {
+    height: 42px;
+    box-sizing: border-box;
+    vertical-align: middle;
+    text-align: left;
+}
+.kv-table th {
+    width: 155px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #64748b;
+    background: transparent;
+    white-space: nowrap;
+}
+.kv-table td {
+    padding: 6px 16px 6px 8px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #0f172a;
+}
+.kv-table td select,
+.kv-table td input[type="text"],
+.kv-table td input[type="datetime-local"],
+.kv-table td textarea,
+.kv-table td .form-control,
+.kv-table td .cukcuk-input-control {
+    width: 100%;
+    font-size: 13px;
+}
+.kv-table td select,
+.kv-table td input[type="text"],
+.kv-table td input[type="datetime-local"],
+.kv-table td .cukcuk-input-control {
+    height: 32px;
+}
+.kv-table td textarea,
+.kv-table td textarea.cukcuk-input-control {
+    height: auto;
+    min-height: 70px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+/* Thanh nút thao tác dính đáy thẻ: nổi theo cuộn trang và dừng ở đáy thẻ */
+.sticky-card {
+    overflow: clip;
+}
+.sticky-footer-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: rgba(250, 251, 253, 0.96);
+    backdrop-filter: blur(4px);
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}

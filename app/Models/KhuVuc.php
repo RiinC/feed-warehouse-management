@@ -26,7 +26,7 @@ class KhuVuc extends Model
     {
         $sql = "SELECT k.maKhuVuc, k.tenKhuVuc
             FROM KhuVuc k JOIN Kho kho ON kho.maKho = k.maKho
-            WHERE k.trangThai = 'Đang hoạt động' AND kho.trangThai = 'Đang hoạt động'";
+            WHERE k.trangThai IN ('Hoạt động', 'Đang hoạt động') AND kho.trangThai IN ('Hoạt động', 'Đang hoạt động')";
         $params = [];
         if ($maKho !== null && $maKho !== '') {
             $sql .= " AND k.maKho = ?";
@@ -45,7 +45,7 @@ class KhuVuc extends Model
     {
         $sql = "SELECT k.maKhuVuc, k.tenKhuVuc, k.maKho
             FROM KhuVuc k JOIN Kho kho ON kho.maKho = k.maKho
-            WHERE k.trangThai = 'Đang hoạt động' AND kho.trangThai = 'Đang hoạt động'";
+            WHERE k.trangThai IN ('Hoạt động', 'Đang hoạt động') AND kho.trangThai IN ('Hoạt động', 'Đang hoạt động')";
         $params = [];
         if ($maKho !== null && $maKho !== '') {
             $sql .= " AND k.maKho = ?";
@@ -64,7 +64,7 @@ class KhuVuc extends Model
         return (bool)static::one("SELECT 1 AS ok
             FROM KhuVuc k JOIN Kho kho ON kho.maKho = k.maKho
             WHERE k.maKhuVuc = ? AND k.maKho = ?
-              AND k.trangThai = 'Đang hoạt động' AND kho.trangThai = 'Đang hoạt động'", [$maKhuVuc, $maKho]);
+              AND k.trangThai IN ('Hoạt động', 'Đang hoạt động') AND kho.trangThai IN ('Hoạt động', 'Đang hoạt động')", [$maKhuVuc, $maKho]);
     }
 
     /** Admin tạo khu vực mới trong kho; sinh mã theo loại khu vực. */

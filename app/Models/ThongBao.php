@@ -35,7 +35,12 @@ class ThongBao extends Model
         if (!preg_match('#^[A-Za-z0-9_\-]+(/[A-Za-z0-9_\-]+)*(\?[A-Za-z0-9_=&%.\-]*)?$#', $link)) {
             return null;
         }
-        return Router::instance()->has($link) ? $link : null;
+        try {
+            $router = Router::instance();
+            return ($router && $router->has($link)) ? $link : null;
+        } catch (\Throwable $e) {
+            return $link;
+        }
     }
 
     /* ------------------------------ Gửi ------------------------------ */

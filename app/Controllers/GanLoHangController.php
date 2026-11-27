@@ -48,15 +48,16 @@ class GanLoHangController extends Controller
             $this->redirect('dashboard');
             return;
         }
+        $qty = parse_qty(Request::post('soLuong'), false, 2);
         $data = [
             'maLoHang' => (string)Request::post('maLoHang'),
             'maViTri' => (string)Request::post('maViTri'),
-            'soLuong' => (float)str_replace(',', '.', (string)Request::post('soLuong')),
+            'soLuong' => $qty ?? 0.0,
             'ghiChu' => (string)Request::post('ghiChu'),
             'maKho' => $scope,
         ];
-        if ($data['maLoHang'] === '' || $data['maViTri'] === '' || $data['soLuong'] <= 0) {
-            $this->flash('error', 'Vui lòng chọn lô, vị trí và nhập số lượng lớn hơn 0.');
+        if ($data['maLoHang'] === '' || $data['maViTri'] === '' || $qty === null) {
+            $this->flash('error', 'Vui lòng chọn lô, vị trí và nhập số lượng nguyên lớn hơn 0.');
             $this->redirect('gan-lo-hang');
             return;
         }

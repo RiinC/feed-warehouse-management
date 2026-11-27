@@ -76,12 +76,41 @@ $router->post('gan-lo-hang/assign', [GanLoHangController::class, 'assign'], 'gan
 
 // ---- hang-bat-thuong ----
 $router->get('hang-bat-thuong', [HangBatThuongController::class, 'index'], 'hang-bat-thuong', 'view');
+$router->get('hang-bat-thuong/create', [HangBatThuongController::class, 'create'], 'hang-bat-thuong', 'record');
+$router->get('hang-bat-thuong/detail', [HangBatThuongController::class, 'detail'], 'hang-bat-thuong', 'view');
+$router->get('hang-bat-thuong/print', [HangBatThuongController::class, 'printVoucher'], 'hang-bat-thuong', 'view');
+$router->post('hang-bat-thuong/store', [HangBatThuongController::class, 'store'], 'hang-bat-thuong', 'record');
+$router->post('hang-bat-thuong/detect', [HangBatThuongController::class, 'detect'], 'hang-bat-thuong', 'scan');
+$router->post('hang-bat-thuong/propose', [HangBatThuongController::class, 'propose'], 'hang-bat-thuong', 'propose');
+$router->post('hang-bat-thuong/cancel', [HangBatThuongController::class, 'cancelProposal'], 'hang-bat-thuong', 'propose');
+$router->post('hang-bat-thuong/approve', [HangBatThuongController::class, 'approveProposal'], 'hang-bat-thuong', 'handle');
+$router->post('hang-bat-thuong/reject', [HangBatThuongController::class, 'rejectProposal'], 'hang-bat-thuong', 'handle');
+$router->post('hang-bat-thuong/execute', [HangBatThuongController::class, 'executeProposal'], 'hang-bat-thuong', 'execute');
 
 // ---- hang-hoa ----
 $router->get('hang-hoa', [HangHoaController::class, 'index'], 'hang-hoa', 'view');
 
 // ---- kiem-ke ----
 $router->get('kiem-ke', [KiemKeController::class, 'index'], 'kiem-ke', 'view');
+$router->get('kiem-ke/create', [KiemKeController::class, 'create'], 'kiem-ke', 'create');
+$router->post('kiem-ke/store', [KiemKeController::class, 'store'], 'kiem-ke', 'create');
+$router->get('kiem-ke/edit', [KiemKeController::class, 'edit'], 'kiem-ke', 'create');
+$router->post('kiem-ke/update', [KiemKeController::class, 'update'], 'kiem-ke', 'create');
+$router->get('kiem-ke/detail', [KiemKeController::class, 'detail'], 'kiem-ke', 'view');
+$router->get('kiem-ke/print', [KiemKeController::class, 'printVoucher'], 'kiem-ke', 'view');
+$router->get('kiem-ke/record-result', [KiemKeController::class, 'recordResult'], 'kiem-ke', 'record');
+$router->post('kiem-ke/save-result', [KiemKeController::class, 'saveResult'], 'kiem-ke', 'record');
+$router->post('kiem-ke/submit', [KiemKeController::class, 'submitForApproval'], 'kiem-ke', 'record');
+$router->post('kiem-ke/return', [KiemKeController::class, 'returnResult'], 'kiem-ke', 'handle');
+$router->get('kiem-ke/reconcile', [KiemKeController::class, 'reconcile'], 'kiem-ke', 'reconcile');
+$router->post('kiem-ke/save-reconcile', [KiemKeController::class, 'saveReconcile'], 'kiem-ke', 'reconcile');
+$router->get('kiem-ke/handle-discrepancy', [KiemKeController::class, 'handleDiscrepancy'], 'kiem-ke', 'handle');
+$router->post('kiem-ke/propose', [KiemKeController::class, 'propose'], 'kiem-ke', 'handle');
+$router->post('kiem-ke/approve', [KiemKeController::class, 'approveProposal'], 'kiem-ke', 'handle');
+$router->post('kiem-ke/reject', [KiemKeController::class, 'rejectProposal'], 'kiem-ke', 'handle');
+$router->post('kiem-ke/execute', [KiemKeController::class, 'executeProposal'], 'kiem-ke', 'handle');
+$router->post('kiem-ke/close', [KiemKeController::class, 'close'], 'kiem-ke', 'handle');
+$router->post('kiem-ke/cancel', [KiemKeController::class, 'cancel'], 'kiem-ke', 'handle');
 
 // ---- lo-hang ----
 $router->get('lo-hang', [LoHangController::class, 'index'], 'lo-hang', 'view');
@@ -98,6 +127,8 @@ $router->get('tiep-nhan', [TiepNhanController::class, 'index'], 'tiep-nhan', 'vi
 
 // ---- ton-kho ----
 $router->get('ton-kho', [TonKhoController::class, 'index'], 'ton-kho', 'view');
+$router->get('ton-kho/detail', [TonKhoController::class, 'detail'], 'ton-kho', 'view');
+$router->get('ton-kho/print', [TonKhoController::class, 'printVoucher'], 'ton-kho', 'view');
 
 // ---- vi-tri-luu-tru ----
 $router->get('vi-tri-luu-tru', [ViTriLuuTruController::class, 'index'], 'vi-tri-luu-tru', 'view');
@@ -159,6 +190,22 @@ $router->get('xuat-kho/yeu-cau', [XuatKhoController::class, 'requests'], 'xuat-k
 // $router->get('nhap-kho/create', [NhapKhoController::class, 'create'], 'nhap-kho', 'create');
 
 // ------------------------------------------------------------------
+// CHỜ TRIỂN KHAI - ĐIỀU CHUYỂN NỘI BỘ  (trang chính: dieu-chuyen)
+// ------------------------------------------------------------------
+// TODO UC17 — Lập phiếu điều chuyển  [quyền: dieu-chuyen/create]
+// $router->get('dieu-chuyen/create', [DieuChuyenController::class, 'create'], 'dieu-chuyen', 'create');
+
+// ------------------------------------------------------------------
+// CHỜ TRIỂN KHAI - QUẢN LÝ VỊ TRÍ LƯU TRỮ  (trang chính: vi-tri-luu-tru)
+// ------------------------------------------------------------------
+// TODO UC12 — Thêm thông tin vị trí lưu trữ  [quyền: vi-tri-luu-tru/create]
+// $router->get('vi-tri-luu-tru/create', [ViTriLuuTruController::class, 'create'], 'vi-tri-luu-tru', 'create');
+// TODO UC13 — Sửa thông tin vị trí lưu trữ  [quyền: vi-tri-luu-tru/edit]
+// $router->get('vi-tri-luu-tru/edit', [ViTriLuuTruController::class, 'edit'], 'vi-tri-luu-tru', 'edit');
+// TODO UC14 — Ngừng sử dụng vị trí lưu trữ  [quyền: vi-tri-luu-tru/stop]
+// $router->get('vi-tri-luu-tru/stop-using', [ViTriLuuTruController::class, 'stopUsing'], 'vi-tri-luu-tru', 'stop');
+
+// ------------------------------------------------------------------
 // CHỜ TRIỂN KHAI - XUẤT KHO  (trang chính: xuat-kho/yeu-cau)
 // ------------------------------------------------------------------
 // TODO UC18 — Lập yêu cầu xuất kho  [quyền: xuat-kho/request]
@@ -172,22 +219,4 @@ $router->get('xuat-kho/yeu-cau', [XuatKhoController::class, 'requests'], 'xuat-k
 // TODO UC23 — Lập phiếu xuất kho  [quyền: xuat-kho/issue]
 // $router->get('xuat-kho/phieu-xuat', [XuatKhoController::class, 'issue'], 'xuat-kho', 'issue');
 
-// ------------------------------------------------------------------
-// CHỜ TRIỂN KHAI - KIỂM KÊ  (trang chính: kiem-ke)
-// ------------------------------------------------------------------
-// TODO UC24 — Lập biên bản kiểm kê  [quyền: kiem-ke/create]
-// $router->get('kiem-ke/create', [KiemKeController::class, 'create'], 'kiem-ke', 'create');
-// TODO UC25 — Ghi nhận kết quả kiểm kê  [quyền: kiem-ke/record]
-// $router->get('kiem-ke/record-result', [KiemKeController::class, 'recordResult'], 'kiem-ke', 'record');
-// TODO UC26 — Đối chiếu số liệu kiểm kê  [quyền: kiem-ke/reconcile]
-// $router->get('kiem-ke/reconcile', [KiemKeController::class, 'reconcile'], 'kiem-ke', 'reconcile');
-// TODO UC27 — Xử lý chênh lệch kiểm kê  [quyền: kiem-ke/handle]
-// $router->get('kiem-ke/handle-discrepancy', [KiemKeController::class, 'handleDiscrepancy'], 'kiem-ke', 'handle');
-
-// ------------------------------------------------------------------
-// CHỜ TRIỂN KHAI - BÁO CÁO  (trang chính: bao-cao)
-// ------------------------------------------------------------------
-// TODO UC30 — Báo cáo tồn kho  [quyền: bao-cao/view]
-// $router->get('bao-cao/inventory', [BaoCaoController::class, 'inventory'], 'bao-cao', 'view');
-// TODO UC30 — Báo cáo hạn sử dụng theo FEFO  [quyền: bao-cao/view]
-// $router->get('bao-cao/expiry-fefo', [BaoCaoController::class, 'expiryFefo'], 'bao-cao', 'view');
+// Báo cáo, kiểm kê, hàng bất thường, tồn kho đã triển khai (UC24–UC30) — route khai báo ở đầu tệp.

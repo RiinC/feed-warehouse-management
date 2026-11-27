@@ -130,7 +130,7 @@ class ViTriLuuTruController extends Controller
         $old = [
             'maViTri' => (string)$pos['maViTri'],
             'tenViTri' => (string)Request::post('tenViTri'),
-            'sucChuaToiDa' => (float)str_replace(',', '.', (string)Request::post('sucChuaToiDa')),
+            'sucChuaToiDa' => parse_qty(Request::post('sucChuaToiDa'), false, 2) ?? 0.0,
             'tenKhuVucMoi' => (string)Request::post('tenKhuVucMoi'),
             'loaiKhuVucMoi' => (string)Request::post('loaiKhuVucMoi', 'Lưu trữ chính'),
         ];
@@ -255,7 +255,7 @@ class ViTriLuuTruController extends Controller
             'ke' => (string)Request::post('ke'),
             'tang' => (string)Request::post('tang'),
             'o' => (string)Request::post('o'),
-            'sucChuaToiDa' => (float)str_replace(',', '.', (string)Request::post('sucChuaToiDa')),
+            'sucChuaToiDa' => parse_qty(Request::post('sucChuaToiDa'), false, 2) ?? 0.0,
             'tenKhuVucMoi' => (string)Request::post('tenKhuVucMoi'),
             'loaiKhuVucMoi' => (string)Request::post('loaiKhuVucMoi', 'Lưu trữ chính'),
         ];

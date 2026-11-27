@@ -67,5 +67,57 @@ class LichSuBienDongTonKho extends Model
             WHERE h.maViTri = ?
             ORDER BY h.thoiGianPhatSinh DESC, h.maBienDong DESC LIMIT ?", [$maViTri, $limit]);
     }
+
+    /** Lịch sử biến động của một cặp (lô hàng, vị trí lưu trữ). */
+    public static function historyForStock(string $maLoHang, string $maViTri, int $limit = 50): array
+    {
+        return static::all(
+            "SELECT h.*, nv.hoTen
+             FROM LichSuBienDongTonKho h
+             JOIN NhanVien nv ON nv.maNhanVien = h.maNhanVienThucHien
+             WHERE h.maLoHang = ? AND h.maViTri = ?
+             ORDER BY h.thoiGianPhatSinh DESC, h.maBienDong DESC
+             LIMIT ?",
+            [$maLoHang, $maViTri, $limit]
+        );
+    }
+
+    /** Biến động tồn kho gần đây (có thể lọc theo kho/khu vực/vị trí/từ khóa). */
+    public static function recentScoped(?string $maKho = null, array $f = [], int $limit = 20): array
+    {
+        $sql = "SELECT h.*, nv.hoTen,
+                       l.maHangHoa, hh.tenHangHoa, hh.donViTinhChuan,
+                       v.tenViTri, kv.maKhuVuc, kv.tenKhuVuc, k.maKho, k.tenKho
+                FROM LichSuBienDongTonKho h
+                JOIN NhanVien nv ON nv.maNhanVien = h.maNhanVienThucHien
+                JOIN LoHang l ON l.maLoHang = h.maLoHang
+                JOIN HangHoa hh ON hh.maHangHoa = l.maHangHoa
+                JOIN ViTriLuuTru v ON v.maViTri = h.maViTri
+                JOIN KhuVuc kv ON kv.maKhuVuc = v.maKhuVuc
+                JOIN Kho k ON k.maKho = kv.maKho
+                WHERE 1 = 1";
+        $params = [];
+        if ($maKho !== null && $maKho !== '') {
+            $sql .= " AND k.maKho = ?";
+            $params[] = $maKho;
+        }
+        $q = trim((string)($f['q'] ?? ''));
+        if ($q !== '') {
+            $sql .= " AND (hh.maHangHoa LIKE ? OR hh.tenHangHoa LIKE ? OR l.maLoHang LIKE ? OR h.maChungTuLienQuan LIKE ? OR v.maViTri LIKE ?)";
+            $like = '%' . $q . '%';
+            array_push($params, $like, $like, $like, $like, $like);
+        }
+        if (!empty($f['maKhuVuc'])) {
+            $sql .= " AND kv.maKhuVuc = ?";
+            $params[] = $f['maKhuVuc'];
+        }
+        if (!empty($f['maViTri'])) {
+            $sql .= " AND h.maViTri = ?";
+            $params[] = $f['maViTri'];
+        }
+        $sql .= " ORDER BY h.thoiGianPhatSinh DESC, h.maBienDong DESC LIMIT ?";
+        $params[] = $limit;
+        return static::all($sql, $params);
+    }
 }
 

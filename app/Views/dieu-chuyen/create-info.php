@@ -20,7 +20,7 @@ partial('components/transfer-steps', ['current' => 4]);
     <?= csrf_field() ?>
     <h2>Nhập thông tin điều chuyển</h2>
     <div class="filter-grid">
-        <div class="field"><label for="soLuong">Số lượng cần điều chuyển (kg) <span class="req">*</span></label><input id="soLuong" name="soLuong" type="number" min="0.01" step="0.01" max="<?= e(min($avail, $destCon)) ?>" value="<?= e($defaultQty) ?>" required></div>
+        <div class="field"><label for="soLuong">Số lượng cần điều chuyển (kg) <span class="req">*</span></label><input id="soLuong" name="soLuong" type="text" inputmode="numeric" data-qty="positive" data-min="1" data-max="<?= e((int)floor(min($avail, $destCon))) ?>" value="<?= e((int)floor($defaultQty)) ?>" required></div>
         <div class="field"><label for="lyDoDieuChuyen">Lý do điều chuyển <span class="req">*</span></label><textarea id="lyDoDieuChuyen" name="lyDoDieuChuyen" maxlength="200" placeholder="VD: Chuyển sang khu vực gần cửa xuất" required><?= e($draft['lyDoDieuChuyen'] ?? '') ?></textarea></div>
     </div>
     <p class="muted small">Số lượng mặc định là lượng hàng đang có tại vị trí nguồn; có thể giảm nếu chỉ điều chuyển một phần.</p>

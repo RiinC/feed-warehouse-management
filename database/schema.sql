@@ -309,7 +309,6 @@ CREATE TABLE IF NOT EXISTS `PhieuYeuCauNhapKho` (
   `maXuong` VARCHAR(9) NULL,
   `maNhanVienLap` VARCHAR(8) NOT NULL,
   `ngayYeuCau` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `ngayDuyet` DATETIME NULL,
   `trangThai` NVARCHAR(15) NOT NULL DEFAULT 'Chờ xử lý',
   `lyDoNhap` NVARCHAR(200) NULL,
   PRIMARY KEY (`maYeuCauNhap`),
@@ -438,18 +437,15 @@ CREATE TABLE IF NOT EXISTS `PhieuDieuChuyen` (
   `soLuongThucChuyen` DOUBLE NULL,
   `maNhanVienYeuCau` VARCHAR(8) NOT NULL,
   `maNhanVienThucHien` VARCHAR(8) NULL,
-  `maNhanVienDuyet` VARCHAR(8) NULL,
   `ngayYeuCau` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `ngayDuyet` DATETIME NULL,
   `ngayHoanTat` DATETIME NULL,
   `trangThai` NVARCHAR(15) NOT NULL DEFAULT 'Chờ điều chuyển',
   `lyDoDieuChuyen` NVARCHAR(200) NOT NULL,
-  `lyDoTuChoi` NVARCHAR(255) NULL,
   PRIMARY KEY (`maPhieuDieuChuyen`),
   CONSTRAINT `ck_PhieuDieuChuyen_1` CHECK (maPhieuDieuChuyen REGEXP '^PDC[0-9]{10}$'),
   CONSTRAINT `ck_PhieuDieuChuyen_2` CHECK (soLuongDuKien > 0),
   CONSTRAINT `ck_PhieuDieuChuyen_3` CHECK (soLuongThucChuyen >= 0),
-  CONSTRAINT `ck_PhieuDieuChuyen_4` CHECK (trangThai IN ('Chờ duyệt', 'Đã duyệt', 'Đã từ chối', 'Chờ điều chuyển', 'Đang thực hiện', 'Đã hoàn tất', 'Đã hủy')),
+  CONSTRAINT `ck_PhieuDieuChuyen_4` CHECK (trangThai IN ('Chờ điều chuyển', 'Đang thực hiện', 'Đã hoàn tất', 'Đã hủy')),
   CONSTRAINT `ck_PhieuDieuChuyen_5` CHECK (CHAR_LENGTH(TRIM(lyDoDieuChuyen)) > 0),
   CONSTRAINT `ck_PhieuDieuChuyen_6` CHECK (maViTriNguon <> maViTriDich),
   CONSTRAINT `ck_PhieuDieuChuyen_7` CHECK (ngayHoanTat IS NULL OR ngayHoanTat >= ngayYeuCau),
@@ -460,33 +456,9 @@ CREATE TABLE IF NOT EXISTS `PhieuDieuChuyen` (
   CONSTRAINT `fk_PhieuDieuChuyen_3` FOREIGN KEY (`maViTriDich`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChuyen_4` FOREIGN KEY (`maNhanVienYeuCau`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChuyen_5` FOREIGN KEY (`maNhanVienThucHien`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `ck_PhieuDieuChuyen_10` CHECK (ngayDuyet IS NULL OR ngayDuyet >= ngayYeuCau),
-  CONSTRAINT `ck_PhieuDieuChuyen_11` CHECK (trangThai NOT IN ('Đã duyệt', 'Đã từ chối') OR (maNhanVienDuyet IS NOT NULL AND ngayDuyet IS NOT NULL)),
-  CONSTRAINT `ck_PhieuDieuChuyen_12` CHECK (trangThai <> 'Đã từ chối' OR (lyDoTuChoi IS NOT NULL AND CHAR_LENGTH(TRIM(lyDoTuChoi)) > 0)),
-  CONSTRAINT `ck_PhieuDieuChuyen_13` CHECK (maNhanVienDuyet IS NULL OR maNhanVienDuyet <> maNhanVienYeuCau),
-  CONSTRAINT `fk_PhieuDieuChuyen_6` FOREIGN KEY (`maNhanVienDuyet`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   INDEX idx_PDC_trangThai (trangThai, ngayYeuCau)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- [22b] LuuKho (UC16 - phân bổ vị trí lưu trữ; không thay đổi TonKho)
-CREATE TABLE IF NOT EXISTS `LuuKho` (
-  `maLuuKho` BIGINT NOT NULL AUTO_INCREMENT,
-  `maLoHang` VARCHAR(12) NOT NULL,
-  `maViTri` VARCHAR(14) NOT NULL,
-  `maPhieuNhapKho` VARCHAR(13) NULL,
-  `soLuongPhanBo` DOUBLE NOT NULL,
-  `maNhanVienThucHien` VARCHAR(8) NOT NULL,
-  `thoiDiemPhanBo` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `ghiChu` NVARCHAR(255) NULL,
-  PRIMARY KEY (`maLuuKho`),
-  CONSTRAINT `ck_LuuKho_1` CHECK (`soLuongPhanBo` > 0),
-  CONSTRAINT `fk_LuuKho_1` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `fk_LuuKho_2` FOREIGN KEY (`maViTri`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `fk_LuuKho_3` FOREIGN KEY (`maPhieuNhapKho`) REFERENCES `PhieuNhapKho`(`maPhieuNhapKho`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `fk_LuuKho_4` FOREIGN KEY (`maNhanVienThucHien`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  INDEX `idx_LuuKho_lo_tg` (`maLoHang`, `thoiDiemPhanBo`),
-  INDEX `idx_LuuKho_vitri` (`maViTri`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- [23] DonHang
 CREATE TABLE IF NOT EXISTS `DonHang` (
   `maDonHang` VARCHAR(12) NOT NULL,
@@ -767,6 +739,7 @@ CREATE TABLE IF NOT EXISTS `PhuongAnXuLy` (
   `maChenhLech` VARCHAR(16) NULL,
   `maHangBatThuong` VARCHAR(13) NULL,
   `bienPhapXuLy` NVARCHAR(23) NOT NULL,
+  `moTa` NVARCHAR(255) NULL,
   `maNhanVienDeXuat` VARCHAR(8) NOT NULL,
   `maNhanVienPheDuyet` VARCHAR(8) NULL,
   `ngayDeXuat` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -831,6 +804,47 @@ CREATE TABLE IF NOT EXISTS `BienBanTraHang` (
   CONSTRAINT `fk_BienBanTraHang_1` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_BienBanTraHang_2` FOREIGN KEY (`maPhieuGiao`) REFERENCES `PhieuGiaoNCC`(`maPhieuGiao`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_BienBanTraHang_3` FOREIGN KEY (`maNhanVienLap`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [39] PhamViKiemKe — phạm vi VỊ TRÍ của một biên bản kiểm kê + dấu "đã kiểm tra".
+-- Có dòng ở đây không có nghĩa là vị trí có hàng: đây là danh sách vị trí phải đi kiểm tra,
+-- nhờ đó biểu diễn được "vị trí trống đã kiểm tra" (khác với "chưa kiểm tra").
+CREATE TABLE IF NOT EXISTS `PhamViKiemKe` (
+  `maPhamVi` BIGINT NOT NULL AUTO_INCREMENT,
+  `maBienBanKiemKe` VARCHAR(14) NOT NULL,
+  `maViTri` VARCHAR(14) NOT NULL,
+  `trangThaiKiemTra` NVARCHAR(15) NOT NULL DEFAULT 'Chưa kiểm tra',
+  `maNhanVienKiemTra` VARCHAR(8) NULL,
+  `thoiDiemKiemTra` DATETIME NULL,
+  PRIMARY KEY (`maPhamVi`),
+  CONSTRAINT `uq_PhamViKiemKe_1` UNIQUE (`maBienBanKiemKe`, `maViTri`),
+  CONSTRAINT `ck_PhamViKiemKe_1` CHECK (`trangThaiKiemTra` IN ('Chưa kiểm tra', 'Đã kiểm tra')),
+  CONSTRAINT `ck_PhamViKiemKe_2` CHECK (
+    (`trangThaiKiemTra` = 'Chưa kiểm tra' AND `maNhanVienKiemTra` IS NULL AND `thoiDiemKiemTra` IS NULL)
+    OR (`trangThaiKiemTra` = 'Đã kiểm tra' AND `maNhanVienKiemTra` IS NOT NULL AND `thoiDiemKiemTra` IS NOT NULL)
+  ),
+  CONSTRAINT `fk_PhamViKiemKe_1` FOREIGN KEY (`maBienBanKiemKe`) REFERENCES `BienBanKiemKe`(`maBienBanKiemKe`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_PhamViKiemKe_2` FOREIGN KEY (`maViTri`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_PhamViKiemKe_3` FOREIGN KEY (`maNhanVienKiemTra`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  INDEX `idx_PhamViKiemKe_trangThai` (`maBienBanKiemKe`, `trangThaiKiemTra`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [40] SnapshotTonKhoKiemKe — số lượng sổ sách ĐÓNG BĂNG tại thời điểm lập biên bản kiểm kê.
+-- Gồm cả dòng TonKho có soLuongTon = 0 để phân biệt "đã kiểm, thực tế 0" với "chưa kiểm".
+CREATE TABLE IF NOT EXISTS `SnapshotTonKhoKiemKe` (
+  `maSnapshot` BIGINT NOT NULL AUTO_INCREMENT,
+  `maBienBanKiemKe` VARCHAR(14) NOT NULL,
+  `maLoHang` VARCHAR(12) NOT NULL,
+  `maViTri` VARCHAR(14) NOT NULL,
+  `soLuongTon` DOUBLE NOT NULL,
+  `soLuongDaGiu` DOUBLE NOT NULL DEFAULT 0,
+  PRIMARY KEY (`maSnapshot`),
+  CONSTRAINT `uq_SnapshotTonKhoKiemKe_1` UNIQUE (`maBienBanKiemKe`, `maLoHang`, `maViTri`),
+  CONSTRAINT `ck_SnapshotTonKhoKiemKe_1` CHECK (`soLuongTon` >= 0),
+  CONSTRAINT `ck_SnapshotTonKhoKiemKe_2` CHECK (`soLuongDaGiu` >= 0 AND `soLuongDaGiu` <= `soLuongTon`),
+  CONSTRAINT `fk_SnapshotTonKhoKiemKe_1` FOREIGN KEY (`maBienBanKiemKe`) REFERENCES `BienBanKiemKe`(`maBienBanKiemKe`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_SnapshotTonKhoKiemKe_2` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_SnapshotTonKhoKiemKe_3` FOREIGN KEY (`maViTri`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- LichSuBienDongTonKho: chi INSERT, cam UPDATE/DELETE (append-only).

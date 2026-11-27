@@ -14,7 +14,7 @@ class TaiKhoan extends Model
     {
         return static::one(
             'SELECT t.maTaiKhoan, t.tenDangNhap, t.matKhau, t.trangThai AS trangThaiTaiKhoan,
-                    n.maNhanVien, n.hoTen, n.vaiTro, n.trangThai AS trangThaiNhanVien
+                    n.maNhanVien, n.hoTen, n.vaiTro, n.trangThai AS trangThaiNhanVien, n.maKho
              FROM TaiKhoan t
              JOIN NhanVien n ON n.maNhanVien = t.maNhanVien
              WHERE t.tenDangNhap = ?',
