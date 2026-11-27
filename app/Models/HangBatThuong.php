@@ -169,7 +169,7 @@ class HangBatThuong extends Model
                 JOIN KhuVuc kv ON kv.maKhuVuc = v.maKhuVuc
                 JOIN Kho k ON k.maKho = kv.maKho
                 WHERE t.soLuongTon > 0
-                  AND l.trangThaiQC = 'Đạt'
+                  AND l.trangThaiQC IN ('Đạt', 'Đã đạt chuẩn')
                   AND l.trangThaiVongDoi IN ('Đang lưu kho', 'Sắp hết hạn', 'Hết hạn')
                   AND l.ngayHetHan <= DATE_ADD(CURDATE(), INTERVAL " . $soNgay . " DAY)
                   AND NOT EXISTS (SELECT 1 FROM HangBatThuong hb

@@ -46,17 +46,22 @@ Tài liệu này ghi lại thiết kế, thay đổi CSDL, danh sách file, lu�
 
 ## 3. Thay đổi CSDL
 
-Không còn file migration riêng: toàn bộ thay đổi đã được gộp vào 2 tệp CSDL chuẩn của dự án.
+Toàn bộ bảng/cột đã được gộp vào `schema.sql` và `seed_data.sql` cho bản cài mới, kèm thêm 1 file nâng cấp cho máy đã có sẵn CSDL cũ:
 
 ```sql
+-- 1) Cài mới (chưa có DB feed_wms):
 database/schema.sql     -- đã có sẵn bảng LuuKho + 3 cột duyệt của PhieuDieuChuyen
 database/seed_data.sql  -- dữ liệu mẫu (đã đồng bộ sức chứa vị trí kệ)
+database/thong-bao.sql  -- bảng ThongBao + thông báo mẫu
+
+-- 2) Đã có sẵn DB feed_wms cũ (pull code về, không muốn xóa DB cũ):
+database/cap-nhat-db-cu.sql
 ```
 
 - Bảng `LuuKho` (InnoDB, khóa ngoại tới `LoHang`, `ViTriLuuTru`, `PhieuNhapKho`, `NhanVien`) nằm trong `schema.sql`.
 - `PhieuDieuChuyen` có thêm 3 cột: `maNhanVienDuyet`, `ngayDuyet`, `lyDoTuChoi`.
 - Mở rộng CHECK trạng thái; thêm CHECK ngày duyệt, bắt buộc người duyệt/ngày duyệt, bắt buộc lý do từ chối, chặn tự duyệt; thêm khóa ngoại người duyệt.
-- Cài mới chỉ cần chạy `schema.sql` → `seed_data.sql` → `thong-bao.sql`; không xóa hoặc đổi dữ liệu cũ.
+- File `database/cap-nhat-db-cu.sql` kiểm tra `INFORMATION_SCHEMA` trước khi thêm bảng/cột/index/FK/CHECK và nâng sức chứa 7 vị trí kệ, an toàn khi chạy lại nhiều lần.
 
 
 ## 4. Route và phân quyền

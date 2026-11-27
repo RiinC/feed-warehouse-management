@@ -77,9 +77,9 @@ class LoHang extends Model
     /** @return array{0:string,1:array} */
     private static function candidateWhere(?string $scope, string $q): array
     {
-        $where = "l.trangThaiQC = 'Đã đạt chuẩn'
+        $where = "l.trangThaiQC IN ('Đã đạt chuẩn', 'Đạt')
             AND l.ngayHetHan >= CURDATE()
-            AND l.trangThaiVongDoi IN ('Đã tạo', 'Đang lưu kho', 'Sắp hết hạn')
+            AND l.trangThaiVongDoi IN ('Đã tạo', 'Mới tạo', 'Đang lưu kho', 'Sắp hết hạn')
             AND (nhap.nhapKg - IFNULL(ctdn.daCt, 0) - IFNULL(lk.daPb, 0)) > 0.000001";
         $params = [];
         if ($scope !== null && $scope !== '') {

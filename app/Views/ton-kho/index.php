@@ -467,7 +467,7 @@ $moreFilterOpen = ($f['hanSuDung'] ?? '') !== '' || ($f['conHang'] ?? '') !== ''
                 <?php else: ?>
                     <?php foreach ($rows as $r):
                         $detailUrl = route('ton-kho/detail', ['id' => $r['maTonKho']]);
-                        $qcNotOk = !empty($r['trangThaiQC']) && $r['trangThaiQC'] !== 'Đạt';
+                        $qcNotOk = !empty($r['trangThaiQC']) && !in_array($r['trangThaiQC'], ['Đạt', 'Đã đạt chuẩn'], true);
                     ?>
                         <tr class="clickable-row" onclick="window.location='<?= e($detailUrl) ?>'">
                             <td class="nowrap">

@@ -29,13 +29,13 @@ class LuuKho extends Model
     {
         return static::transaction(function () use ($d, $staffId) {
             $lot = LoHang::lockForUpdate((string)$d['maLoHang']);
-            if ($lot['trangThaiQC'] !== 'Đã đạt chuẩn') {
+            if (!in_array((string)$lot['trangThaiQC'], ['Đã đạt chuẩn', 'Đạt'], true)) {
                 throw new \RuntimeException('Chỉ gán lô đã đạt chuẩn kiểm tra chất lượng.');
             }
             if ((string)$lot['ngayHetHan'] < date('Y-m-d')) {
                 throw new \RuntimeException('Lô hàng đã hết hạn, không thể lưu trữ.');
             }
-            if (!in_array($lot['trangThaiVongDoi'], ['Đã tạo', 'Đang lưu kho', 'Sắp hết hạn'], true)) {
+            if (!in_array((string)$lot['trangThaiVongDoi'], ['Đã tạo', 'Mới tạo', 'Đang lưu kho', 'Sắp hết hạn'], true)) {
                 throw new \RuntimeException('Lô hàng không ở trạng thái có thể lưu trữ.');
             }
             $scope = isset($d['maKho']) && $d['maKho'] !== '' ? (string)$d['maKho'] : null;
