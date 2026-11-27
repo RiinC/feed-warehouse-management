@@ -46,17 +46,17 @@ Tài liệu này ghi lại thiết kế, thay đổi CSDL, danh sách file, lu�
 
 ## 3. Thay đổi CSDL
 
-Chạy lần lượt:
+Không còn file migration riêng: toàn bộ thay đổi đã được gộp vào 2 tệp CSDL chuẩn của dự án.
 
 ```sql
-database/migration_module3_uc16_luukho.sql
-database/migration_module3_uc17_phe_duyet.sql
+database/schema.sql     -- đã có sẵn bảng LuuKho + 3 cột duyệt của PhieuDieuChuyen
+database/seed_data.sql  -- dữ liệu mẫu (đã đồng bộ sức chứa vị trí kệ)
 ```
 
-- Tạo bảng `LuuKho` (InnoDB, khóa ngoại tới `LoHang`, `ViTriLuuTru`, `PhieuNhapKho`, `NhanVien`).
-- Thêm 3 cột vào `PhieuDieuChuyen`: `maNhanVienDuyet`, `ngayDuyet`, `lyDoTuChoi`.
+- Bảng `LuuKho` (InnoDB, khóa ngoại tới `LoHang`, `ViTriLuuTru`, `PhieuNhapKho`, `NhanVien`) nằm trong `schema.sql`.
+- `PhieuDieuChuyen` có thêm 3 cột: `maNhanVienDuyet`, `ngayDuyet`, `lyDoTuChoi`.
 - Mở rộng CHECK trạng thái; thêm CHECK ngày duyệt, bắt buộc người duyệt/ngày duyệt, bắt buộc lý do từ chối, chặn tự duyệt; thêm khóa ngoại người duyệt.
-- `database/schema.sql` đã cập nhật để cài mới có đủ bảng/cột; không xóa hoặc đổi dữ liệu cũ.
+- Cài mới chỉ cần chạy `schema.sql` → `seed_data.sql` → `thong-bao.sql`; không xóa hoặc đổi dữ liệu cũ.
 
 
 ## 4. Route và phân quyền
@@ -93,7 +93,7 @@ database/migration_module3_uc17_phe_duyet.sql
 - `app/Models/Kho.php`, `KhuVuc.php`, `ViTriLuuTru.php`, `LoHang.php`, `LuuKho.php`, `TonKho.php`, `LichSuBienDongTonKho.php`, `PhieuDieuChuyen.php`
 - `app/Helpers/status-badge.php`
 - `app/Views/dieu-chuyen/detail.php`, `app/Views/dieu-chuyen/approve.php`
-- `database/migration_module3_uc16_luukho.sql`, `database/migration_module3_uc17_phe_duyet.sql`
+- `database/schema.sql` (bổ sung `LuuKho` + cột duyệt `PhieuDieuChuyen`), `database/seed_data.sql` (đồng bộ sức chứa 7 vị trí kệ)
 - (Đã xóa sau kiểm thử) `tests/module3_test.php`, `tests/uc16_setup.php`, `tests/uc16_worker.php`
 - `docs/MODULE3-TRIEN-KHAI.md` (tài liệu này)
 
@@ -274,7 +274,7 @@ Module 3 đã được triển khai đầy đủ Model - Controller - Route - Vi
 ## 13. Đồng bộ sức chứa seed và tinh chỉnh form
 
 - Đã xác định `Đang lưu trữ` là tổng `TonKho.soLuongTon` của tất cả lô tại vị trí, không phải lỗi cộng dồn.
-- Dữ liệu seed cũ có 7 vị trí bị xếp nhiều lô vượt `sucChuaToiDa`. Đã nâng sức chứa các vị trí này và đồng bộ trạng thái; xem `database/migration_module3_fix_capacity.sql` và `database/seed_data.sql`.
+- Dữ liệu seed cũ có 7 vị trí bị xếp nhiều lô vượt `sucChuaToiDa`. Đã nâng sức chứa các vị trí này ngay trong `database/seed_data.sql` để không cần file migration riêng.
 - Trang chi tiết/sửa vị trí có cảnh báo nếu dữ liệu thực tế vượt sức chứa; khi đó cần điều chuyển bớt hoặc tăng sức chứa có kiểm soát.
 - Nút dùng chung có `margin-top: 2px` để không dính chữ/bảng.
 - Form sửa vị trí: Tên vị trí và Sức chứa tối đa xếp cùng cột; nút “Khôi phục tên mặc định” nằm bên phải, cùng hàng với ô nhập tên.

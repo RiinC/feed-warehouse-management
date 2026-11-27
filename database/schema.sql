@@ -1,3 +1,10 @@
+-- =====================================================================
+-- FeedWare - CẤU TRÚC CƠ SỞ DỮ LIỆU DUY NHẤT (schema.sql)
+-- Chạy theo thứ tự: schema.sql -> seed_data.sql -> thong-bao.sql
+-- File này đã bao gồm toàn bộ bảng/cột của mọi module (kể cả Module 3:
+-- LuuKho + phê duyệt phiếu điều chuyển), nên không cần chạy file
+-- migration riêng lẻ nào nữa.
+-- =====================================================================
 CREATE DATABASE IF NOT EXISTS `feed_wms` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `feed_wms`;
 SET NAMES utf8mb4;
@@ -396,6 +403,28 @@ CREATE TABLE IF NOT EXISTS `TonKho` (
   INDEX idx_TonKho_vitri (maViTri, soLuongTon)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [20b] LuuKho — sổ phân bổ lô hàng vào vị trí lưu trữ (Module 3 - UC16).
+-- Ghi nhận việc gán lô vào vị trí mà KHÔNG thay đổi tổng tồn kho (TonKho).
+-- Mỗi dòng LuuKho là một lần phân bổ, dùng làm lịch sử lưu trữ.
+CREATE TABLE IF NOT EXISTS `LuuKho` (
+  `maLuuKho` BIGINT NOT NULL AUTO_INCREMENT,
+  `maLoHang` VARCHAR(12) NOT NULL,
+  `maViTri` VARCHAR(14) NOT NULL,
+  `maPhieuNhapKho` VARCHAR(13) NULL,
+  `soLuongPhanBo` DOUBLE NOT NULL,
+  `maNhanVienThucHien` VARCHAR(8) NOT NULL,
+  `thoiDiemPhanBo` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ghiChu` NVARCHAR(255) NULL,
+  PRIMARY KEY (`maLuuKho`),
+  CONSTRAINT `ck_LuuKho_1` CHECK (soLuongPhanBo > 0),
+  CONSTRAINT `fk_LuuKho_1` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_LuuKho_2` FOREIGN KEY (`maViTri`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_LuuKho_3` FOREIGN KEY (`maPhieuNhapKho`) REFERENCES `PhieuNhapKho`(`maPhieuNhapKho`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_LuuKho_4` FOREIGN KEY (`maNhanVienThucHien`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  INDEX `idx_LuuKho_lo_tg` (`maLoHang`, `thoiDiemPhanBo`),
+  INDEX `idx_LuuKho_vitri` (`maViTri`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- [21] LichSuBienDongTonKho
 CREATE TABLE IF NOT EXISTS `LichSuBienDongTonKho` (
   `maBienDong` VARCHAR(16) NOT NULL,
@@ -411,12 +440,12 @@ CREATE TABLE IF NOT EXISTS `LichSuBienDongTonKho` (
   `ghiChu` NVARCHAR(255) NULL,
   PRIMARY KEY (`maBienDong`),
   CONSTRAINT `ck_LichSuBienDongTon_1` CHECK (maBienDong REGEXP '^BDTK[0-9]{12}$'),
-  CONSTRAINT `ck_LichSuBienDongTon_2` CHECK (loaiGiaoDich IN ('Nhập kho','Xuất kho','Điều chuyển đến','Điều chuyển đi','Điều chỉnh tăng','Điều chỉnh giảm','Hao hụt')),
+  CONSTRAINT `ck_LichSuBienDongTon_2` CHECK (loaiGiaoDich IN ('Nhập kho','Xuất kho','Điều chuyển đến','Điều chuyển đi','Điều chỉnh tăng','Điều chỉnh giảm','Hao hụt','NhapKho','XuatKho','DieuChuyenDen','DieuChuyenDi','DieuChinhTang','DieuChinhGiam','HaoHut')),
   CONSTRAINT `ck_LichSuBienDongTon_3` CHECK (soLuongBienDong <> 0),
   CONSTRAINT `ck_LichSuBienDongTon_4` CHECK (soLuongTonTruoc >= 0),
   CONSTRAINT `ck_LichSuBienDongTon_5` CHECK (soLuongTonSau >= 0),
   CONSTRAINT `ck_LichSuBienDongTon_6` CHECK (CHAR_LENGTH(TRIM(maChungTuLienQuan)) > 0),
-  CONSTRAINT `ck_LichSuBienDongTon_7` CHECK ((loaiGiaoDich IN ('Nhập kho','Điều chuyển đến','Điều chỉnh tăng') AND soLuongBienDong > 0) OR (loaiGiaoDich IN ('Xuất kho','Điều chuyển đi','Điều chỉnh giảm','Hao hụt') AND soLuongBienDong < 0)),
+  CONSTRAINT `ck_LichSuBienDongTon_7` CHECK ((loaiGiaoDich IN ('Nhập kho','Điều chuyển đến','Điều chỉnh tăng','NhapKho','DieuChuyenDen','DieuChinhTang') AND soLuongBienDong > 0) OR (loaiGiaoDich IN ('Xuất kho','Điều chuyển đi','Điều chỉnh giảm','Hao hụt','XuatKho','DieuChuyenDi','DieuChinhGiam','HaoHut') AND soLuongBienDong < 0)),
   CONSTRAINT `ck_LichSuBienDongTon_8` CHECK (ABS(soLuongTonSau - (soLuongTonTruoc + soLuongBienDong)) <= 0.000001),
   CONSTRAINT `fk_LichSuBienDongTon_1` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_LichSuBienDongTon_2` FOREIGN KEY (`maViTri`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
@@ -437,25 +466,33 @@ CREATE TABLE IF NOT EXISTS `PhieuDieuChuyen` (
   `soLuongThucChuyen` DOUBLE NULL,
   `maNhanVienYeuCau` VARCHAR(8) NOT NULL,
   `maNhanVienThucHien` VARCHAR(8) NULL,
+  `maNhanVienDuyet` VARCHAR(8) NULL,
   `ngayYeuCau` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ngayDuyet` DATETIME NULL,
   `ngayHoanTat` DATETIME NULL,
   `trangThai` NVARCHAR(15) NOT NULL DEFAULT 'Chờ điều chuyển',
   `lyDoDieuChuyen` NVARCHAR(200) NOT NULL,
+  `lyDoTuChoi` NVARCHAR(255) NULL,
   PRIMARY KEY (`maPhieuDieuChuyen`),
   CONSTRAINT `ck_PhieuDieuChuyen_1` CHECK (maPhieuDieuChuyen REGEXP '^PDC[0-9]{10}$'),
   CONSTRAINT `ck_PhieuDieuChuyen_2` CHECK (soLuongDuKien > 0),
   CONSTRAINT `ck_PhieuDieuChuyen_3` CHECK (soLuongThucChuyen >= 0),
-  CONSTRAINT `ck_PhieuDieuChuyen_4` CHECK (trangThai IN ('Chờ điều chuyển', 'Đang thực hiện', 'Đã hoàn tất', 'Đã hủy')),
+  CONSTRAINT `ck_PhieuDieuChuyen_4` CHECK (trangThai IN ('Chờ duyệt', 'Đã duyệt', 'Đã từ chối', 'Chờ điều chuyển', 'Đang thực hiện', 'Đã hoàn tất', 'Đã hủy')),
   CONSTRAINT `ck_PhieuDieuChuyen_5` CHECK (CHAR_LENGTH(TRIM(lyDoDieuChuyen)) > 0),
   CONSTRAINT `ck_PhieuDieuChuyen_6` CHECK (maViTriNguon <> maViTriDich),
   CONSTRAINT `ck_PhieuDieuChuyen_7` CHECK (ngayHoanTat IS NULL OR ngayHoanTat >= ngayYeuCau),
   CONSTRAINT `ck_PhieuDieuChuyen_8` CHECK (trangThai <> 'Đã hoàn tất' OR (soLuongThucChuyen IS NOT NULL AND soLuongThucChuyen > 0 AND maNhanVienThucHien IS NOT NULL AND ngayHoanTat IS NOT NULL)),
   CONSTRAINT `ck_PhieuDieuChuyen_9` CHECK (soLuongThucChuyen IS NULL OR soLuongThucChuyen <= soLuongDuKien),
+  CONSTRAINT `ck_PhieuDieuChuyen_10` CHECK (ngayDuyet IS NULL OR ngayDuyet >= ngayYeuCau),
+  CONSTRAINT `ck_PhieuDieuChuyen_11` CHECK (trangThai NOT IN ('Đã duyệt', 'Đã từ chối') OR (maNhanVienDuyet IS NOT NULL AND ngayDuyet IS NOT NULL)),
+  CONSTRAINT `ck_PhieuDieuChuyen_12` CHECK (trangThai <> 'Đã từ chối' OR (lyDoTuChoi IS NOT NULL AND CHAR_LENGTH(TRIM(lyDoTuChoi)) > 0)),
+  CONSTRAINT `ck_PhieuDieuChuyen_13` CHECK (maNhanVienDuyet IS NULL OR maNhanVienDuyet <> maNhanVienYeuCau),
   CONSTRAINT `fk_PhieuDieuChuyen_1` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChuyen_2` FOREIGN KEY (`maViTriNguon`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChuyen_3` FOREIGN KEY (`maViTriDich`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChuyen_4` FOREIGN KEY (`maNhanVienYeuCau`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChuyen_5` FOREIGN KEY (`maNhanVienThucHien`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_PhieuDieuChuyen_6` FOREIGN KEY (`maNhanVienDuyet`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   INDEX idx_PDC_trangThai (trangThai, ngayYeuCau)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -649,6 +686,7 @@ CREATE TABLE IF NOT EXISTS `BienBanKiemKe` (
   `maBienBanKiemKe` VARCHAR(14) NOT NULL,
   `maKho` VARCHAR(7) NOT NULL,
   `maKhuVuc` VARCHAR(8) NULL,
+  `maViTri` VARCHAR(14) NULL,
   `maNhanVienTruongDoan` VARCHAR(8) NOT NULL,
   `ngayBatDau` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ngayKetThuc` DATETIME NULL,
@@ -657,14 +695,18 @@ CREATE TABLE IF NOT EXISTS `BienBanKiemKe` (
   `ghiChu` NVARCHAR(255) NULL,
   PRIMARY KEY (`maBienBanKiemKe`),
   CONSTRAINT `ck_BienBanKiemKe_1` CHECK (maBienBanKiemKe REGEXP '^BBKK[0-9]{10}$'),
-  CONSTRAINT `ck_BienBanKiemKe_2` CHECK (loaiKiemKe IN ('Định kỳ','Đột xuất','Theo mặt hàng')),
-  CONSTRAINT `ck_BienBanKiemKe_3` CHECK (trangThai IN ('Đang kiểm kê', 'Đã hoàn thành', 'Đã duyệt điều chỉnh', 'Đã hủy')),
+-- Chấp nhận cả mã chuẩn của code (DinhKy/DotXuat/TheoMatHang) và nhãn cũ trong dữ liệu mẫu.
+  CONSTRAINT `ck_BienBanKiemKe_2` CHECK (loaiKiemKe IN ('Định kỳ','Đột xuất','Theo mặt hàng','DinhKy','DotXuat','TheoMatHang')),
+-- Chấp nhận cả mã chuẩn của code (Chờ xử lý/Đang xử lý/Hoàn tất/Từ chối) và nhãn cũ trong dữ liệu mẫu.
+  CONSTRAINT `ck_BienBanKiemKe_3` CHECK (trangThai IN ('Đang kiểm kê', 'Đã hoàn thành', 'Đã duyệt điều chỉnh', 'Đã hủy', 'Chờ xử lý', 'Đang xử lý', 'Hoàn tất', 'Từ chối')),
   CONSTRAINT `ck_BienBanKiemKe_4` CHECK (ngayKetThuc IS NULL OR ngayKetThuc >= ngayBatDau),
-  CONSTRAINT `ck_BienBanKiemKe_5` CHECK ((trangThai = 'Đã hoàn thành' AND ngayKetThuc IS NOT NULL) OR (trangThai IN ('Đang kiểm kê', 'Đang kiểm kê', 'Đã hủy', 'Đã hủy') AND ngayKetThuc IS NULL)),
+  CONSTRAINT `ck_BienBanKiemKe_5` CHECK ((trangThai IN ('Đã hoàn thành', 'Hoàn tất') AND ngayKetThuc IS NOT NULL) OR (trangThai IN ('Đang kiểm kê', 'Đã duyệt điều chỉnh', 'Đã hủy', 'Chờ xử lý', 'Đang xử lý', 'Từ chối') AND ngayKetThuc IS NULL)),
   CONSTRAINT `fk_BienBanKiemKe_1` FOREIGN KEY (`maKho`) REFERENCES `Kho`(`maKho`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_BienBanKiemKe_2` FOREIGN KEY (`maKhuVuc`) REFERENCES `KhuVuc`(`maKhuVuc`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_BienBanKiemKe_3` FOREIGN KEY (`maNhanVienTruongDoan`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  INDEX idx_BBKK_trangThai (trangThai, ngayBatDau)
+  CONSTRAINT `fk_BienBanKiemKe_4` FOREIGN KEY (`maViTri`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  INDEX idx_BBKK_trangThai (trangThai, ngayBatDau),
+  INDEX idx_BBKK_vitri (maViTri)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- [33] KetQuaKiemKe
@@ -702,7 +744,7 @@ CREATE TABLE IF NOT EXISTS `ChenhLechKiemKe` (
   CONSTRAINT `ck_ChenhLechKiemKe_1` CHECK (maChenhLech REGEXP '^CLKK[0-9]{12}$'),
   CONSTRAINT `ck_ChenhLechKiemKe_2` CHECK (loaiChenhLech IN ('Thừa', 'Thiếu', 'Không chênh lệch')),
   CONSTRAINT `ck_ChenhLechKiemKe_3` CHECK (soLuongChenhLech >= 0),
-  CONSTRAINT `ck_ChenhLechKiemKe_4` CHECK (nguyenNhan IS NULL OR nguyenNhan IN ('Hao hụt', 'Sai sót', 'Thất thoát', 'Chưa cập nhật')),
+  CONSTRAINT `ck_ChenhLechKiemKe_4` CHECK (nguyenNhan IS NULL OR nguyenNhan IN ('Hao hụt', 'Sai sót', 'Thất thoát', 'Chưa cập nhật', 'HaoHut', 'SaiSot', 'ThatThoat', 'ChuaCapNhat')),
   CONSTRAINT `ck_ChenhLechKiemKe_5` CHECK ((loaiChenhLech = 'Không chênh lệch' AND soLuongChenhLech = 0) OR (loaiChenhLech IN ('Thừa', 'Thiếu') AND soLuongChenhLech > 0)),
   CONSTRAINT `ck_ChenhLechKiemKe_6` CHECK ((loaiChenhLech = 'Không chênh lệch' AND nguyenNhan IS NULL) OR (loaiChenhLech IN ('Thừa', 'Thiếu') AND nguyenNhan IS NOT NULL)),
   CONSTRAINT `ck_ChenhLechKiemKe_7` CHECK (nguyenNhan <> 'Khác' OR (moTaChiTiet IS NOT NULL AND CHAR_LENGTH(TRIM(moTaChiTiet)) > 0)),
@@ -748,12 +790,12 @@ CREATE TABLE IF NOT EXISTS `PhuongAnXuLy` (
   `yKienPheDuyet` NVARCHAR(255) NULL,
   PRIMARY KEY (`maPhuongAn`),
   CONSTRAINT `ck_PhuongAnXuLy_1` CHECK (maPhuongAn REGEXP '^PAXL[0-9]{10}$'),
-  CONSTRAINT `ck_PhuongAnXuLy_2` CHECK (bienPhapXuLy IN ('Điều chỉnh sổ sách tăng','Điều chỉnh sổ sách giảm','Ghi nhận hao hụt','Xuất trả nhà cung cấp','Tiêu hủy','Hạ cấp chất lượng')),
-  CONSTRAINT `ck_PhuongAnXuLy_3` CHECK (trangThai IN ('Chờ phê duyệt', 'Đã phê duyệt', 'Đã từ chối', 'Đã thi hành')),
+  CONSTRAINT `ck_PhuongAnXuLy_2` CHECK (bienPhapXuLy IN ('Điều chỉnh sổ sách tăng','Điều chỉnh sổ sách giảm','Ghi nhận hao hụt','Xuất trả nhà cung cấp','Tiêu hủy','Hạ cấp chất lượng','DieuChinhSoSachTang','DieuChinhSoSachGiam','GhiNhanHaoHut','XuatTraNhaCungCap','TieuHuy','HaCapChatLuong')),
+  CONSTRAINT `ck_PhuongAnXuLy_3` CHECK (trangThai IN ('Chờ phê duyệt', 'Đã phê duyệt', 'Đã từ chối', 'Đã thi hành', 'Đã hủy', 'Chờ xử lý', 'Đang xử lý', 'Hoàn tất', 'Từ chối')),
   CONSTRAINT `ck_PhuongAnXuLy_4` CHECK ((maChenhLech IS NOT NULL AND maHangBatThuong IS NULL) OR (maChenhLech IS NULL AND maHangBatThuong IS NOT NULL)),
   CONSTRAINT `ck_PhuongAnXuLy_5` CHECK (ngayPheDuyet IS NULL OR ngayPheDuyet >= ngayDeXuat),
-  CONSTRAINT `ck_PhuongAnXuLy_6` CHECK ((trangThai = 'Chờ phê duyệt' AND maNhanVienPheDuyet IS NULL AND ngayPheDuyet IS NULL) OR (trangThai IN ('Đã phê duyệt', 'Đã thi hành', 'Đã từ chối', 'Đã hủy') AND maNhanVienPheDuyet IS NOT NULL AND ngayPheDuyet IS NOT NULL)),
-  CONSTRAINT `ck_PhuongAnXuLy_7` CHECK (trangThai <> 'Đã từ chối' OR (yKienPheDuyet IS NOT NULL AND CHAR_LENGTH(TRIM(yKienPheDuyet)) > 0)),
+  CONSTRAINT `ck_PhuongAnXuLy_6` CHECK ((trangThai IN ('Chờ phê duyệt', 'Chờ xử lý') AND maNhanVienPheDuyet IS NULL AND ngayPheDuyet IS NULL) OR (trangThai IN ('Đã phê duyệt', 'Đã thi hành', 'Đã từ chối', 'Đã hủy', 'Đang xử lý', 'Hoàn tất', 'Từ chối') AND maNhanVienPheDuyet IS NOT NULL AND ngayPheDuyet IS NOT NULL)),
+  CONSTRAINT `ck_PhuongAnXuLy_7` CHECK (trangThai NOT IN ('Đã từ chối', 'Từ chối') OR (yKienPheDuyet IS NOT NULL AND CHAR_LENGTH(TRIM(yKienPheDuyet)) > 0)),
   CONSTRAINT `fk_PhuongAnXuLy_1` FOREIGN KEY (`maChenhLech`) REFERENCES `ChenhLechKiemKe`(`maChenhLech`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhuongAnXuLy_2` FOREIGN KEY (`maHangBatThuong`) REFERENCES `HangBatThuong`(`maHangBatThuong`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhuongAnXuLy_3` FOREIGN KEY (`maNhanVienDeXuat`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT,
@@ -775,9 +817,9 @@ CREATE TABLE IF NOT EXISTS `PhieuDieuChinhTonKho` (
   `ghiChu` NVARCHAR(255) NULL,
   PRIMARY KEY (`maPhieuDieuChinh`),
   CONSTRAINT `ck_PhieuDieuChinhTon_1` CHECK (maPhieuDieuChinh REGEXP '^PDCTK[0-9]{10}$'),
-  CONSTRAINT `ck_PhieuDieuChinhTon_2` CHECK (loaiDieuChinh IN ('Tăng', 'Giảm')),
+  CONSTRAINT `ck_PhieuDieuChinhTon_2` CHECK (loaiDieuChinh IN ('Tăng', 'Giảm', 'Tang', 'Giam')),
   CONSTRAINT `ck_PhieuDieuChinhTon_3` CHECK (soLuongDieuChinh > 0),
-  CONSTRAINT `ck_PhieuDieuChinhTon_4` CHECK (trangThai IN ('Đã thi hành', 'Đã hủy')),
+  CONSTRAINT `ck_PhieuDieuChinhTon_4` CHECK (trangThai IN ('Đã thi hành', 'Đã hủy', 'Hoàn tất')),
   CONSTRAINT `fk_PhieuDieuChinhTon_1` FOREIGN KEY (`maPhuongAn`) REFERENCES `PhuongAnXuLy`(`maPhuongAn`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChinhTon_2` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_PhieuDieuChinhTon_3` FOREIGN KEY (`maViTri`) REFERENCES `ViTriLuuTru`(`maViTri`) ON DELETE RESTRICT ON UPDATE RESTRICT,
@@ -800,7 +842,7 @@ CREATE TABLE IF NOT EXISTS `BienBanTraHang` (
   CONSTRAINT `ck_BienBanTraHang_2` CHECK (soLuongTra > 0),
   CONSTRAINT `ck_BienBanTraHang_3` CHECK (CHAR_LENGTH(TRIM(lyDoTraHang)) > 0),
   CONSTRAINT `ck_BienBanTraHang_4` CHECK (trangThai IN ('Chờ xuất trả', 'Đã trả hàng', 'Bị từ chối nhận', 'Đã hủy')),
-  CONSTRAINT `ck_BienBanTraHang_5` CHECK ((trangThai = 'Đã trả hàng' AND ngayTraHang IS NOT NULL) OR (trangThai IN ('Chờ xuất trả', 'Chờ xuất trả', 'Bị từ chối nhận', 'Đã hủy') AND ngayTraHang IS NULL)),
+  CONSTRAINT `ck_BienBanTraHang_5` CHECK ((trangThai = 'Đã trả hàng' AND ngayTraHang IS NOT NULL) OR (trangThai IN ('Chờ xuất trả', 'Bị từ chối nhận', 'Đã hủy') AND ngayTraHang IS NULL)),
   CONSTRAINT `fk_BienBanTraHang_1` FOREIGN KEY (`maLoHang`) REFERENCES `LoHang`(`maLoHang`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_BienBanTraHang_2` FOREIGN KEY (`maPhieuGiao`) REFERENCES `PhieuGiaoNCC`(`maPhieuGiao`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_BienBanTraHang_3` FOREIGN KEY (`maNhanVienLap`) REFERENCES `NhanVien`(`maNhanVien`) ON DELETE RESTRICT ON UPDATE RESTRICT
