@@ -1,0 +1,24 @@
+# Upload this file to domains/leonovar.io.vn/public_html/.htaccess.
+# Requires warehouse.leonovar.io.vn to use that public_html as DocumentRoot.
+# Also upload the updated config/app.php, which sets base_url to '/' on this host.
+RewriteEngine On
+
+# Leave the main domain unchanged.
+RewriteCond %{HTTP_HOST} !^warehouse\.leonovar\.io\.vn(?::[0-9]+)?$ [NC]
+RewriteRule ^ - [L]
+
+# Redirect only URLs requested by the browser, never internal rewrites.
+# 308 preserves the method and body if an old form submits to a legacy URL.
+RewriteCond %{THE_REQUEST} \s/+(?:public_html/)?feed-warehouse-management(?:[/\s?]) [NC]
+RewriteRule ^(?:public_html/)?feed-warehouse-management(?:/public)?(?:/(.*))?$ /$1 [R=308,L]
+
+# Stop rewriting once a request has reached the application's public folder.
+RewriteRule ^feed-warehouse-management/public(?:/|$) - [L]
+
+# Serve existing public files (CSS, JavaScript, images) directly.
+RewriteCond %{DOCUMENT_ROOT}/feed-warehouse-management/public/$1 -f
+RewriteRule ^(.+)$ feed-warehouse-management/public/$1 [L]
+
+# Send all application routes directly to the front controller.
+# REQUEST_URI retains the clean URL for Core\Request to resolve.
+RewriteRule ^ feed-warehouse-management/public/index.php [L]

@@ -1,8 +1,3 @@
-USE `feed_wms`;
-
-SET NAMES utf8mb4;
-
-START TRANSACTION;
 
 -- [01/38] Kho | 6 dong
 -- 6 kho vật lý đại diện toàn bộ hoạt động nhà máy thức ăn chăn nuôi

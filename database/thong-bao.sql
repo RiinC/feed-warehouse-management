@@ -1,7 +1,6 @@
 -- FeedWare: bảng ThongBao (chuông thông báo) cho CSDL feed_wms.
 -- Chạy SAU schema.sql và seed_data.sql:  mysql -u root < database/thong-bao.sql
-USE `feed_wms`;
-SET NAMES utf8mb4;
+
 
 CREATE TABLE IF NOT EXISTS `ThongBao` (
   `maThongBao`  BIGINT       NOT NULL AUTO_INCREMENT,

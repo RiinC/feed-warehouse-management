@@ -4,23 +4,54 @@ namespace Core;
 /** Kết nối MySQL/MariaDB bằng mysqli + prepared statements. Chỉ Model được gọi lớp này. */
 final class Database
 {
-    private static $conn = null;
+    public $servername;
+    public $username;
+    public $password;
+    public $dbname;
+    public $port;
+    public $conn;
 
-    public static function connection(): \mysqli
+    private static $instance = null;
+
+    public function __construct()
     {
-        if (self::$conn instanceof \mysqli) {
-            return self::$conn;
+        $config = require __DIR__ . '/../config/database.php';
+        $this->servername = $config['host'];
+        $this->username = $config['user'];
+        $this->password = $config['password'];
+        $this->dbname = $config['database'];
+        $this->port = (int)($config['port'] ?? 3306);
+        $this->connect();
+    }
+
+    public function connect(): \mysqli
+    {
+        if ($this->conn instanceof \mysqli) {
+            return $this->conn;
         }
-        $c = $GLOBALS['DB_CONFIG'];
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         try {
-            self::$conn = new \mysqli($c['host'], $c['user'], $c['password'], $c['database'], (int)$c['port']);
-            self::$conn->set_charset($c['charset']);
+            $this->conn = new \mysqli(
+                $this->servername,
+                $this->username,
+                $this->password,
+                $this->dbname,
+                $this->port
+            );
+            $this->conn->set_charset('utf8mb4');
         } catch (\mysqli_sql_exception $ex) {
             http_response_code(500);
             exit('Không kết nối được cơ sở dữ liệu. Hãy import database/schema.sql và kiểm tra config/database.php.');
         }
-        return self::$conn;
+        return $this->conn;
+    }
+
+    public static function connection(): \mysqli
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance->conn;
     }
 
     public static function run(string $sql, array $params = []): \mysqli_stmt

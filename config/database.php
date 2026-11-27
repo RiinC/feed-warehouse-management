@@ -1,13 +1,11 @@
 <?php
 /**
- * Kết nối MySQL/MariaDB (XAMPP mặc định). CSDL feed_wms: database/schema.sql + seed_data.sql (+ thong-bao.sql).
+ * Cấu hình kết nối MySQL/MariaDB. Cấu trúc CSDL: database/schema.sql.
  * Truy vấn đi qua Core\Database, chỉ được gọi từ các Model (app/Models).
  */
 return [
-    'host'     => '127.0.0.1',
-    'port'     => 3306,
-    'database' => 'feed_wms',
-    'user'     => 'root',
-    'password' => '',
-    'charset'  => 'utf8mb4',
+    'host'     => 'sv66.dataonline.vn',
+    'database' => 'leonovar6_abc',
+    'user'     => 'leonovar6_abc',
+    'password' => 'zbPZ2jpsZr3hJHrXXvLt',
 ];

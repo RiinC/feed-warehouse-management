@@ -1,7 +1,3 @@
-CREATE DATABASE IF NOT EXISTS `feed_wms` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `feed_wms`;
-SET NAMES utf8mb4;
-
 -- [06] Kho
 CREATE TABLE IF NOT EXISTS `Kho` (
   `maKho` VARCHAR(7) NOT NULL,

@@ -7,7 +7,8 @@ return [
     'tagline'      => 'Quản lý kho nhà máy sản xuất thức ăn chăn nuôi',
     'short_name'   => 'FW',
     'timezone'     => 'Asia/Ho_Chi_Minh',
-    'base_url'     => '',            // để trống = tự nhận theo vị trí public/index.php (VD /feedware/public)
+    // Subdomain hosting dùng URL gốc; localhost vẫn tự nhận thư mục dự án.
+    'base_url'     => preg_match('/^warehouse\.leonovar\.io\.vn(?::[0-9]+)?$/i', $_SERVER['HTTP_HOST'] ?? '') ? '/' : '',
     'url_rewrite'  => true,          // true: URL đẹp /hang-hoa/create (cần .htaccess/rewrite). false: index.php?r=hang-hoa/create
     'session_name' => 'fw_session',
     'debug'        => true,          // true: hiện lỗi PHP khi phát triển; false khi chạy thật
