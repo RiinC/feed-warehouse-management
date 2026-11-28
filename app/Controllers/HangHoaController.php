@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\HangHoa;
+use App\Models\PhamViKho;
 use Core\Request;
 
 /**
@@ -41,7 +42,7 @@ class HangHoaController extends Controller
             if ($mode === 'create') {
                 $modal = ['mode' => 'create', 'item' => null, 'values' => $this->defaults(), 'errors' => []];
             } else {
-                $item = HangHoa::find((string)Request::get('id'));
+                $item = $this->findScoped((string)Request::get('id'));
                 if (!$item) {
                     $this->flash('error', 'Không tìm thấy hàng hóa');
                     $this->redirect($this->listUrl());
@@ -52,7 +53,7 @@ class HangHoaController extends Controller
                 }
                 $modal = ['mode' => $mode, 'item' => $item, 'values' => $this->valuesFrom($item), 'errors' => []];
                 if ($mode === 'stop') {
-                    $modal['values'] = ['ngayNgung' => date('Y-m-d\TH:i'), 'lyDo' => ''];
+                    $modal['values'] = ['lyDo' => ''];
                 }
             }
         }
@@ -85,7 +86,7 @@ class HangHoaController extends Controller
     public function update(): void
     {
         $ma = (string)Request::post('maHangHoa');
-        $item = HangHoa::find($ma);
+        $item = $this->findScoped($ma);
         if (!$item) {
             $this->flash('error', 'Không tìm thấy hàng hóa');
             $this->redirect('hang-hoa');
@@ -110,7 +111,7 @@ class HangHoaController extends Controller
     public function stop(): void
     {
         $ma = (string)Request::post('maHangHoa');
-        $item = HangHoa::find($ma);
+        $item = $this->findScoped($ma);
         if (!$item) {
             $this->flash('error', 'Không tìm thấy hàng hóa');
             $this->redirect('hang-hoa');
@@ -119,12 +120,10 @@ class HangHoaController extends Controller
             $this->flash('warning', 'Hàng hóa này đã ngừng sử dụng.');
             $this->redirect('hang-hoa');
         }
-        $values = ['ngayNgung' => (string)Request::post('ngayNgung'), 'lyDo' => (string)Request::post('lyDo')];
+        // Ngày/giờ ngừng sử dụng do hệ thống ghi nhận tại thời điểm xác nhận, người dùng không thể thay đổi
+        $values = ['lyDo' => (string)Request::post('lyDo')];
         $errors = [];
-        $when = \DateTime::createFromFormat('Y-m-d\TH:i', $values['ngayNgung']) ?: \DateTime::createFromFormat('Y-m-d\TH:i:s', $values['ngayNgung']);
-        if (!$when) {
-            $errors['ngayNgung'] = 'Vui lòng chọn ngày/giờ ngừng sử dụng hợp lệ.';
-        }
+        $when = new \DateTime();
         if ($values['lyDo'] === '') {
             $errors['lyDo'] = 'Vui lòng nhập lý do ngừng sử dụng.';
         } elseif (mb_strlen($values['lyDo']) > 150) {
@@ -167,10 +166,11 @@ class HangHoaController extends Controller
         $total = 0;
         $error = null;
         try {
-            $total = HangHoa::count($filters);
+            $scoped = $filters + ['nhom' => PhamViKho::nhomHang()];   // chỉ hàng hóa đúng nghiệp vụ kho
+            $total = HangHoa::count($scoped);
             $pages = max(1, (int)ceil($total / $perPage));
             $page = min($page, $pages);
-            $rows = HangHoa::search($filters, $perPage, ($page - 1) * $perPage);
+            $rows = HangHoa::search($scoped, $perPage, ($page - 1) * $perPage, PhamViKho::maKho());
         } catch (\Throwable $ex) {
             $error = 'Không thể thực hiện tra cứu';
         }
@@ -195,12 +195,13 @@ class HangHoaController extends Controller
             'modal'      => $modal,
             'closeUrl'   => route('hang-hoa', $this->listQuery()),
             'listQuery'  => $this->listQuery(),
-            'loaiOptions' => array_combine(array_keys(HangHoa::LOAI), array_keys(HangHoa::LOAI)),
+            'loaiOptions' => $this->loaiOptions(),
+            'nhomCoDinh' => $this->nhomCoDinh(),
             'donViOptions' => HangHoa::DON_VI,
             'statusOptions' => HangHoa::statusOptions(),
         ], [
             'title'      => 'Quản lý hàng hóa',
-            'subtitle'   => 'Tra cứu, thêm mới, chỉnh sửa và ngừng sử dụng hàng hóa',
+            'subtitle'   => 'Tra cứu, thêm mới, chỉnh sửa và ngừng sử dụng hàng hóa' . (PhamViKho::tenKho() !== null ? ' — số lượng tồn tính theo ' . PhamViKho::tenKho() : ''),
             'module'     => 'hang-hoa',
             'breadcrumb' => $breadcrumb,
             'actions'    => $actions,
@@ -209,11 +210,48 @@ class HangHoaController extends Controller
 
     private function filters(): array
     {
+        $loai = (string)Request::get('loai');
+        if ($this->nhomCoDinh() !== null || !isset($this->loaiOptions()[$loai])) {
+            $loai = '';   // nhóm hàng đã cố định theo nghiệp vụ kho, hoặc không thuộc phạm vi được xem
+        }
         return [
             'q'         => (string)Request::get('q'),
-            'loai'      => (string)Request::get('loai'),
+            'loai'      => $loai,
             'trangThai' => (string)Request::get('trangThai'),
         ];
+    }
+
+    /** Nhóm hàng được phép theo nghiệp vụ kho của người dùng: [loaiHangHoa => nhãn]. */
+    private function loaiOptions(): array
+    {
+        $nhom = PhamViKho::nhomHang();
+        $all = array_keys(HangHoa::LOAI);
+        $list = $nhom === null ? $all : array_values(array_intersect($all, $nhom));
+        return $list ? array_combine($list, $list) : [];
+    }
+
+    /**
+     * Tên nhóm hàng cố định khi người dùng chỉ thuộc một nghiệp vụ kho (hiển thị thay cho ô chọn);
+     * null khi được xem nhiều nhóm hàng.
+     */
+    private function nhomCoDinh(): ?string
+    {
+        $nhom = PhamViKho::nhomHang();
+        if ($nhom === null || count($nhom) > 1) {
+            return null;
+        }
+        return $nhom ? $nhom[0] : 'Chưa được gán kho';
+    }
+
+    /** Hàng hóa theo mã, chỉ khi thuộc nhóm hàng đúng nghiệp vụ kho của người dùng. */
+    private function findScoped(string $ma): ?array
+    {
+        $item = HangHoa::find($ma, PhamViKho::maKho());
+        $nhom = PhamViKho::nhomHang();
+        if ($item && $nhom !== null && !in_array($item['loaiHangHoa'], $nhom, true)) {
+            return null;
+        }
+        return $item;
     }
 
     /** Tham số lọc/phân trang đang dùng (chỉ giữ giá trị không rỗng) để quay lại đúng danh sách. */
@@ -237,7 +275,8 @@ class HangHoaController extends Controller
 
     private function defaults(): array
     {
-        return ['tenHangHoa' => '', 'loaiHangHoa' => '', 'donViTinhChuan' => 'kg', 'heSoQuyDoi' => '1', 'hanSuDungTieuChuanNgay' => '',
+        $loai = $this->loaiOptions();
+        return ['tenHangHoa' => '', 'loaiHangHoa' => count($loai) === 1 ? (string)key($loai) : '', 'donViTinhChuan' => 'kg', 'heSoQuyDoi' => '1', 'hanSuDungTieuChuanNgay' => '',
                 'dieuKienBaoQuan' => '', 'moTa' => '', 'trangThai' => HangHoa::TT_DANG_DUNG];
     }
 
@@ -277,7 +316,7 @@ class HangHoaController extends Controller
         } elseif (mb_strlen($ten) > 120) {
             $e['tenHangHoa'] = 'Tên hàng tối đa 120 ký tự.';
         }
-        if (!isset(HangHoa::LOAI[$v['loaiHangHoa']])) {
+        if (!isset(HangHoa::LOAI[$v['loaiHangHoa']]) || !isset($this->loaiOptions()[$v['loaiHangHoa']])) {
             $e['loaiHangHoa'] = 'Vui lòng chọn nhóm hàng.';
         }
         if (!in_array($v['donViTinhChuan'], HangHoa::DON_VI, true)) {

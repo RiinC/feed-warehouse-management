@@ -12,13 +12,34 @@ if ($invalid) {
 
 render_search_form([
     'q'         => ['label' => 'Mã lô hoặc tên hàng', 'type' => 'text', 'placeholder' => 'Nhập mã lô, mã hàng hoặc tên hàng...'],
-    'viTri'     => ['label' => 'Vị trí lưu trữ (kho / khu / vị trí)', 'type' => 'select', 'options' => $viTriOptions],
+    // Vị trí lưu trữ tách 3 ô: Kho → Khu vực → Vị trí (ô sau chỉ hiện lựa chọn thuộc ô trước)
+    'kho'       => $tenKhoCoDinh !== null
+        ? ['label' => 'Kho', 'type' => 'readonly', 'value' => $tenKhoCoDinh]
+        : ['label' => 'Kho', 'type' => 'select', 'options' => $viTriOptions['kho']],
+    'khu'       => ['label' => 'Khu vực', 'type' => 'select', 'options' => $viTriOptions['khu']]
+                   + ($tenKhoCoDinh === null ? ['parent' => 'kho', 'groups' => $viTriOptions['khuGroup']] : []),
+    'viTri'     => ['label' => 'Vị trí', 'type' => 'select', 'options' => $viTriOptions['viTri'],
+                    'parent' => 'khu', 'groups' => $viTriOptions['viTriGroup']],
     'trangThai' => ['label' => 'Trạng thái lô hàng', 'type' => 'select', 'options' => $trangThaiOptions],
 ], $filters, route('lo-hang'));
 
+// Kho / khu vực: mỗi tên một lần (không lặp lại theo từng vị trí)
+$lines = fn($v) => $v === null || $v === '' ? '—' : implode('<br>', array_map('e', explode('|', $v)));
+// Vị trí: liệt kê đủ tất cả vị trí, mỗi vị trí một thẻ nhỏ xếp dọc (rê chuột xem số lượng tồn tại vị trí đó)
+$posChips = function (array $r) {
+    if ($r['tenViTri'] === null || $r['tenViTri'] === '') {
+        return '—';
+    }
+    $h = '';
+    foreach (explode('|', $r['tenViTri']) as $it) {
+        [$ten, $sl] = array_pad(explode('~', $it, 2), 2, '0');
+        $h .= '<span class="pos-chip" title="' . e($ten . ': ' . fmt_number((float)$sl, 2) . ' kg') . '">' . e($ten) . '</span>';
+    }
+    return '<div class="pos-chips">' . $h . '</div>';
+};
 $badge = ['Còn hạn' => 'badge-ok', 'Hết hạn' => 'badge-danger', 'Đã xuất hết' => '', 'Ngừng sử dụng' => 'badge-warn'];
 ?>
-<div class="card">
+<div class="card lo-hang-list">
     <div class="card-head"><b>Danh sách lô hàng</b><span class="muted"><?= fmt_number($total) ?> lô hàng</span></div>
     <?php
     render_data_table([
@@ -27,7 +48,9 @@ $badge = ['Còn hạn' => 'badge-ok', 'Hết hạn' => 'badge-danger', 'Đã xu�
         'tenHangHoa' => 'Tên hàng',
         'ngayNhap'   => ['label' => 'Ngày nhập', 'render' => fn($r) => e(fmt_date($r['ngayNhap']))],
         'ngayHetHan' => ['label' => 'HSD', 'render' => fn($r) => e(fmt_date($r['ngayHetHan']))],
-        'viTri'      => ['label' => 'Vị trí', 'render' => fn($r) => e($r['viTri'] ?: '—')],
+        'tenKho'     => ['label' => 'Kho', 'render' => fn($r) => $lines($r['tenKho'])],
+        'tenKhuVuc'  => ['label' => 'Khu vực', 'render' => fn($r) => $lines($r['tenKhuVuc'])],
+        'tenViTri'   => ['label' => 'Vị trí', 'class' => 'col-vitri', 'render' => $posChips],
         'soLuongTon' => ['label' => 'SL tồn (kg)', 'class' => 'num', 'render' => fn($r) => e(fmt_number($r['soLuongTon'], 2))],
         'trangThaiHienThi' => ['label' => 'Trạng thái', 'render' => fn($r) => '<span class="badge ' . e($badge[$r['trangThaiHienThi']] ?? '') . '">' . e($r['trangThaiHienThi']) . '</span>'],
     ], $rows, [

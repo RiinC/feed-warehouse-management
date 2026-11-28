@@ -30,7 +30,7 @@ $field = function (string $name, string $label, string $inner, bool $required = 
             <div class="form-grid">
                 <?php
                 $field('maHangHoa', 'Mã hàng hóa', '<input type="text" id="hh_maHangHoa" value="' . e($isEdit ? $item['maHangHoa'] : 'Tự động tạo khi lưu') . '" disabled>');
-                $field('tenHangHoa', 'Tên hàng', '<input type="text" id="hh_tenHangHoa" name="tenHangHoa" maxlength="120" value="' . e($v['tenHangHoa']) . '" required>', true);
+                $field('tenHangHoa', 'Tên hàng', '<input type="text" id="hh_tenHangHoa" name="tenHangHoa" maxlength="120" placeholder="Nhập tên hàng, VD: Ngô hạt vàng" value="' . e($v['tenHangHoa']) . '" required>', true);
 
                 $o = '<select id="hh_loaiHangHoa" name="loaiHangHoa" required><option value="">-- Chọn nhóm hàng --</option>';
                 foreach ($loaiOptions as $k => $label) {
@@ -44,9 +44,9 @@ $field = function (string $name, string $label, string $inner, bool $required = 
                 }
                 $field('donViTinhChuan', 'Đơn vị tính', $o . '</select>', true);
 
-                $field('heSoQuyDoi', 'Quy cách đóng gói (kg / đơn vị)', '<input type="text" inputmode="decimal" id="hh_heSoQuyDoi" name="heSoQuyDoi" value="' . e($v['heSoQuyDoi']) . '" required>', true, 'VD: bao 25 kg → 25; tính theo kg → 1.');
-                $field('hanSuDungTieuChuanNgay', 'Hạn sử dụng tiêu chuẩn (ngày)', '<input type="text" inputmode="numeric" id="hh_hanSuDungTieuChuanNgay" name="hanSuDungTieuChuanNgay" value="' . e($v['hanSuDungTieuChuanNgay']) . '">', false, 'Dùng để tính hạn sử dụng của lô khi nhà cung cấp không ghi.');
-                $field('dieuKienBaoQuan', 'Điều kiện bảo quản', '<input type="text" id="hh_dieuKienBaoQuan" name="dieuKienBaoQuan" maxlength="150" value="' . e($v['dieuKienBaoQuan']) . '">');
+                $field('heSoQuyDoi', 'Quy cách đóng gói (kg / đơn vị)', '<input type="text" inputmode="decimal" id="hh_heSoQuyDoi" name="heSoQuyDoi" placeholder="VD: 25" value="' . e($v['heSoQuyDoi']) . '" required>', true, 'VD: bao 25 kg → 25; tính theo kg → 1.');
+                $field('hanSuDungTieuChuanNgay', 'Hạn sử dụng tiêu chuẩn (ngày)', '<input type="text" inputmode="numeric" id="hh_hanSuDungTieuChuanNgay" name="hanSuDungTieuChuanNgay" placeholder="VD: 180" value="' . e($v['hanSuDungTieuChuanNgay']) . '">', false, 'Dùng để tính hạn sử dụng của lô khi nhà cung cấp không ghi.');
+                $field('dieuKienBaoQuan', 'Điều kiện bảo quản', '<input type="text" id="hh_dieuKienBaoQuan" name="dieuKienBaoQuan" maxlength="150" placeholder="VD: Nơi khô ráo, thoáng mát" value="' . e($v['dieuKienBaoQuan']) . '">');
                 if ($isEdit) {   // UC02 bước 4: hiển thị thời gian nhập/xuất (chỉ xem)
                     $field('lanNhapCuoi', 'Thời gian nhập (gần nhất)', '<input type="text" id="hh_lanNhapCuoi" value="' . e($item['lanNhapCuoi'] ? fmt_datetime($item['lanNhapCuoi']) : 'Chưa phát sinh') . '" disabled>');
                     $field('lanXuatCuoi', 'Thời gian xuất (gần nhất)', '<input type="text" id="hh_lanXuatCuoi" value="' . e($item['lanXuatCuoi'] ? fmt_datetime($item['lanXuatCuoi']) : 'Chưa phát sinh') . '" disabled>');
@@ -60,7 +60,7 @@ $field = function (string $name, string $label, string $inner, bool $required = 
                 $field('trangThai', 'Trạng thái sử dụng', $o . '</select>', false, $isEdit ? 'Muốn ngừng sử dụng hãy dùng nút "Ngừng sử dụng" ở danh sách.' : 'Hàng hóa mới mặc định "Đang sử dụng".');
                 ?>
                 <div class="full">
-                    <?php $field('moTa', 'Mô tả', '<textarea id="hh_moTa" name="moTa" rows="3" maxlength="255"' . ($isEdit ? '' : ' required') . '>' . e($v['moTa']) . '</textarea>', !$isEdit); ?>
+                    <?php $field('moTa', 'Mô tả', '<textarea id="hh_moTa" name="moTa" rows="3" maxlength="255" placeholder="Nhập mô tả hàng hóa..."' . ($isEdit ? '' : ' required') . '>' . e($v['moTa']) . '</textarea>', !$isEdit); ?>
                 </div>
             </div>
             <div class="modal-actions">

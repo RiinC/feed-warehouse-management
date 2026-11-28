@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\HangHoa;
+use App\Models\PhamViKho;
 use App\Models\ThongBao;
 use App\Models\TiepNhan;
 use Core\Auth;
@@ -54,7 +55,7 @@ class TiepNhanController extends Controller
             return;
         }
         try {
-            $r = TiepNhan::receive($ct['soChungTu'], $values['vi_tri'], Auth::staffId(), $values['ghi_chu'], $chon);
+            $r = TiepNhan::receive($ct['soChungTu'], $values['vi_tri'], Auth::staffId(), $values['ghi_chu'], $chon, $this->kho());
         } catch (\RuntimeException $ex) {
             // Lỗi nghiệp vụ (chứng từ đã được xử lý, vị trí không còn hợp lệ...): quay lại màn hình nhập
             $this->showForm($ct, $values, ['_form' => $ex->getMessage()]);
@@ -108,7 +109,7 @@ class TiepNhanController extends Controller
             'canReceive' => can('tiep-nhan', 'create'),
         ], [
             'title'      => 'Tiếp nhận hàng vào kho',
-            'subtitle'   => 'Chứng từ giao hàng đang chờ tiếp nhận (phiếu giao nhà cung cấp, yêu cầu nhập thành phẩm từ xưởng)',
+            'subtitle'   => 'Chứng từ giao hàng đang chờ tiếp nhận (phiếu giao nhà cung cấp, yêu cầu nhập thành phẩm từ xưởng)' . $this->khoNote(),
             'module'     => 'tiep-nhan',
             'breadcrumb' => [['Tiếp nhận hàng vào kho', null]],
         ]);
@@ -140,7 +141,7 @@ class TiepNhanController extends Controller
             'loaiLabel' => $ct['loai'] === TiepNhan::NCC ? 'Phiếu giao hàng nhà cung cấp' : 'Phiếu yêu cầu nhập thành phẩm',
         ], [
             'title'      => 'Tiếp nhận hàng vào kho',
-            'subtitle'   => 'Chứng từ ' . $ct['soChungTu'],
+            'subtitle'   => 'Chứng từ ' . $ct['soChungTu'] . $this->khoNote(),
             'module'     => 'tiep-nhan',
             'breadcrumb' => [['Tiếp nhận hàng vào kho', 'tiep-nhan'], [$step === 'confirm' ? 'Xác nhận tiếp nhận' : 'Tiếp nhận chứng từ ' . $ct['soChungTu'], null]],
         ]);
@@ -148,14 +149,16 @@ class TiepNhanController extends Controller
 
     /* ------------------------------ Dữ liệu ------------------------------ */
 
-    /** Mã kho của người dùng hiện tại (null = quản trị viên / không thuộc kho nào → mọi kho). */
+    /** Phạm vi kho của người dùng: null = không giới hạn; '' = chưa gán kho (không có vị trí nào); 'K...' = kho của mình. */
     private function kho(): ?string
     {
-        try {
-            return TiepNhan::maKhoCua(Auth::staffId());
-        } catch (\Throwable $ex) {
-            return null;
-        }
+        return PhamViKho::maKho();
+    }
+
+    private function khoNote(): string
+    {
+        $ten = PhamViKho::tenKho();
+        return $ten === null ? '' : ' — tiếp nhận vào ' . $ten;
     }
 
     /** Đọc chứng từ cần tiếp nhận; không hợp lệ thì báo lỗi và quay về danh sách. */

@@ -33,6 +33,8 @@
 .err-msg { display: block; color: var(--danger); font-size: 12.5px; margin-top: 4px; }
 .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 16px; align-items: end; }
 .filter-grid .field { margin-bottom: 4px; }
+.field input.input-readonly { background: #f3f5f8; color: var(--text, #1f2937); font-weight: 600; cursor: default; }
+.field input.input-readonly:focus { outline: none; border-color: var(--line); }
 .filter-actions { display: flex; gap: 8px; }
 .filter-card { padding-bottom: 14px; }
 
@@ -129,3 +131,7 @@
 .sub-title { margin: 14px 0 6px; font-size: 14px; }
 .form-grid .field input[disabled], .form-grid .field select[disabled] { background: #f3f5f8; color: var(--muted); }
 @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .detail-grid { grid-template-columns: 1fr; gap: 2px 0; } .detail-grid dd { margin-bottom: 8px; } }
+
+/* Chữ mờ gợi ý (placeholder) ở các ô cần nhập */
+input::placeholder, textarea::placeholder { color: #9aa4b2; opacity: 1; font-weight: 400; }
+input:disabled, textarea:disabled { cursor: not-allowed; }

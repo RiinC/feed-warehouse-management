@@ -132,14 +132,14 @@ class TiepNhan extends Model
 
     /**
      * Vị trí lưu trữ tạm hợp lệ: khu vực 'Tiếp nhận tạm' đang hoạt động, ô chưa khóa/bảo trì/lấp đầy.
-     * $maKho: chỉ lấy vị trí của kho này (nhân viên kho); null = mọi kho (quản trị viên).
+     * $maKho: chỉ lấy vị trí của kho này (Quản lý/Nhân viên kho); null = mọi kho (quản trị viên).
      * Trả về [maViTri => nhãn].
      */
     public static function viTriTam(?string $maKho): array
     {
         $p = [];
         $cond = '';
-        if ($maKho !== null && $maKho !== '') {
+        if ($maKho !== null) {   // '' (chưa gán kho) không khớp kho nào → không có vị trí
             $cond = ' AND k.maKho = ?';
             $p[] = $maKho;
         }
@@ -203,12 +203,13 @@ class TiepNhan extends Model
      * Nếu có lỗi thì không thay đổi gì (rollback).
      *
      * @param array $chon  [id dòng => ['sl' => float, 'nsx' => ?string, 'hsd' => ?string]] — chỉ các dòng được tiếp nhận
+     * @param ?string $maKho kho của người tiếp nhận: vị trí tạm bắt buộc thuộc kho này (null = không giới hạn)
      * @return array ['maPhieuTiepNhan' => string, 'lo' => [mã lô...], 'tongKg' => float]
      * @throws \RuntimeException lỗi nghiệp vụ (thông báo hiển thị được cho người dùng)
      */
-    public static function receive(string $so, string $maViTri, string $maNhanVien, string $ghiChu, array $chon): array
+    public static function receive(string $so, string $maViTri, string $maNhanVien, string $ghiChu, array $chon, ?string $maKho = null): array
     {
-        return static::transaction(function () use ($so, $maViTri, $maNhanVien, $ghiChu, $chon) {
+        return static::transaction(function () use ($so, $maViTri, $maNhanVien, $ghiChu, $chon, $maKho) {
             // Khóa chứng từ rồi đọc lại để bảo đảm chưa ai tiếp nhận trước đó
             if (strpos($so, 'PG') === 0) {
                 static::one('SELECT maPhieuGiao FROM PhieuGiaoNCC WHERE maPhieuGiao = ? FOR UPDATE', [$so]);
@@ -222,13 +223,14 @@ class TiepNhan extends Model
             if (!$chon) {
                 throw new \RuntimeException('Vui lòng chọn ít nhất một dòng hàng để tiếp nhận.');
             }
+            $kScope = $maKho !== null ? ' AND kv.maKho = ?' : '';
             if (!static::one(
                 "SELECT vt.maViTri FROM ViTriLuuTru vt JOIN KhuVuc kv ON kv.maKhuVuc = vt.maKhuVuc
                  WHERE vt.maViTri = ? AND kv.loaiKhuVuc = 'Tiếp nhận tạm' AND kv.trangThai = 'Đang hoạt động'
-                   AND vt.trangThai NOT IN ('Đang bảo trì', 'Đã khóa', 'Đã lấp đầy')",
-                [$maViTri]
+                   AND vt.trangThai NOT IN ('Đang bảo trì', 'Đã khóa', 'Đã lấp đầy')$kScope",
+                $maKho !== null ? [$maViTri, $maKho] : [$maViTri]
             )) {
-                throw new \RuntimeException('Vị trí lưu trữ tạm không hợp lệ hoặc không còn ở trạng thái sử dụng.');
+                throw new \RuntimeException('Vị trí lưu trữ tạm không hợp lệ, không còn sử dụng được hoặc không thuộc kho của bạn.');
             }
 
             // Kiểm tra từng dòng

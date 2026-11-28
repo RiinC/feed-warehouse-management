@@ -1,2 +1,8 @@
 /* Hàng hóa, lô hàng (UC01-UC05) */
 .table .w-actions { width: 240px; }
+
+/* Lô hàng: danh sách vừa khung, không cần thanh kéo ngang; vị trí lưu trữ xếp dọc từng thẻ nhỏ */
+.lo-hang-list .table .w-actions { width: 1%; white-space: nowrap; }
+.lo-hang-list .table th, .lo-hang-list .table td { padding-left: 10px; padding-right: 10px; }
+.pos-chips { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.pos-chip { display: inline-block; padding: 1px 7px; border-radius: 6px; background: #eef3fb; color: #1f4f99; font-size: 12.5px; line-height: 1.6; white-space: nowrap; cursor: default; }

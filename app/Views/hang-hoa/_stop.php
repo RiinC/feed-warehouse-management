@@ -23,14 +23,14 @@ $err = $modal['errors'];
             <?= csrf_field() ?>
             <input type="hidden" name="maHangHoa" value="<?= e($item['maHangHoa']) ?>">
             <div class="form-grid">
-                <div class="field<?= isset($err['ngayNgung']) ? ' invalid' : '' ?>">
-                    <label for="hh_ngayNgung">Ngày ngừng sử dụng <span class="req">*</span></label>
-                    <input type="datetime-local" id="hh_ngayNgung" name="ngayNgung" value="<?= e($v['ngayNgung']) ?>" required>
-                    <?php if (isset($err['ngayNgung'])): ?><span class="err-msg"><?= e($err['ngayNgung']) ?></span><?php endif; ?>
+                <div class="field">
+                    <label for="hh_ngayNgung">Ngày ngừng sử dụng</label>
+                    <input type="text" id="hh_ngayNgung" value="<?= e(date('d/m/Y H:i')) ?>" disabled>
+                    <small class="hint">Hệ thống tự ghi nhận thời điểm xác nhận, không thể thay đổi.</small>
                 </div>
                 <div class="field full<?= isset($err['lyDo']) ? ' invalid' : '' ?>">
                     <label for="hh_lyDo">Lý do ngừng sử dụng <span class="req">*</span></label>
-                    <textarea id="hh_lyDo" name="lyDo" rows="3" maxlength="150" required><?= e($v['lyDo']) ?></textarea>
+                    <textarea id="hh_lyDo" name="lyDo" rows="3" maxlength="150" placeholder="Nhập lý do ngừng sử dụng hàng hóa..." required><?= e($v['lyDo']) ?></textarea>
                     <?php if (isset($err['lyDo'])): ?><span class="err-msg"><?= e($err['lyDo']) ?></span><?php endif; ?>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 import os, sys, re, json, datetime, sqlite3
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from load_db import load
-from phpsql import sqls, assign, to_sqlite, ROOT
+from phpsql import sqls, assign, to_sqlite, php_assign, ROOT
 
 RESULTS=[]
 def case(uc, name, fn):
@@ -42,12 +42,14 @@ def hh_where(f):
     return ' AND '.join(w),p
 def hh_count(con,f):
     w,p=hh_where(f); return one(con,sqls(HH,'count',{'where':w})[0][1],p)['c']
-def hh_search(con,f,limit=10,offset=0):
-    w,p=hh_where(f); return rows(con,sqls(HH,'search',{'where':w})[0][1],p+[limit,offset])
-def hh_find(con,ma):
-    q=sqls(HH,'find'); row=one(con,q[0][1],[ma])
+def hh_search(con,f,limit=10,offset=0,kho=None):
+    w,p=hh_where(f); ts=php_assign(HH,'search','tonScope') if kho is not None else ''
+    return rows(con,sqls(HH,'search',{'where':w,'tonScope':ts})[0][1],([kho] if kho is not None else [])+p+[limit,offset])
+def hh_find(con,ma,kho=None):
+    sc=php_assign(HH,'find','scope') if kho is not None else ''; pr=[ma,kho] if kho is not None else [ma]
+    q=sqls(HH,'find',{'scope':sc}); row=one(con,q[0][1],[ma])
     if not row: return None
-    row['soLuongTon']=float(one(con,q[1][1],[ma])['ton']); mv=one(con,q[2][1],[ma]); row['lanNhapCuoi']=mv['lanNhapCuoi']; row['lanXuatCuoi']=mv['lanXuatCuoi']; return row
+    row['soLuongTon']=float(one(con,q[1][1],pr)['ton']); mv=one(con,q[2][1],pr); row['lanNhapCuoi']=mv['lanNhapCuoi']; row['lanXuatCuoi']=mv['lanXuatCuoi']; return row
 def hh_blockers(con,ma):
     out=[]
     for kind,sql in sqls(HH,'stopBlockers'):
@@ -76,8 +78,12 @@ def lo_inner_sql(f):
     w=['1 = 1'];p=[]
     if f.get('q'): l=esc(f['q']); w.append('(l.maLoHang LIKE ? OR l.maHangHoa LIKE ? OR h.tenHangHoa LIKE ?)'); p+=[l,l,l]
     if f.get('viTri'): w.append('EXISTS (SELECT 1 FROM TonKho t2 WHERE t2.maLoHang = l.maLoHang AND t2.maViTri = ? AND t2.soLuongTon > 0)'); p.append(f['viTri'])
-    src=open(ROOT+LO,encoding='utf-8').read()
-    return assign(LO,'inner','sql',{'w_list':w,'implode':' AND '.join(w)}),p
+    from phpsql import consts, read
+    tonCond='1 = 1'; pj=[]
+    if f.get('kho') is not None:
+        tonCond=php_assign(LO,'inner','tonCond'); pj=[f['kho']]
+        w.append(consts(read(LO))['SCOPE_COND']); p+= [f['kho'],f['kho']]
+    return assign(LO,'inner','sql',{'tonCond':tonCond,'w_list':w,'implode':' AND '.join(w)}),pj+p
 def lo_search(con,f,limit=1000,offset=0):
     inner,p=lo_inner_sql(f); 
     w='1 = 1'
@@ -88,10 +94,15 @@ def lo_count(con,f):
     inner,p=lo_inner_sql(f); w='1 = 1'
     if f.get('trangThai'): w+=' AND x.trangThaiHienThi = ?'; p.append(f['trangThai'])
     return one(con,sqls(LO,'count',{'inner':inner,'w':w})[0][1],p)['c']
-def lo_detail(con,ma):
-    q=sqls(LO,'detail'); row=one(con,q[0][1],[ma])
-    if row: row['viTriChiTiet']=rows(con,q[1][1],[ma])
+def lo_detail(con,ma,kho=None):
+    from phpsql import consts, read
+    sc=php_assign(LO,'detail','scope') if kho is not None else ''; ps=php_assign(LO,'detail','posScope') if kho is not None else ''
+    q=sqls(LO,'detail',{'scope':sc,'posScope':ps}); row=one(con,q[0][1],[ma,kho,kho] if kho is not None else [ma])
+    if row: row['viTriChiTiet']=rows(con,q[1][1],[ma,kho] if kho is not None else [ma])
     return row
+def lo_vitri(con,kho=None):
+    sc=php_assign(LO,'viTriOptions','scope') if kho is not None else ''
+    return {r['maViTri']:r['nhan'] for r in rows(con,sqls(LO,'viTriOptions',{'scope':sc})[0][1],[kho] if kho is not None else [])}
 
 def tn_pending(con,q=''):
     p=[];c1='';c2=''
@@ -113,8 +124,8 @@ def tn_chung_tu(con,so):
         if l['conLai']>0.0005: h['dong'][int(l['id'])]=l
     return h
 def tn_vitri(con,kho=None):
-    cond=' AND k.maKho = ?' if kho else ''
-    return rows(con,sqls(TN,'viTriTam',{'cond':cond})[0][1],[kho] if kho else [])
+    cond=php_assign(TN,'viTriTam','cond') if kho is not None else ''
+    return rows(con,sqls(TN,'viTriTam',{'cond':cond})[0][1],[kho] if kho is not None else [])
 def next_code(con,table,col,prefix,today='261124'):
     head=prefix+today
     r=one(con,sqls(TN,'nextCode',{'table':table,'col':col})[0][1],[head+'%'])
@@ -122,15 +133,15 @@ def next_code(con,table,col,prefix,today='261124'):
     assert seq<=9999; return head+str(seq).zfill(4)
 
 class BizError(Exception): pass
-def tn_receive(con,so,vitri,nv,ghichu,chon,today_iso='2026-11-24'):
+def tn_receive(con,so,vitri,nv,ghichu,chon,today_iso='2026-11-24',kho=None):
     """Mô phỏng TiepNhan::receive() đúng trình tự câu lệnh trong PHP, trong 1 giao dịch."""
-    q=sqls(TN,'receive'); EPS=0.0005
+    q=sqls(TN,'receive',{'kScope':php_assign(TN,'receive','kScope') if kho is not None else ''}); EPS=0.0005
     con.commit(); con.execute('BEGIN')
     try:
         ct=tn_chung_tu(con,so)
         if not ct or not ct['conHieuLuc'] or not ct['dong']: raise BizError('Không thể tiếp nhận hàng do không có chứng từ giao hàng hợp lệ')
         if not chon: raise BizError('Vui lòng chọn ít nhất một dòng hàng để tiếp nhận.')
-        if not one(con,q[2][1],[vitri]): raise BizError('Vị trí lưu trữ tạm không hợp lệ hoặc không còn ở trạng thái sử dụng.')
+        if not one(con,q[2][1],[vitri,kho] if kho is not None else [vitri]): raise BizError('Vị trí lưu trữ tạm không hợp lệ hoặc không thuộc kho của bạn.')
         for i,inn in chon.items():
             line=ct['dong'].get(i)
             if not line: raise BizError('Có dòng hàng không hợp lệ hoặc đã được tiếp nhận đủ.')
@@ -466,6 +477,122 @@ def uc03_uc06():
     ma=hh_create(con,'Phụ gia',ten='Men vi sinh X'); r=hh_search(con,{'q':'Men vi sinh X'}); assert r and r[0]['maHangHoa']==ma and r[0]['soLuongTon']==0
     return f'Hàng vừa thêm ({ma}) tra cứu được ngay, tồn 0'
 case('UC01+UC04','Liên thông: hàng vừa thêm xuất hiện ngay trong tra cứu với tồn = 0',uc03_uc06)
+
+
+
+# ---------------- PHÂN QUYỀN THEO KHO (Quản lý kho / Nhân viên kho chỉ thao tác trong kho của mình) ----------------
+KHOS=['K010001','K020001','K030001','K040001','K050001','K060001']
+def kho_of_pos(con): return {r['maViTri']:r['maKho'] for r in rows(con,'select vt.maViTri, kv.maKho from ViTriLuuTru vt join KhuVuc kv on kv.maKhuVuc=vt.maKhuVuc')}
+def lots_by_kho(con):
+    """Dữ liệu 'chuẩn' độc lập với SQL của PHP: lô thuộc kho nào (có tồn ở vị trí của kho, hoặc vị trí tiếp nhận tạm của kho)."""
+    kp=kho_of_pos(con); out={k:set() for k in KHOS}
+    for r in rows(con,'select maLoHang,maViTri from TonKho'): out[kp[r['maViTri']]].add(r['maLoHang'])
+    for r in rows(con,'select l.maLoHang,p.maViTriTam from LoHang l join PhieuTiepNhan p on p.maPhieuTiepNhan=l.maPhieuTiepNhan'): out[kp[r['maViTriTam']]].add(r['maLoHang'])
+    return out
+
+def kho_lo_list():
+    con=fresh(); exp=lots_by_kho(con); seen=set(); info=[]
+    for k in KHOS:
+        got={x['maLoHang'] for x in lo_search(con,{'kho':k})}
+        assert got==exp[k],(k,sorted(got^exp[k])[:5]); seen|=got; assert lo_count(con,{'kho':k})==len(exp[k])
+        info.append(f"{k[:3]}:{len(got)}")
+    assert len(lo_search(con,{}))==96 and seen<={x['maLoHang'] for x in lo_search(con,{})}
+    hidden=96-len(seen)
+    return f'Số lô thấy được theo kho: {", ".join(info)}; {hidden} lô chưa gắn kho nào chỉ quản trị viên thấy; không kho nào thấy lô của kho khác'
+case('PHÂN QUYỀN KHO · UC05','Quản lý/Nhân viên mỗi kho chỉ thấy lô hàng thuộc kho mình (tồn ở vị trí của kho hoặc đang ở vị trí tiếp nhận tạm của kho)',kho_lo_list)
+
+def kho_lo_isolation():
+    con=fresh(); exp=lots_by_kho(con)
+    for a in KHOS:
+        for b in KHOS:
+            if a<b:
+                only_a=exp[a]-exp[b]
+                if only_a: assert not ({x['maLoHang'] for x in lo_search(con,{'kho':b})} & only_a)
+    return 'Lô chỉ thuộc kho A không xuất hiện trong kho B (mọi cặp kho)'
+case('PHÂN QUYỀN KHO · UC05','Cách ly dữ liệu giữa các kho (mọi cặp)',kho_lo_isolation)
+
+def kho_lo_detail():
+    con=fresh(); exp=lots_by_kho(con); kp=kho_of_pos(con); n=0
+    for k in KHOS:
+        for lot in list(exp[k])[:200]:
+            d=lo_detail(con,lot,k); assert d is not None,(k,lot)
+            assert all(kp[v['maViTri']]==k for v in d['viTriChiTiet'])
+            n+=1
+    other=[(k,l) for k in KHOS for l in exp[KHOS[0]]-exp[k]][:3] if True else []
+    for k,l in other: assert lo_detail(con,l,k) is None,(k,l)   # mở lô của kho khác -> không thấy
+    assert lo_detail(con,list(exp['K010001'])[0]) is not None
+    return f'{n} lượt mở chi tiết trong kho mình đều chỉ hiện vị trí của kho mình; mở lô của kho khác → "Không tìm thấy lô hàng"'
+case('PHÂN QUYỀN KHO · UC05','Mở chi tiết lô của kho khác bị từ chối (không lộ dữ liệu); chi tiết chỉ liệt kê vị trí thuộc kho mình',kho_lo_detail)
+
+def kho_lo_split():
+    con=fresh(); kp=kho_of_pos(con)
+    # tìm lô nằm ở >1 kho theo dữ liệu thật
+    per={}
+    for r in rows(con,'select maLoHang,maViTri,soLuongTon from TonKho'): per.setdefault(r['maLoHang'],{}).setdefault(kp[r['maViTri']],0); per[r['maLoHang']][kp[r['maViTri']]]+=r['soLuongTon']
+    two=[l for l,v in per.items() if len(v)>1]; assert two
+    l=two[0]; tot=sum(per[l].values()); parts=[]
+    for k,v in per[l].items():
+        x=[y for y in lo_search(con,{'kho':k}) if y['maLoHang']==l][0]; assert abs(x['soLuongTon']-v)<1e-6,(k,x['soLuongTon'],v); parts.append((k,v))
+    assert abs(sum(v for _,v in parts)-tot)<1e-6
+    return f'Lô {l} nằm ở {len(parts)} kho: mỗi kho chỉ thấy phần tồn của mình {parts} (tổng {tot})'
+case('PHÂN QUYỀN KHO · UC05','Lô nằm ở nhiều kho: mỗi kho chỉ thấy phần tồn của kho mình, tổng các phần = tổng toàn hệ thống',kho_lo_split)
+
+def kho_vitri_filter():
+    con=fresh(); kp=kho_of_pos(con)
+    for k in KHOS:
+        opts=lo_vitri(con,k); assert all(kp[m]==k for m in opts)
+    allv=lo_vitri(con); assert len(allv)>=sum(len(lo_vitri(con,k)) for k in KHOS)
+    k1=lo_vitri(con,'K010001'); v_other=[m for m in allv if kp[m]!='K010001'][0]
+    assert v_other not in k1
+    assert not lo_search(con,{'kho':'K010001','viTri':v_other}), 'lọc theo vị trí của kho khác vẫn ra dữ liệu'
+    return 'Ô chọn vị trí chỉ gồm vị trí của kho mình; ép lọc theo vị trí kho khác cũng không ra dữ liệu'
+case('PHÂN QUYỀN KHO · UC05','Bộ lọc vị trí lưu trữ chỉ có vị trí thuộc kho mình; không lách được bằng tham số',kho_vitri_filter)
+
+def kho_hh_ton():
+    con=fresh(); kp=kho_of_pos(con); tot={}; per={}
+    for r in rows(con,'select l.maHangHoa h,tk.maViTri v,tk.soLuongTon s from TonKho tk join LoHang l on l.maLoHang=tk.maLoHang'):
+        per.setdefault(r['h'],{}); k=kp[r['v']]; per[r['h']][k]=per[r['h']].get(k,0)+r['s']
+    for k in KHOS:
+        lst={x['maHangHoa']:x['soLuongTon'] for x in hh_search(con,{},1000,0,k)}
+        assert len(lst)==120   # danh mục hàng hóa dùng chung, mọi kho đều tra cứu được
+        for h,v in per.items():
+            assert abs(lst[h]-v.get(k,0))<1e-6,(k,h,lst[h],v)
+            assert abs(hh_find(con,h,k)['soLuongTon']-v.get(k,0))<1e-6
+        for h in set(lst)-set(per): assert lst[h]==0
+    a=hh_search(con,{},1000,0); 
+    for x in a: assert abs(x['soLuongTon']-sum(per.get(x['maHangHoa'],{}).values()))<1e-6
+    return 'Mỗi kho thấy số lượng tồn CỦA KHO MÌNH (danh sách = chi tiết = tổng TonKho tại kho); quản trị viên thấy tổng mọi kho'
+case('PHÂN QUYỀN KHO · UC04','Số lượng tồn hàng hóa tính theo kho của người dùng; quản trị viên thấy tổng',kho_hh_ton)
+
+def kho_hh_mov():
+    con=fresh(); kp=kho_of_pos(con)
+    for h in ['HH01000001','HH01000002','HH02000001']:
+        for k in KHOS:
+            exp=rows(con,"select max(case when b.loaiGiaoDich='Nhập kho' then b.thoiGianPhatSinh end) n, max(case when b.loaiGiaoDich='Xuất kho' then b.thoiGianPhatSinh end) x from LichSuBienDongTonKho b join LoHang l on l.maLoHang=b.maLoHang where l.maHangHoa=? and b.maViTri in (%s)"%','.join('?'*sum(1 for v in kp.values() if v==k)),[h]+[m for m,v in kp.items() if v==k])[0]
+            r=hh_find(con,h,k); assert r['lanNhapCuoi']==exp['n'] and r['lanXuatCuoi']==exp['x'],(h,k)
+    return 'Thời gian nhập/xuất gần nhất cũng chỉ tính các giao dịch tại kho của người dùng'
+case('PHÂN QUYỀN KHO · UC04','Lần nhập/xuất gần nhất chỉ tính giao dịch tại kho của mình',kho_hh_mov)
+
+def kho_tn_vitri():
+    con=fresh(); kp=kho_of_pos(con)
+    for k in KHOS:
+        assert all(kp[v['maViTri']]==k for v in tn_vitri(con,k))
+    assert tn_vitri(con,'')==[] , 'người chưa gán kho vẫn thấy vị trí'
+    k1=tn_vitri(con,'K010001')[0]['maViTri']; k3=tn_vitri(con,'K030001')[0]['maViTri']
+    ct=tn_chung_tu(con,'PG2611060001'); (i,l),=ct['dong'].items()
+    for kho,vt in [('K030001',k1),('K010001',k3),('',k1)]:
+        try: tn_receive(con,'PG2611060001',vt,'NV000006','',{i:{'sl':1.0}},kho=kho); raise AssertionError('nhận được vào vị trí của kho khác')
+        except BizError: pass
+    r=tn_receive(con,'PG2611060001',k1,'NV000006','',{i:{'sl':1.0}},kho='K010001'); assert r['ptn']
+    return 'Vị trí tạm chỉ của kho mình; ép dùng vị trí kho khác (hoặc chưa gán kho) bị từ chối ở tầng model; đúng kho thì nhận được'
+case('PHÂN QUYỀN KHO · UC06','Tiếp nhận chỉ vào vị trí tạm của kho mình; không lách được bằng cách gửi mã vị trí kho khác',kho_tn_vitri)
+
+def kho_unassigned():
+    con=fresh()
+    assert lo_search(con,{'kho':''})==[] and lo_count(con,{'kho':''})==0 and lo_vitri(con,'')=={}
+    assert all(x['soLuongTon']==0 for x in hh_search(con,{},1000,0,''))
+    return 'Quản lý/Nhân viên kho chưa được gán kho (maKho rỗng): không thấy lô, vị trí, tồn nào (an toàn mặc định)'
+case('PHÂN QUYỀN KHO','Tài khoản bị giới hạn nhưng chưa gán kho → không thấy dữ liệu kho nào',kho_unassigned)
 
 # ---------------- Tổng kết ----------------
 if __name__=='__main__':

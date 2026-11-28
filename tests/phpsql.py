@@ -76,3 +76,27 @@ def assign(path,method,var='sql',vars_=None):
         elif c==';': break
         j+=1
     return eval_expr(body[i:j],cst,vars_ or {})
+
+
+def php_assign(path, method, var):
+    """Giá trị chuỗi mà PHP gán cho $var khi BỊ GIỚI HẠN THEO KHO (lấy từ chính mã PHP, không tự viết lại).
+    Hỗ trợ: $var = '...';  và  $var = $maKho !== null ? '...' : '';  (có thể nối self::CONST)."""
+    src = read(path); cst = consts(src); body = method_body(src, method)
+    cands = []
+    for m in re.finditer(r"\$%s = " % re.escape(var), body):
+        i = m.end(); j = i; instr = None
+        while j < len(body):
+            c = body[j]
+            if instr:
+                if c == '\\': j += 2; continue
+                if c == instr: instr = None
+            elif c in "'\"": instr = c
+            elif c == ';': break
+            j += 1
+        expr = body[i:j]
+        t = re.match(r"\$maKho !== null \? (.*) : ''\s*$", expr, re.S)
+        if t: expr = t.group(1)
+        cands.append(eval_expr(expr, cst, {}))
+    cands = [c for c in cands if c.strip()]
+    if not cands: raise KeyError(f"{method}: không thấy phép gán $%s có giá trị" % var)
+    return max(cands, key=len)

@@ -11,7 +11,7 @@ use App\Models\TiepNhan;
         <dt>Số chứng từ</dt><dd><?= e($ct['soChungTu']) ?> <span class="muted">(<?= e($loaiLabel) ?>)</span></dd>
         <dt>Nhà cung cấp / Xưởng giao</dt><dd><?= e($ct['nguonGiao']) ?></dd>
         <dt>Ngày nhận</dt><dd><?= e(date('d/m/Y')) ?></dd>
-        <dt>Giờ nhận</dt><dd><?= e(date('H:i')) ?> <span class="muted">(theo giờ hệ thống khi xác nhận)</span></dd>
+        <dt>Giờ nhận</dt><dd><?= e(date('H:i')) ?></dd>
         <dt>Người tiếp nhận</dt><dd><?= e($nguoiNhan) ?></dd>
         <dt>Vị trí lưu trữ tạm</dt><dd><?= e($viTriNhan) ?></dd>
         <dt>Ghi chú</dt><dd><?= e($values['ghi_chu'] !== '' ? $values['ghi_chu'] : '—') ?></dd>

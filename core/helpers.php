@@ -71,7 +71,11 @@ function route(string $path = '', array $query = []): string
 /** URL của tệp tĩnh trong public/assets. */
 function asset(string $path): string
 {
-    return base_url() . '/assets/' . ltrim($path, '/');
+    $path = ltrim($path, '/');
+    // Gắn phiên bản theo thời gian sửa file để trình duyệt tải lại CSS/JS mới, không dùng bản cũ trong bộ nhớ đệm
+    $file = ROOT_PATH . '/public/assets/' . $path;
+    $v = is_file($file) ? '?v=' . filemtime($file) : '';
+    return base_url() . '/assets/' . $path . $v;
 }
 
 function redirect(string $path): void

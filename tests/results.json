@@ -196,5 +196,59 @@
   "Liên thông: hàng vừa thêm xuất hiện ngay trong tra cứu với tồn = 0",
   "ĐẠT",
   "Hàng vừa thêm (HH05000019) tra cứu được ngay, tồn 0"
+ ],
+ [
+  "PHÂN QUYỀN KHO · UC05",
+  "Quản lý/Nhân viên mỗi kho chỉ thấy lô hàng thuộc kho mình (tồn ở vị trí của kho hoặc đang ở vị trí tiếp nhận tạm của kho)",
+  "ĐẠT",
+  "Số lô thấy được theo kho: K01:47, K02:21, K03:32, K04:6, K05:19, K06:0; 0 lô chưa gắn kho nào chỉ quản trị viên thấy; không kho nào thấy lô của kho khác"
+ ],
+ [
+  "PHÂN QUYỀN KHO · UC05",
+  "Cách ly dữ liệu giữa các kho (mọi cặp)",
+  "ĐẠT",
+  "Lô chỉ thuộc kho A không xuất hiện trong kho B (mọi cặp kho)"
+ ],
+ [
+  "PHÂN QUYỀN KHO · UC05",
+  "Mở chi tiết lô của kho khác bị từ chối (không lộ dữ liệu); chi tiết chỉ liệt kê vị trí thuộc kho mình",
+  "ĐẠT",
+  "125 lượt mở chi tiết trong kho mình đều chỉ hiện vị trí của kho mình; mở lô của kho khác → \"Không tìm thấy lô hàng\""
+ ],
+ [
+  "PHÂN QUYỀN KHO · UC05",
+  "Lô nằm ở nhiều kho: mỗi kho chỉ thấy phần tồn của kho mình, tổng các phần = tổng toàn hệ thống",
+  "ĐẠT",
+  "Lô LO2611010001 nằm ở 2 kho: mỗi kho chỉ thấy phần tồn của mình [('K010001', 9700.0), ('K050001', 2010.0)] (tổng 11710.0)"
+ ],
+ [
+  "PHÂN QUYỀN KHO · UC05",
+  "Bộ lọc vị trí lưu trữ chỉ có vị trí thuộc kho mình; không lách được bằng tham số",
+  "ĐẠT",
+  "Ô chọn vị trí chỉ gồm vị trí của kho mình; ép lọc theo vị trí kho khác cũng không ra dữ liệu"
+ ],
+ [
+  "PHÂN QUYỀN KHO · UC04",
+  "Số lượng tồn hàng hóa tính theo kho của người dùng; quản trị viên thấy tổng",
+  "ĐẠT",
+  "Mỗi kho thấy số lượng tồn CỦA KHO MÌNH (danh sách = chi tiết = tổng TonKho tại kho); quản trị viên thấy tổng mọi kho"
+ ],
+ [
+  "PHÂN QUYỀN KHO · UC04",
+  "Lần nhập/xuất gần nhất chỉ tính giao dịch tại kho của mình",
+  "ĐẠT",
+  "Thời gian nhập/xuất gần nhất cũng chỉ tính các giao dịch tại kho của người dùng"
+ ],
+ [
+  "PHÂN QUYỀN KHO · UC06",
+  "Tiếp nhận chỉ vào vị trí tạm của kho mình; không lách được bằng cách gửi mã vị trí kho khác",
+  "ĐẠT",
+  "Vị trí tạm chỉ của kho mình; ép dùng vị trí kho khác (hoặc chưa gán kho) bị từ chối ở tầng model; đúng kho thì nhận được"
+ ],
+ [
+  "PHÂN QUYỀN KHO",
+  "Tài khoản bị giới hạn nhưng chưa gán kho → không thấy dữ liệu kho nào",
+  "ĐẠT",
+  "Quản lý/Nhân viên kho chưa được gán kho (maKho rỗng): không thấy lô, vị trí, tồn nào (an toàn mặc định)"
  ]
 ]

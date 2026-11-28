@@ -18,7 +18,7 @@ $lineErr = $errors['line'] ?? [];
             <?php if (!empty($ct['nguoiGiao'])): ?><dt>Người giao</dt><dd><?= e($ct['nguoiGiao']) ?></dd><?php endif; ?>
             <?php if (!empty($ct['soBienSoXe'])): ?><dt>Biển số xe</dt><dd><?= e($ct['soBienSoXe']) ?></dd><?php endif; ?>
             <dt>Ngày nhận</dt><dd><?= e(date('d/m/Y')) ?></dd>
-            <dt>Giờ nhận</dt><dd><?= e(date('H:i')) ?> <span class="muted">(ghi nhận theo giờ hệ thống khi xác nhận)</span></dd>
+            <dt>Giờ nhận</dt><dd><?= e(date('H:i')) ?></dd>
             <dt>Người tiếp nhận</dt><dd><?= e($nguoiNhan) ?></dd>
             <dt>Mã phiếu tiếp nhận</dt><dd class="muted">Tự động tạo khi xác nhận</dd>
         </dl>
@@ -44,7 +44,7 @@ $lineErr = $errors['line'] ?? [];
                         <td><?= e($l['soLoNCC'] ?: '—') ?></td>
                         <td class="num"><?= e(fmt_number($l['soLuongGiao'], 3)) ?> <?= e($l['donViTinh']) ?></td>
                         <td class="num"><?= e(fmt_number($l['conLai'], 3)) ?> <?= e($l['donViTinh']) ?></td>
-                        <td><input type="text" inputmode="decimal" name="lines[<?= (int)$id ?>][sl]" value="<?= e($row['sl']) ?>" aria-label="Số lượng thực nhận"></td>
+                        <td><input type="text" inputmode="decimal" name="lines[<?= (int)$id ?>][sl]" placeholder="Nhập số lượng" value="<?= e($row['sl']) ?>" aria-label="Số lượng thực nhận"></td>
                         <td><input type="date" name="lines[<?= (int)$id ?>][nsx]" value="<?= e($row['nsx']) ?>" aria-label="Ngày sản xuất"></td>
                         <td><input type="date" name="lines[<?= (int)$id ?>][hsd]" value="<?= e($row['hsd']) ?>" aria-label="Hạn sử dụng"></td>
                     </tr>
@@ -73,7 +73,7 @@ $lineErr = $errors['line'] ?? [];
             </div>
             <div class="field full<?= isset($errors['ghi_chu']) ? ' invalid' : '' ?>">
                 <label for="tn_ghi_chu">Ghi chú</label>
-                <textarea id="tn_ghi_chu" name="ghi_chu" rows="2" maxlength="255"><?= e($values['ghi_chu']) ?></textarea>
+                <textarea id="tn_ghi_chu" name="ghi_chu" rows="2" maxlength="255" placeholder="Nhập ghi chú (nếu có)..."><?= e($values['ghi_chu']) ?></textarea>
                 <?php if (isset($errors['ghi_chu'])): ?><span class="err-msg"><?= e($errors['ghi_chu']) ?></span><?php endif; ?>
             </div>
         </div>

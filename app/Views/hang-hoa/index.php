@@ -2,7 +2,7 @@
 /**
  * hang-hoa/index — Quản lý hàng hóa: tra cứu (UC04) + thao tác thêm/sửa/ngừng sử dụng (UC01-03) ngay trong trang.
  * Biến từ HangHoaController::renderIndex(): $filters, $rows, $total, $page, $perPage, $error, $hasFilter, $modal,
- * $closeUrl, $listQuery, $loaiOptions, $donViOptions, $statusOptions. CSS: assets/css/pages/products.css
+ * $closeUrl, $listQuery, $loaiOptions, $nhomCoDinh, $donViOptions, $statusOptions. CSS: assets/css/pages/products.css
  */
 use App\Models\HangHoa;
 
@@ -12,7 +12,10 @@ if ($error) {
 
 render_search_form([
     'q'         => ['label' => 'Mã hàng hoặc tên hàng', 'type' => 'text', 'placeholder' => 'Nhập mã hàng hoặc tên hàng...'],
-    'loai'      => ['label' => 'Nhóm hàng', 'type' => 'select', 'options' => $loaiOptions],
+    // Người dùng thuộc một nghiệp vụ kho: chỉ hiện tên nhóm hàng của kho đó, không cho chọn
+    'loai'      => $nhomCoDinh !== null
+        ? ['label' => 'Nhóm hàng', 'type' => 'readonly', 'value' => $nhomCoDinh]
+        : ['label' => 'Nhóm hàng', 'type' => 'select', 'options' => $loaiOptions],
     'trangThai' => ['label' => 'Trạng thái', 'type' => 'select', 'options' => $statusOptions],
 ], $filters, route('hang-hoa'));
 

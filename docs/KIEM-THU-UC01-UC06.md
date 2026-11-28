@@ -8,7 +8,7 @@
 - Chạy lại: `python3 tests/tests.py`.
 - **Giới hạn:** SQLite ≠ MySQL (so sánh chuỗi không phân biệt dấu/hoa-thường của MySQL, khóa dòng `FOR UPDATE`, đồng thời nhiều người dùng đều không kiểm thử được); các hàm PHP thuần (ghi chú ngừng sử dụng, regex tiêu chí) được mô phỏng bằng Python tương đương.
 
-## 2. Kết quả tự động: 33/33 đạt
+## 2. Kết quả tự động: 42/42 đạt
 
 | # | UC | Tình huống | Kết quả | Ghi chú |
 |---|---|---|---|---|
@@ -45,13 +45,42 @@
 | 31 | UC06 | Đánh số phiếu/lô theo ngày, liên tiếp, mỗi dòng một lô | ĐẠT | PTN2611240001,PTN2611240002; lô ['LO2611240001', 'LO2611240002', 'LO2611240003'] — đánh số theo ngày, tăng liên tiếp, một lô cho mỗi dòng |
 | 32 | UC05+UC06 | Liên thông: lô vừa tiếp nhận tra cứu được ở UC05 với thông tin đúng | ĐẠT | Lô LO2611240001 vừa tạo tra cứu được ở UC05: "Còn hạn", tồn 0 (chưa nhập kho), nhà cung cấp "Công ty TNHH Alltech Việt Nam", chất lượng "Chờ kiểm tra" |
 | 33 | UC01+UC04 | Liên thông: hàng vừa thêm xuất hiện ngay trong tra cứu với tồn = 0 | ĐẠT | Hàng vừa thêm (HH05000019) tra cứu được ngay, tồn 0 |
+| 34 | PHÂN QUYỀN KHO · UC05 | Quản lý/Nhân viên mỗi kho chỉ thấy lô hàng thuộc kho mình (tồn ở vị trí của kho hoặc đang ở vị trí tiếp nhận tạm của kho) | ĐẠT | Số lô thấy được theo kho: K01:47, K02:21, K03:32, K04:6, K05:19, K06:0; 0 lô chưa gắn kho nào chỉ quản trị viên thấy; không kho nào thấy lô của kho khác |
+| 35 | PHÂN QUYỀN KHO · UC05 | Cách ly dữ liệu giữa các kho (mọi cặp) | ĐẠT | Lô chỉ thuộc kho A không xuất hiện trong kho B (mọi cặp kho) |
+| 36 | PHÂN QUYỀN KHO · UC05 | Mở chi tiết lô của kho khác bị từ chối (không lộ dữ liệu); chi tiết chỉ liệt kê vị trí thuộc kho mình | ĐẠT | 125 lượt mở chi tiết trong kho mình đều chỉ hiện vị trí của kho mình; mở lô của kho khác → "Không tìm thấy lô hàng" |
+| 37 | PHÂN QUYỀN KHO · UC05 | Lô nằm ở nhiều kho: mỗi kho chỉ thấy phần tồn của kho mình, tổng các phần = tổng toàn hệ thống | ĐẠT | Lô LO2611010001 nằm ở 2 kho: mỗi kho chỉ thấy phần tồn của mình [('K010001', 9700.0), ('K050001', 2010.0)] (tổng 11710.0) |
+| 38 | PHÂN QUYỀN KHO · UC05 | Bộ lọc vị trí lưu trữ chỉ có vị trí thuộc kho mình; không lách được bằng tham số | ĐẠT | Ô chọn vị trí chỉ gồm vị trí của kho mình; ép lọc theo vị trí kho khác cũng không ra dữ liệu |
+| 39 | PHÂN QUYỀN KHO · UC04 | Số lượng tồn hàng hóa tính theo kho của người dùng; quản trị viên thấy tổng | ĐẠT | Mỗi kho thấy số lượng tồn CỦA KHO MÌNH (danh sách = chi tiết = tổng TonKho tại kho); quản trị viên thấy tổng mọi kho |
+| 40 | PHÂN QUYỀN KHO · UC04 | Lần nhập/xuất gần nhất chỉ tính giao dịch tại kho của mình | ĐẠT | Thời gian nhập/xuất gần nhất cũng chỉ tính các giao dịch tại kho của người dùng |
+| 41 | PHÂN QUYỀN KHO · UC06 | Tiếp nhận chỉ vào vị trí tạm của kho mình; không lách được bằng cách gửi mã vị trí kho khác | ĐẠT | Vị trí tạm chỉ của kho mình; ép dùng vị trí kho khác (hoặc chưa gán kho) bị từ chối ở tầng model; đúng kho thì nhận được |
+| 42 | PHÂN QUYỀN KHO | Tài khoản bị giới hạn nhưng chưa gán kho → không thấy dữ liệu kho nào | ĐẠT | Quản lý/Nhân viên kho chưa được gán kho (maKho rỗng): không thấy lô, vị trí, tồn nào (an toàn mặc định) |
+
+**Kiểm thử đột biến** (cố ý làm hỏng điều kiện lọc kho trong bản sao của code, bộ kiểm thử phải báo lỗi): 4/4 đột biến bị phát hiện — đảo điều kiện kho của lô hàng, bỏ lọc kho khi tính tồn hàng hóa, bỏ kiểm tra kho của vị trí tạm khi lưu, chi tiết lô không lọc vị trí theo kho. Lần đầu có 3/4 đột biến lọt qua vì test tự viết lại điều kiện thay vì lấy từ code PHP; đã sửa để test lấy nguyên đoạn điều kiện từ file PHP.
 
 ### Lỗi đã phát hiện và sửa nhờ kiểm thử
 
 1. **Seed**: bảng `PhieuDieuChinhTonKho` ghi nhãn `Giam`/`Tang` (17 dòng) vi phạm `CHECK` → import seed thất bại. Đã sửa thành `Giảm`/`Tăng`. (Trước đó cũng đã sửa nhãn ở `LichSuBienDongTonKho`, `ChenhLechKiemKe`.) Sau sửa, toàn bộ seed nạp được với CHECK + khóa ngoại bật.
 2. **UC06 danh sách**: liệt kê phiếu giao 'Đang tiếp nhận' nhưng mọi dòng đã nhận đủ (PG2610250001) và phiếu xưởng không có dòng hàng → bấm "Tiếp nhận" báo lỗi. Đã sửa: chỉ liệt kê chứng từ còn dòng cần tiếp nhận.
 3. **UC03 ghi chú ngừng sử dụng**: biểu thức tách ngày/lý do bị hỏng vì giờ có dấu `:` → chi tiết không hiện lý do, sửa hàng đã ngừng làm mất ghi chú. Đã sửa `HangHoa::stopNote()`.
-4. **Đối chiếu đặc tả**: bỏ hai quy tắc do mình tự thêm (chặn trùng tên hàng; khóa đổi nhóm hàng); mô tả bắt buộc khi thêm (UC01 luồng 5.1); hiển thị thời gian nhập/xuất khi sửa (UC02 bước 4); hiển thị Ngày/Giờ nhận (UC06 bước 4).
+4. **Kiểm thử đột biến**: test phân quyền kho ban đầu chưa bắt được lỗi trong code PHP (xem mục 2) → đã viết lại cách trích điều kiện từ PHP.
+5. **Đối chiếu đặc tả**: bỏ hai quy tắc do mình tự thêm (chặn trùng tên hàng; khóa đổi nhóm hàng); mô tả bắt buộc khi thêm (UC01 luồng 5.1); hiển thị thời gian nhập/xuất khi sửa (UC02 bước 4); hiển thị Ngày/Giờ nhận (UC06 bước 4).
+
+## 2b. Thay đổi theo yêu cầu bổ sung
+
+**(1) Thời gian không thể thay đổi.** UC03: "Ngày ngừng sử dụng" không còn là ô nhập; hệ thống ghi nhận thời điểm xác nhận (bỏ qua mọi giá trị gửi lên, nên không sửa được kể cả bằng cách can thiệp request). UC06: Ngày nhận/Giờ nhận hiển thị chỉ đọc, ghi theo giờ máy chủ. *Chưa khóa* ngày sản xuất/hạn sử dụng của lô (xem Q15).
+
+**(2) Chữ mờ gợi ý (placeholder)** đã thêm ở: tên hàng, quy cách, hạn sử dụng tiêu chuẩn, điều kiện bảo quản, mô tả, lý do ngừng sử dụng, số lượng thực nhận, ghi chú tiếp nhận (các ô tìm kiếm đã có từ trước).
+
+**(3) Phân quyền dữ liệu theo kho (đơn vị).** Quản lý kho và Nhân viên kho chỉ thao tác trong kho của mình (`NhanVien.maKho`); Quản trị viên, Ban giám đốc, QC không giới hạn theo kho. Kho của dữ liệu được xác định qua vị trí lưu trữ (`ViTriLuuTru → KhuVuc → Kho`). Lớp `app/Models/PhamViKho.php` cung cấp phạm vi; các Model nhận tham số kho nên **lọc nằm ở truy vấn CSDL**, không chỉ ẩn trên giao diện.
+
+| Dữ liệu | Quy tắc | Căn cứ |
+|---|---|---|
+| Lô hàng (UC05) | Thấy lô có tồn ở vị trí của kho mình, hoặc đang ở vị trí tiếp nhận tạm của kho mình. Số lượng tồn/vị trí chỉ tính phần thuộc kho mình. Mở chi tiết lô của kho khác → "Không tìm thấy lô hàng". Ô lọc vị trí chỉ có vị trí của kho mình | `TonKho.maViTri`, `PhieuTiepNhan.maViTriTam` |
+| Số lượng tồn hàng hóa (UC04) | Tồn và lần nhập/xuất gần nhất chỉ tính tại kho mình | `TonKho`, `LichSuBienDongTonKho.maViTri` |
+| Tiếp nhận (UC06) | Chỉ chọn/ghi nhận vào vị trí tạm của kho mình (kiểm tra cả ở tầng form và tầng model) | `KhuVuc.maKho` |
+| Tài khoản bị giới hạn nhưng chưa gán kho | Không thấy dữ liệu kho nào (từ chối mặc định) | — |
+
+**Chưa giới hạn theo kho** (CSDL không có cột kho, cần bạn quyết định — Q13, Q14): danh mục hàng hóa (mọi kho cùng thấy; Quản lý kho thêm/sửa/ngừng được hàng hóa mọi nhóm) và chứng từ giao hàng chờ tiếp nhận.
 
 ## 3. Kiểm thử thủ công còn phải thực hiện trên PHP + MySQL thật
 
@@ -77,6 +106,12 @@ Chuẩn bị: import `schema.sql`, `seed_data.sql`, `thong-bao.sql`; đăng nh�
 | M16 | Phân quyền: `qc01` mở `/hang-hoa`, `/tiep-nhan`; `kho01_nv01` thử POST `hang-hoa/store`; `giamdoc` mở `/lo-hang`; gửi POST thiếu CSRF | 403 cho các trường hợp không có quyền; POST thiếu CSRF bị từ chối; nút không có quyền không hiển thị |
 | M17 | Nhân viên kho kho K01 | Chỉ thấy vị trí tạm của kho mình |
 | M18 | Giao diện: cửa sổ trên màn hình hẹp (điện thoại), phím Esc/click nền, tải lại trang khi đang mở cửa sổ | Hiển thị đúng; đóng về danh sách giữ nguyên bộ lọc |
+| M19 | Đăng nhập `qlkho01` (Kho nguyên liệu) rồi `qlkho02` (Kho thành phẩm): mở **Lô hàng** và **Quản lý hàng hóa** | Mỗi người chỉ thấy lô của kho mình; cột "Số lượng tồn" của hàng hóa khác nhau giữa hai kho; admin thấy tổng |
+| M20 | `qlkho01`: mở trực tiếp `lo-hang?mode=view&id=<mã lô của kho khác>`; thử `lo-hang?viTri=<vị trí kho khác>` | "Không tìm thấy lô hàng"; bộ lọc báo vị trí không hợp lệ, không lộ dữ liệu |
+| M21 | `kho01_nv01` tiếp nhận: danh sách vị trí tạm; thử sửa HTML/gửi `vi_tri` của kho khác | Chỉ thấy vị trí kho 1; gửi vị trí kho khác bị từ chối |
+| M22 | `kho06_nv01` (Kho hàng lỗi, không có vị trí tiếp nhận tạm) mở tiếp nhận | Danh sách vị trí trống + thông báo; không tiếp nhận được |
+| M23 | Ngừng sử dụng hàng: kiểm tra ô "Ngày ngừng sử dụng"; sửa request thêm `ngayNgung=2020-01-01` | Ô bị khóa; thời gian ghi nhận là giờ hệ thống |
+| M24 | Xem placeholder các form; đổi cỡ chữ/độ tương phản | Chữ mờ hiện khi ô trống, biến mất khi nhập; không nhầm với giá trị đã nhập |
 
 ## 4. Điểm cần người dùng xác nhận (đặc tả chưa rõ hoặc mâu thuẫn với CSDL)
 
@@ -96,6 +131,10 @@ Hiện code đang áp dụng phương án ghi trong cột "Đang làm"; chưa co
 | Q10 | UC06: **vị trí tạm "Đang sử dụng"** — CSDL không có giá trị này (có: Đang để trống/Đang chứa hàng/Đã lấp đầy/Đang bảo trì/Đã khóa) | Khu "Tiếp nhận tạm" thuộc kho nhân viên, loại ô bảo trì/khóa/lấp đầy | Đúng ý chưa? Có kiểm tra sức chứa không? |
 | Q11 | UC02: **Mô tả** có bắt buộc khi sửa không (UC01 liệt mô tả vào trường phải nhập) | Bắt buộc khi thêm, tùy chọn khi sửa | Chốt giúp |
 | Q12 | Vai trò: UC05 ghi "Quản lý kho" ở bảng luồng nhưng Actor chính là Nhân viên kho | Cả hai vai trò được tra cứu hàng hóa/lô hàng; Ban giám đốc, QC không | Đúng ý chưa? |
+| Q13 | **Danh mục hàng hóa** không có cột kho. Hiện mọi kho cùng thấy danh mục; Quản lý kho thêm/sửa/ngừng được hàng hóa mọi nhóm. Seed: tồn kho khớp loại kho (Kho nguyên liệu chỉ chứa nguyên liệu…) nhưng khu tiếp nhận tạm kho phụ gia vẫn nhận cả nguyên liệu và bao bì | Không giới hạn quyền ghi trên danh mục | Có giới hạn theo nhóm hàng ↔ loại kho không? Kho "Tổng hợp"/"Hàng lỗi" xử lý thế nào? |
+| Q14 | **Chứng từ giao hàng** chờ tiếp nhận không có cột kho | Mọi kho thấy mọi chứng từ; hàng nhận vào kho nào thì lô thuộc kho đó | Có chỉ định kho nhận cho từng chứng từ không? Có cho hai kho cùng nhận một chứng từ không? |
+| Q15 | "Thời gian không thể thay đổi": đã áp dụng cho Ngày ngừng sử dụng (UC03) và Ngày/Giờ nhận (UC06). Ngày sản xuất/hạn sử dụng của lô vẫn sửa được | Giữ nhập được (CSDL bắt buộc có) | Có khóa khi chứng từ đã ghi sẵn không? Còn trường thời gian nào khác cần khóa? |
+| Q16 | Kho K05 "Tổng hợp", K06 "Hàng lỗi": K06 không có vị trí tiếp nhận tạm; 8 lô chưa gắn kho nào (không tồn, không qua phiếu tiếp nhận) chỉ quản trị viên thấy | Như mô tả | Đúng ý chưa? |
 
 ## 5. Vấn đề còn tồn tại
 
@@ -109,9 +148,9 @@ Hiện code đang áp dụng phương án ghi trong cột "Đang làm"; chưa co
 
 | UC | Kỹ thuật (dữ liệu/SQL) | Giao diện/PHP | Nghiệp vụ |
 |---|---|---|---|
-| UC01 | Đạt | Chưa chạy thật | Chờ Q1, Q2, Q11 |
-| UC02 | Đạt | Chưa chạy thật | Chờ Q2, Q3, Q11 |
-| UC03 | Đạt | Chưa chạy thật | Chờ Q4 |
+| UC01 | Đạt | Chưa chạy thật | Chờ Q1, Q2, Q11, Q13 |
+| UC02 | Đạt | Chưa chạy thật | Chờ Q2, Q3, Q11, Q13 |
+| UC03 | Đạt | Chưa chạy thật | Chờ Q4, Q13 |
 | UC04 | Đạt | Chưa chạy thật | Chờ Q1, Q2, Q12 |
-| UC05 | Đạt | Chưa chạy thật | Chờ Q5, Q12 |
-| UC06 | Đạt | Chưa chạy thật | Chờ Q6–Q10 |
+| UC05 | Đạt | Chưa chạy thật | Chờ Q5, Q12, Q16 |
+| UC06 | Đạt | Chưa chạy thật | Chờ Q6–Q10, Q14, Q15 |

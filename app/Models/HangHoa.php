@@ -57,6 +57,15 @@ class HangHoa extends Model
             $w[] = 'h.trangThai = ?';
             $p[] = $f['trangThai'];
         }
+        // Nhóm hàng theo nghiệp vụ kho (PhamViKho::nhomHang()); null = không giới hạn
+        if (isset($f['nhom']) && is_array($f['nhom'])) {
+            if (!$f['nhom']) {
+                $w[] = '1 = 0';
+            } else {
+                $w[] = 'h.loaiHangHoa IN (' . implode(', ', array_fill(0, count($f['nhom']), '?')) . ')';
+                array_push($p, ...array_values($f['nhom']));
+            }
+        }
         return [implode(' AND ', $w), $p];
     }
 
@@ -67,43 +76,67 @@ class HangHoa extends Model
         return (int)($r['c'] ?? 0);
     }
 
-    /** Danh sách hàng hóa kèm số lượng tồn (kg) cộng từ TonKho của mọi lô. */
-    public static function search(array $f, int $limit, int $offset): array
+    /**
+     * Danh sách hàng hóa kèm số lượng tồn (kg) cộng từ TonKho của các lô.
+     * $maKho: chỉ tính tồn tại kho này (Quản lý/Nhân viên kho); null = mọi kho.
+     */
+    public static function search(array $f, int $limit, int $offset, ?string $maKho = null): array
     {
         [$where, $p] = self::where($f);
-        $p[] = $limit;
-        $p[] = $offset;
+        $tonScope = '';
+        $pTon = [];
+        if ($maKho !== null) {
+            $tonScope = ' AND kv.maKho = ?';
+            $pTon[] = $maKho;
+        }
+        $params = array_merge($pTon, $p, [$limit, $offset]);
         return static::all(
             "SELECT h.*, COALESCE(t.ton, 0) AS soLuongTon
              FROM HangHoa h
              LEFT JOIN (SELECT l.maHangHoa, SUM(tk.soLuongTon) AS ton
-                        FROM LoHang l JOIN TonKho tk ON tk.maLoHang = l.maLoHang
+                        FROM LoHang l
+                        JOIN TonKho tk ON tk.maLoHang = l.maLoHang
+                        JOIN ViTriLuuTru vt ON vt.maViTri = tk.maViTri
+                        JOIN KhuVuc kv ON kv.maKhuVuc = vt.maKhuVuc
+                        WHERE 1 = 1$tonScope
                         GROUP BY l.maHangHoa) t ON t.maHangHoa = h.maHangHoa
              WHERE $where
              ORDER BY h.maHangHoa
              LIMIT ? OFFSET ?",
-            $p
+            $params
         );
     }
 
-    /** Một hàng hóa kèm số lượng tồn, lần nhập và lần xuất gần nhất; null nếu không có. */
-    public static function find(string $ma): ?array
+    /**
+     * Một hàng hóa kèm số lượng tồn, lần nhập và lần xuất gần nhất; null nếu không có.
+     * $maKho: chỉ tính tồn/lịch sử tại kho này; null = mọi kho.
+     */
+    public static function find(string $ma, ?string $maKho = null): ?array
     {
         $row = static::one('SELECT * FROM HangHoa WHERE maHangHoa = ?', [$ma]);
         if (!$row) {
             return null;
         }
+        $scope = $maKho !== null ? ' AND kv.maKho = ?' : '';
+        $pScope = $maKho !== null ? [$ma, $maKho] : [$ma];
         $ton = static::one(
-            'SELECT COALESCE(SUM(tk.soLuongTon), 0) AS ton
-             FROM LoHang l JOIN TonKho tk ON tk.maLoHang = l.maLoHang WHERE l.maHangHoa = ?',
-            [$ma]
+            "SELECT COALESCE(SUM(tk.soLuongTon), 0) AS ton
+             FROM LoHang l
+             JOIN TonKho tk ON tk.maLoHang = l.maLoHang
+             JOIN ViTriLuuTru vt ON vt.maViTri = tk.maViTri
+             JOIN KhuVuc kv ON kv.maKhuVuc = vt.maKhuVuc
+             WHERE l.maHangHoa = ?$scope",
+            $pScope
         );
         $mov = static::one(
             "SELECT MAX(CASE WHEN b.loaiGiaoDich = 'Nhập kho' THEN b.thoiGianPhatSinh END) AS lanNhapCuoi,
                     MAX(CASE WHEN b.loaiGiaoDich = 'Xuất kho' THEN b.thoiGianPhatSinh END) AS lanXuatCuoi
-             FROM LichSuBienDongTonKho b JOIN LoHang l ON l.maLoHang = b.maLoHang
-             WHERE l.maHangHoa = ?",
-            [$ma]
+             FROM LichSuBienDongTonKho b
+             JOIN LoHang l ON l.maLoHang = b.maLoHang
+             LEFT JOIN ViTriLuuTru vt ON vt.maViTri = b.maViTri
+             LEFT JOIN KhuVuc kv ON kv.maKhuVuc = vt.maKhuVuc
+             WHERE l.maHangHoa = ?$scope",
+            $pScope
         );
         $row['soLuongTon'] = (float)($ton['ton'] ?? 0);
         $row['lanNhapCuoi'] = $mov['lanNhapCuoi'] ?? null;
