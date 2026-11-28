@@ -46,10 +46,20 @@ $router->get('thong-bao/poll',     [ThongBaoController::class, 'poll'],    'thon
 $router->post('thong-bao/read-all', [ThongBaoController::class, 'readAll'], 'thong-bao', 'view');
 
 // ---- bao-cao ----
-$router->get('bao-cao', [BaoCaoController::class, 'index'], 'bao-cao', 'view');
+$router->get('bao-cao', [BaoCaoController::class, 'landing'], 'bao-cao', 'view');
+$router->post('bao-cao/send', [BaoCaoController::class, 'send'], 'bao-cao', 'send');
+$router->get('bao-cao/history', [BaoCaoController::class, 'history'], 'bao-cao', 'history');
+$router->get('bao-cao/detail', [BaoCaoController::class, 'detail'], 'bao-cao', 'history');
+$router->post('bao-cao/read', [BaoCaoController::class, 'markRead'], 'bao-cao', 'read');
+$router->post('bao-cao/delete', [BaoCaoController::class, 'delete'], 'bao-cao', 'delete');
 
 // ---- chat-luong ----
 $router->get('chat-luong', [ChatLuongController::class, 'index'], 'chat-luong', 'view');
+$router->get('chat-luong/record-result', [ChatLuongController::class, 'recordResult'], 'chat-luong', 'record');
+$router->post('chat-luong/record-result', [ChatLuongController::class, 'storeResult'], 'chat-luong', 'record');
+$router->post('chat-luong/delete-result', [ChatLuongController::class, 'deleteResult'], 'chat-luong', 'record');
+$router->get('chat-luong/confirm-result', [ChatLuongController::class, 'confirmResult'], 'chat-luong', 'confirm');
+$router->post('chat-luong/confirm-result', [ChatLuongController::class, 'storeConfirmResult'], 'chat-luong', 'confirm');
 
 // ---- dieu-chuyen ----
 $router->get('dieu-chuyen', [DieuChuyenController::class, 'index'], 'dieu-chuyen', 'view');
@@ -72,6 +82,8 @@ $router->get('lo-hang', [LoHangController::class, 'index'], 'lo-hang', 'view');
 // ---- nhap-kho ----
 $router->get('nhap-kho', [NhapKhoController::class, 'index'], 'nhap-kho', 'view');
 $router->get('nhap-kho/history', [NhapKhoController::class, 'history'], 'nhap-kho', 'history');
+$router->get('nhap-kho/create', [NhapKhoController::class, 'create'], 'nhap-kho', 'create');
+$router->post('nhap-kho/create', [NhapKhoController::class, 'store'], 'nhap-kho', 'create');
 
 // ---- tai-khoan ----
 $router->get('tai-khoan', [TaiKhoanController::class, 'index'], 'tai-khoan', 'view');
@@ -123,16 +135,15 @@ $router->get('xuat-kho/yeu-cau', [XuatKhoController::class, 'requests'], 'xuat-k
 // ------------------------------------------------------------------
 // CHỜ TRIỂN KHAI - KIỂM TRA CHẤT LƯỢNG  (trang chính: chat-luong)
 // ------------------------------------------------------------------
-// TODO UC08 — Ghi nhận kết quả kiểm tra chất lượng  [quyền: chat-luong/record]
-// $router->get('chat-luong/record-result', [ChatLuongController::class, 'recordResult'], 'chat-luong', 'record');
-// TODO UC09 — Xác nhận kết quả kiểm tra chất lượng  [quyền: chat-luong/confirm]
-// $router->get('chat-luong/confirm-result', [ChatLuongController::class, 'confirmResult'], 'chat-luong', 'confirm');
+
+// UC08 — Đã triển khai GET và POST ở phần chat-luong.
+
+// UC09 — Đã triển khai GET và POST ở phần chat-luong.
 
 // ------------------------------------------------------------------
 // CHỜ TRIỂN KHAI - NHẬP KHO  (trang chính: nhap-kho)
 // ------------------------------------------------------------------
-// TODO UC10 — Lập phiếu nhập kho  [quyền: nhap-kho/create]
-// $router->get('nhap-kho/create', [NhapKhoController::class, 'create'], 'nhap-kho', 'create');
+// UC10 - Da trien khai GET va POST o phan nhap-kho.
 
 // ------------------------------------------------------------------
 // CHỜ TRIỂN KHAI - ĐIỀU CHUYỂN NỘI BỘ  (trang chính: dieu-chuyen)

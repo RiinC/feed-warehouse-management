@@ -13,8 +13,18 @@ return [
     'hang-hoa' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'create' => [ROLE_MANAGER], 'edit' => [ROLE_MANAGER], 'stop' => [ROLE_MANAGER]],
     'lo-hang' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE]],
     'tiep-nhan' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'create' => [ROLE_WAREHOUSE]],
-    'chat-luong' => ['view' => [ROLE_MANAGER, ROLE_INVENTORY], 'record' => [ROLE_INVENTORY], 'confirm' => [ROLE_MANAGER, ROLE_INVENTORY]],
-    'nhap-kho' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'create' => [ROLE_WAREHOUSE, ROLE_INVENTORY], 'history' => [ROLE_MANAGER, ROLE_INVENTORY]],
+    // UC07, UC08, UC09 - Kiểm tra chất lượng
+    'chat-luong' => [
+        'view' => [ROLE_MANAGER, ROLE_INVENTORY],
+        'record' => [ROLE_INVENTORY],
+        'confirm' => [ROLE_MANAGER]
+    ],
+    // UC10, UC11 - Nhập kho
+    'nhap-kho' => [
+        'view' => [ROLE_MANAGER, ROLE_WAREHOUSE],
+        'create' => [ROLE_WAREHOUSE, ROLE_INVENTORY],
+        'history' => [ROLE_MANAGER]
+    ],
     'vi-tri-luu-tru' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'create' => [ROLE_MANAGER], 'edit' => [ROLE_MANAGER], 'stop' => [ROLE_MANAGER]],
     'gan-lo-hang' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'assign' => [ROLE_WAREHOUSE]],
     'dieu-chuyen' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE], 'create' => [ROLE_WAREHOUSE]],
@@ -22,7 +32,15 @@ return [
     'kiem-ke' => ['view' => [ROLE_MANAGER, ROLE_INVENTORY], 'create' => [ROLE_MANAGER], 'record' => [ROLE_MANAGER, ROLE_INVENTORY], 'reconcile' => [ROLE_MANAGER], 'handle' => [ROLE_MANAGER]],
     'hang-bat-thuong' => ['view' => [ROLE_MANAGER, ROLE_INVENTORY], 'handle' => [ROLE_MANAGER]],
     'ton-kho' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY, ROLE_DIRECTOR]],
-    'bao-cao' => ['view' => [ROLE_MANAGER, ROLE_DIRECTOR]],
-    'thong-bao' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY, ROLE_DIRECTOR]],   // mọi vai trò xem thông báo của mình
-    'tai-khoan' => ['view' => []],   // chỉ Quản trị viên
+    // UC30 - Xem, gửi và tiếp nhận báo cáo tồn kho
+    'bao-cao' => [
+        'view' => [ROLE_MANAGER, ROLE_DIRECTOR],
+        'inventory' => [ROLE_DIRECTOR, ROLE_MANAGER],
+        'send' => [ROLE_MANAGER],
+        'history' => [ROLE_MANAGER, ROLE_DIRECTOR],
+        'read' => [ROLE_DIRECTOR],
+        'delete' => [ROLE_MANAGER]
+    ],
+    'thong-bao' => ['view' => [ROLE_MANAGER, ROLE_WAREHOUSE, ROLE_INVENTORY, ROLE_DIRECTOR]],
+    'tai-khoan' => ['view' => []],
 ];
